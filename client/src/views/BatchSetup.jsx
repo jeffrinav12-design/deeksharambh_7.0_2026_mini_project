@@ -18,8 +18,20 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
     marksEnglish: 15,
     marksMaths: 15,
     marksCore: 55,
-    resultRanges: ['60 & Above', '70-79', '60-69', '50-59', 'Below 50']
+    resultRanges: ['60 & Above', '70-79', '60-69', '50-59', 'Below 50'],
+    circularFile: '',
+    circularFileName: '',
+    brochureFile: '',
+    brochureFileName: ''
   });
+
+  const [activeBatchUpload, setActiveBatchUpload] = useState({
+    circularFile: '',
+    circularFileName: '',
+    brochureFile: '',
+    brochureFileName: ''
+  });
+  const [uploadingActive, setUploadingActive] = useState(false);
 
   const [insights, setInsights] = useState([
     'Motivational Talks',
@@ -75,6 +87,83 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
     }));
   };
 
+  const handleFileUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      showToast('File size exceeds the 10MB limit!', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result.split(',')[1];
+      setFormData(prev => ({
+        ...prev,
+        [`${type}File`]: base64Data,
+        [`${type}FileName`]: file.name
+      }));
+      showToast(`${type === 'circular' ? 'Circular' : 'Brochure'} file loaded successfully!`);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleActiveFileUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      showToast('File size exceeds the 10MB limit!', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result.split(',')[1];
+      setActiveBatchUpload(prev => ({
+        ...prev,
+        [`${type}File`]: base64Data,
+        [`${type}FileName`]: file.name
+      }));
+      showToast(`${type === 'circular' ? 'Circular' : 'Brochure'} file loaded for active batch!`);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleActiveUploadSubmit = async () => {
+    if (!activeBatchUpload.circularFile && !activeBatchUpload.brochureFile) {
+      showToast('Please select at least one file to upload!', 'error');
+      return;
+    }
+    setUploadingActive(true);
+    try {
+      const payload = {};
+      if (activeBatchUpload.circularFile) {
+        payload.circularFile = activeBatchUpload.circularFile;
+        payload.circularFileName = activeBatchUpload.circularFileName;
+      }
+      if (activeBatchUpload.brochureFile) {
+        payload.brochureFile = activeBatchUpload.brochureFile;
+        payload.brochureFileName = activeBatchUpload.brochureFileName;
+      }
+
+      const res = await axios.put(`/api/batches/${activeBatch._id}`, payload);
+      setActiveBatch(res.data);
+      showToast('Active batch circular/brochure updated successfully!');
+      setActiveBatchUpload({
+        circularFile: '',
+        circularFileName: '',
+        brochureFile: '',
+        brochureFileName: ''
+      });
+    } catch (err) {
+      showToast('Failed to update active batch files', 'error');
+    } finally {
+      setUploadingActive(false);
+    }
+  };
+
   const handleAddInsight = () => {
     if (newInsight.trim()) {
       setInsights([...insights, newInsight.trim()]);
@@ -108,7 +197,11 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
           core: Number(formData.marksCore),
           total: totalMarks
         },
-        resultRanges: formData.resultRanges
+        resultRanges: formData.resultRanges,
+        circularFile: formData.circularFile,
+        circularFileName: formData.circularFileName,
+        brochureFile: formData.brochureFile,
+        brochureFileName: formData.brochureFileName
       };
 
       const res = await axios.post('/api/batches', payload);
@@ -333,6 +426,42 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
           </div>
         </div>
 
+        {/* Upload Circular & Brochure Cover */}
+        <div className="glass-card p-6 rounded-xl border border-white/5 space-y-4">
+          <h3 className="text-sm font-bold text-gold uppercase tracking-wider border-b border-white/5 pb-2">Circular & Cover Brochure Upload (Optional)</h3>
+          <p className="text-xs text-gray-400">Upload custom circular and brochure files (PDF or Word) for this batch. If left empty, default templates will be generated.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-300 mb-1.5">Upload Circular File</label>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileUpload(e, 'circular')}
+                  className="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold/10 file:text-gold hover:file:bg-gold/20"
+                />
+                {formData.circularFileName && (
+                  <span className="text-[10px] text-green-400">Selected: {formData.circularFileName}</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-300 mb-1.5">Upload Cover Brochure</label>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileUpload(e, 'brochure')}
+                  className="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold/10 file:text-gold hover:file:bg-gold/20"
+                />
+                {formData.brochureFileName && (
+                  <span className="text-[10px] text-green-400">Selected: {formData.brochureFileName}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -351,22 +480,83 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
 
       {/* Export Options (Active Batch) */}
       {activeBatch && (
-        <div className="glass-card p-6 rounded-xl border border-white/5 space-y-4 mt-6">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-white/5 pb-2">Initialized Batch Documents</h3>
-          <p className="text-xs text-gray-400">Download the auto-generated Word templates for the active batch ({activeBatch.batchYearRange}).</p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => window.open(`/api/batches/${activeBatch._id}/export/circular`, '_blank')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white/5 border border-white/10 hover:border-gold/30 hover:bg-gold/5 text-xs text-gold font-bold transition-all"
-            >
-              <FileText className="w-4 h-4" /> Circular Word Document
-            </button>
-            <button
-              onClick={() => window.open(`/api/batches/${activeBatch._id}/export/cover`, '_blank')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white/5 border border-white/10 hover:border-gold/30 hover:bg-gold/5 text-xs text-gold font-bold transition-all"
-            >
-              <FileText className="w-4 h-4" /> Cover Brochure Page
-            </button>
+        <div className="space-y-6">
+          <div className="glass-card p-6 rounded-xl border border-white/5 space-y-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-white/5 pb-2">Active Batch Documents ({activeBatch.batchYearRange})</h3>
+            <p className="text-xs text-gray-400">Download the circular and cover brochure files for the currently active batch.</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => window.open(`/api/batches/${activeBatch._id}/export/circular`, '_blank')}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white/5 border border-white/10 hover:border-gold/30 hover:bg-gold/5 text-xs text-gold font-bold transition-all text-center cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>
+                  {activeBatch.circularFileName ? `Circular: ${activeBatch.circularFileName}` : 'Download Circular (Default Template)'}
+                </span>
+              </button>
+              <button
+                onClick={() => window.open(`/api/batches/${activeBatch._id}/export/cover`, '_blank')}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white/5 border border-white/10 hover:border-gold/30 hover:bg-gold/5 text-xs text-gold font-bold transition-all text-center cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>
+                  {activeBatch.brochureFileName ? `Brochure: ${activeBatch.brochureFileName}` : 'Download Cover Brochure (Default Template)'}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className="glass-card p-6 rounded-xl border border-white/5 space-y-4">
+            <h3 className="text-sm font-bold text-gold uppercase tracking-wider border-b border-white/5 pb-2">Upload Files for Active Batch</h3>
+            <p className="text-xs text-gray-400">Directly upload and overwrite the circular or brochure for the active batch without creating a new batch.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Upload Circular File</label>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => handleActiveFileUpload(e, 'circular')}
+                    className="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold/10 file:text-gold hover:file:bg-gold/20"
+                  />
+                  {activeBatchUpload.circularFileName && (
+                    <span className="text-[10px] text-green-400">Selected: {activeBatchUpload.circularFileName}</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Upload Cover Brochure</label>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => handleActiveFileUpload(e, 'brochure')}
+                    className="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold/10 file:text-gold hover:file:bg-gold/20"
+                  />
+                  {activeBatchUpload.brochureFileName && (
+                    <span className="text-[10px] text-green-400">Selected: {activeBatchUpload.brochureFileName}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                disabled={uploadingActive}
+                onClick={handleActiveUploadSubmit}
+                className="px-6 py-2 rounded-lg bg-gold text-navy-dark font-bold text-xs hover:bg-gold-light transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              >
+                {uploadingActive ? (
+                  <span className="w-3.5 h-3.5 border-2 border-navy border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <>
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Save Files to Active Batch</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

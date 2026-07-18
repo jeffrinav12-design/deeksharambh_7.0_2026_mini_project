@@ -5,6 +5,93 @@ import {
   CheckCircle2, AlertCircle, RefreshCw, Calendar, Users, Shield, History
 } from 'lucide-react';
 
+const renderFieldInput = (field, value, onChange) => {
+  const lowercaseField = field.toLowerCase();
+  
+  if (lowercaseField.includes('fontfamily')) {
+    return (
+      <select
+        value={value}
+        onChange={onChange}
+        required
+        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none bg-white"
+      >
+        <option value="">Select Font Family</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Arial">Arial</option>
+        <option value="Calibri">Calibri</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+    );
+  }
+  
+  if (lowercaseField.includes('fontsize')) {
+    return (
+      <select
+        value={value}
+        onChange={onChange}
+        required
+        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none bg-white"
+      >
+        <option value="">Select Font Size</option>
+        <option value="10">10pt</option>
+        <option value="11">11pt</option>
+        <option value="12">12pt (Standard)</option>
+        <option value="14">14pt (Sub-heading)</option>
+        <option value="16">16pt (Heading)</option>
+        <option value="18">18pt</option>
+        <option value="20">20pt</option>
+      </select>
+    );
+  }
+  
+  if (lowercaseField.includes('alignment') || lowercaseField.includes('align')) {
+    return (
+      <select
+        value={value}
+        onChange={onChange}
+        required
+        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none bg-white"
+      >
+        <option value="">Select Alignment</option>
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+        <option value="justify">Justify</option>
+      </select>
+    );
+  }
+  
+  if (lowercaseField.includes('content') || lowercaseField.includes('body') || lowercaseField.includes('text') || lowercaseField.includes('description')) {
+    return (
+      <textarea
+        value={value}
+        onChange={onChange}
+        required
+        rows={4}
+        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none"
+        placeholder="Enter document text content here..."
+      />
+    );
+  }
+  
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+      required
+      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none"
+    />
+  );
+};
+
+const isFullWidthField = (field) => {
+  const lowercaseField = field.toLowerCase();
+  return lowercaseField.includes('content') || lowercaseField.includes('body') || lowercaseField.includes('text') || lowercaseField.includes('description');
+};
+
 export default function DocumentTemplateManager({ activeBatch }) {
   const [batches, setBatches] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -32,7 +119,7 @@ export default function DocumentTemplateManager({ activeBatch }) {
     name: '',
     fileName: '',
     fileData: '',
-    fieldsText: 'department, course, academicYear, batchYearRange, hodName, principalName'
+    fieldsText: 'department, course, academicYear, content, fontFamily, fontSize, alignment, hodName, principalName'
   });
   
   // Document Generation form
@@ -638,7 +725,7 @@ export default function DocumentTemplateManager({ activeBatch }) {
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded border border-green-100"
                           title="Download Word (.docx)"
                         >
-                          <FileWord className="w-3.5 h-3.5" />
+                          <FileText className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteDocument(doc._id)}
@@ -799,15 +886,14 @@ export default function DocumentTemplateManager({ activeBatch }) {
                 <h4 className="text-[11px] font-bold text-navy uppercase tracking-wider">Dynamic Parameters Form:</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {selectedTemplate?.fields.map(field => (
-                    <div key={field}>
+                    <div key={field} className={isFullWidthField(field) ? "col-span-1 sm:col-span-2" : ""}>
                       <label className="block text-[10px] font-bold text-gray-500 mb-1 capitalize">
                         {field.replace(/([A-Z])/g, ' $1')}
                       </label>
-                      <input
-                        type="text"
-                        required
-                        value={generationForm.fieldValues[field] || ''}
-                        onChange={(e) => {
+                      {renderFieldInput(
+                        field,
+                        generationForm.fieldValues[field] || '',
+                        (e) => {
                           const val = e.target.value;
                           setGenerationForm(prev => ({
                             ...prev,
@@ -816,9 +902,8 @@ export default function DocumentTemplateManager({ activeBatch }) {
                               [field]: val
                             }
                           }));
-                        }}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none"
-                      />
+                        }
+                      )}
                     </div>
                   ))}
                 </div>
@@ -858,23 +943,21 @@ export default function DocumentTemplateManager({ activeBatch }) {
                 <h4 className="text-[11px] font-bold text-navy uppercase tracking-wider">Parameters Values:</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {Object.keys(selectedDoc?.fieldValues || {}).map(field => (
-                    <div key={field}>
+                    <div key={field} className={isFullWidthField(field) ? "col-span-1 sm:col-span-2" : ""}>
                       <label className="block text-[10px] font-bold text-gray-500 mb-1 capitalize">
                         {field.replace(/([A-Z])/g, ' $1')}
                       </label>
-                      <input
-                        type="text"
-                        required
-                        value={editFormValues[field] || ''}
-                        onChange={(e) => {
+                      {renderFieldInput(
+                        field,
+                        editFormValues[field] || '',
+                        (e) => {
                           const val = e.target.value;
                           setEditFormValues(prev => ({
                             ...prev,
                             [field]: val
                           }));
-                        }}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none"
-                      />
+                        }
+                      )}
                     </div>
                   ))}
                 </div>

@@ -163,6 +163,14 @@ app.get('/api/batches/:id/export/circular', authenticateToken, async (req, res) 
   try {
     const batch = await Batch.findById(req.params.id);
     if (!batch) return res.status(404).json({ message: "Batch not found" });
+    
+    if (batch.circularFile) {
+      const buffer = Buffer.from(batch.circularFile, 'base64');
+      const filename = batch.circularFileName || `Circular_Deeksharambh_${batch.deeksharambhVersion}.docx`;
+      const contentType = filename.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      return sendBuffer(res, buffer, filename, contentType);
+    }
+    
     const buffer = await generateCircular(batch);
     sendBuffer(res, buffer, `Circular_Deeksharambh_${batch.deeksharambhVersion}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
   } catch (err) {
@@ -174,6 +182,14 @@ app.get('/api/batches/:id/export/cover', authenticateToken, async (req, res) => 
   try {
     const batch = await Batch.findById(req.params.id);
     if (!batch) return res.status(404).json({ message: "Batch not found" });
+    
+    if (batch.brochureFile) {
+      const buffer = Buffer.from(batch.brochureFile, 'base64');
+      const filename = batch.brochureFileName || `BrochureCover_Deeksharambh_${batch.deeksharambhVersion}.docx`;
+      const contentType = filename.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      return sendBuffer(res, buffer, filename, contentType);
+    }
+    
     const buffer = await generateCoverPage(batch);
     sendBuffer(res, buffer, `BrochureCover_Deeksharambh_${batch.deeksharambhVersion}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
   } catch (err) {
@@ -1016,6 +1032,10 @@ app.get('/api/activity-logs', authenticateToken, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+export default app;

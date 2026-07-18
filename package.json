@@ -8,7 +8,8 @@
     "client": "npm run dev --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "seed": "node server/scripts/seed.js"
+    "seed": "node server/scripts/seed.js",
+    "build": "npm run install-all && npm run build --prefix client"
   },
   "dependencies": {
     "concurrently": "^8.2.2"

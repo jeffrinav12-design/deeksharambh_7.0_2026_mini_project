@@ -89,22 +89,26 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
               onClick={handleExportCircular}
-              className="flex items-center justify-between p-5 rounded-xl bg-white/5 border border-white/10 text-left hover:bg-gold/10 hover:border-gold/30 transition-all group"
+              className="flex items-center justify-between p-5 rounded-xl bg-white/5 border border-white/10 text-left hover:bg-gold/10 hover:border-gold/30 transition-all group cursor-pointer"
             >
               <div>
                 <h4 className="font-bold text-white group-hover:text-gold text-sm">Download Circular</h4>
-                <p className="text-xs text-gray-400 mt-1">Export official circular Word file</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {activeBatch.circularFileName ? `Uploaded: ${activeBatch.circularFileName}` : 'Export official circular Word file'}
+                </p>
               </div>
               <Download className="w-5 h-5 text-gray-400 group-hover:text-gold" />
             </button>
 
             <button
               onClick={handleExportCover}
-              className="flex items-center justify-between p-5 rounded-xl bg-white/5 border border-white/10 text-left hover:bg-gold/10 hover:border-gold/30 transition-all group"
+              className="flex items-center justify-between p-5 rounded-xl bg-white/5 border border-white/10 text-left hover:bg-gold/10 hover:border-gold/30 transition-all group cursor-pointer"
             >
               <div>
                 <h4 className="font-bold text-white group-hover:text-gold text-sm">Download Cover Brochure</h4>
-                <p className="text-xs text-gray-400 mt-1">Export brochure cover Word file</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {activeBatch.brochureFileName ? `Uploaded: ${activeBatch.brochureFileName}` : 'Export brochure cover Word file'}
+                </p>
               </div>
               <Download className="w-5 h-5 text-gray-400 group-hover:text-gold" />
             </button>

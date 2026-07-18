@@ -29,6 +29,10 @@ const batchSchema = new mongoose.Schema({
     total: { type: Number, default: 75 }
   },
   resultRanges: [{ type: String }], // e.g. ["60 & Above", "50-59", "Below 50"]
+  circularFile: { type: String }, // Base64 uploaded circular
+  circularFileName: { type: String },
+  brochureFile: { type: String }, // Base64 uploaded brochure
+  brochureFileName: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -151,6 +155,8 @@ const photoSchema = new mongoose.Schema({
 const reportSchema = new mongoose.Schema({
   batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch', required: true },
   reportType: { type: String, required: true }, // e.g. SIP, ResultAnalysis
+  reportText: { type: String },
+  objectives: [{ type: String }],
   generatedDocUrl: { type: String },
   generatedAt: { type: Date, default: Date.now }
 });
