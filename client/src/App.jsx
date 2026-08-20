@@ -40,16 +40,47 @@ export default function App() {
     }
   }, [token]);
 
-  const defaultFallbackBatch = {
-    _id: 'default_batch_2026',
-    academicYear: '2025-2026',
-    departmentName: 'Computer Science & Digital Applications',
-    deeksharambhVersion: '7.0',
-    startDate: '2026-08-01',
-    endDate: '2026-08-15',
-    targetGroup: 'I Year B.Sc CS / BCA / IT Students',
-    orientationObjectives: 'Bridging fundamental computing concepts, programming basics, ethics, and campus culture.'
-  };
+  const defaultFallbackBatches = [
+    {
+      _id: 'batch_5.0_2024',
+      batchYearRange: '2024-2027',
+      academicYear: '2024-2025',
+      deeksharambhVersion: '5.0',
+      departmentName: 'Computer Science & Digital Applications',
+      startDate: '2024-07-02',
+      endDate: '2024-07-09',
+      hodName: 'Dr. M. Lingaraj',
+      principalName: 'Dr. V. Radhika',
+      className: 'I B.Sc. CSDA',
+      totalStudents: 47
+    },
+    {
+      _id: 'batch_6.0_2025',
+      batchYearRange: '2025-2028',
+      academicYear: '2025-2026',
+      deeksharambhVersion: '6.0',
+      departmentName: 'Computer Science & Digital Applications',
+      startDate: '2025-06-26',
+      endDate: '2025-07-03',
+      hodName: 'Dr. R. Sasikala',
+      principalName: 'Dr. V. Radhika',
+      className: 'I B.Sc. CSDA',
+      totalStudents: 43
+    },
+    {
+      _id: 'batch_7.0_2026',
+      batchYearRange: '2026-2029',
+      academicYear: '2026-2027',
+      deeksharambhVersion: '7.0',
+      departmentName: 'Computer Science & Digital Applications',
+      startDate: '2026-08-01',
+      endDate: '2026-08-15',
+      hodName: 'Dr. S. Sundararajan',
+      principalName: 'Dr. V. Radhika',
+      className: 'I B.Sc. CSDA',
+      totalStudents: 50
+    }
+  ];
 
   const fetchAllBatches = async () => {
     try {
@@ -60,13 +91,13 @@ export default function App() {
         const found = res.data.find(b => b._id === storedBatchId);
         setActiveBatch(found || res.data[0]);
       } else {
-        setBatches([defaultFallbackBatch]);
-        setActiveBatch(defaultFallbackBatch);
+        setBatches(defaultFallbackBatches);
+        setActiveBatch(defaultFallbackBatches[0]);
       }
     } catch (err) {
       console.warn('Using default batch fallback:', err.message);
-      setBatches([defaultFallbackBatch]);
-      setActiveBatch(defaultFallbackBatch);
+      setBatches(defaultFallbackBatches);
+      setActiveBatch(defaultFallbackBatches[0]);
     }
   };
 
