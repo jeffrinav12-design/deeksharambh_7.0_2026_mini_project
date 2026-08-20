@@ -27,11 +27,17 @@ export async function seedDatabase() {
   const adminPassword = await bcrypt.hash('admin123', salt);
   const facultyPassword = await bcrypt.hash('faculty123', salt);
   const viewerPassword = await bcrypt.hash('viewer123', salt);
+  const studentPassword = await bcrypt.hash('student123', salt);
 
   await User.create([
     { name: "Dr. Admin", email: "admin@sankara.ac.in", passwordHash: adminPassword, role: "admin" },
+    { name: "Admin Officer", email: "admin.csda@gmail.com", passwordHash: adminPassword, role: "admin" },
     { name: "Prof. Faculty", email: "faculty@sankara.ac.in", passwordHash: facultyPassword, role: "faculty" },
-    { name: "Guest Viewer", email: "viewer@sankara.ac.in", passwordHash: viewerPassword, role: "viewer" }
+    { name: "Faculty Staff", email: "faculty.csda@gmail.com", passwordHash: facultyPassword, role: "faculty" },
+    { name: "Guest Viewer", email: "viewer@sankara.ac.in", passwordHash: viewerPassword, role: "viewer" },
+    { name: "Guest Viewer", email: "viewer.csda@gmail.com", passwordHash: viewerPassword, role: "viewer" },
+    { name: "Student Learner", email: "student@sankara.ac.in", passwordHash: studentPassword, role: "student" },
+    { name: "Student Learner", email: "student.csda@gmail.com", passwordHash: studentPassword, role: "student" }
   ]);
 
   console.log("Creating Batch 1: Deeksharambh 5.0 (2024-2027)...");
@@ -98,6 +104,40 @@ export async function seedDatabase() {
       total: 100
     },
     resultRanges: ["60 & Above", "70-79", "60-69", "50-59", "Below 50"]
+  });
+
+  console.log("Creating Batch 3: Deeksharambh 7.0 (2026-2029)...");
+  const batch3 = await Batch.create({
+    batchYearRange: "2026-2029",
+    academicYear: "2026-2027",
+    deeksharambhVersion: "7.0",
+    startDate: "2026-06-30",
+    endDate: "2026-07-07",
+    hodName: "Dr. R. Sasikala",
+    principalName: "Dr. V. Radhika",
+    className: "I B.Sc. CSDA",
+    managingTrusteeName: "Sri T.P. Ramachandran",
+    programmeInsights: [
+      "Motivational Talks",
+      "Gender Sensitivity Programmes",
+      "Placement & Life Skill Orientation",
+      "Clubs & Committees Orientation",
+      "Physical Education",
+      "Fun Events",
+      "SWAYAM-NPTEL-MOOCS Orientation",
+      "Annual Plan",
+      "Short & Long Term Goal Settings",
+      "Dissemination of POS & COS"
+    ],
+    totalStudents: 45,
+    marksConfig: {
+      tamil: 15,
+      english: 15,
+      maths: 15,
+      core: 55,
+      total: 100
+    },
+    resultRanges: ["80 & ABOVE", "70 - 79", "60 - 69", "50 - 59", "BELOW 50"]
   });
 
   // Load Batch 1 Students
@@ -346,6 +386,128 @@ export async function seedDatabase() {
     }
   }
 
+  // Seeding Batch 3 students & results from PDF
+  console.log("Seeding Batch 3 students from PDF...");
+  const b3StudentsData = [
+    { sNo: 1, name: "AAYISHA SIDHIKA D", mathsStream: "M" },
+    { sNo: 2, name: "AGASTIAN G E", mathsStream: "M" },
+    { sNo: 3, name: "BALAJI I", mathsStream: "NM" },
+    { sNo: 4, name: "DHANASRI A", mathsStream: "M" },
+    { sNo: 5, name: "DHARUNKUMAR V", mathsStream: "NM" },
+    { sNo: 6, name: "DINEESH KUMAR J", mathsStream: "M" },
+    { sNo: 7, name: "DIVYADHARSHINI A", mathsStream: "M" },
+    { sNo: 8, name: "DURGA SRI S", mathsStream: "NM" },
+    { sNo: 9, name: "GOBIKA C R", mathsStream: "NM" },
+    { sNo: 10, name: "HARIHARASUDHAN M", mathsStream: "M" },
+    { sNo: 11, name: "HARITHA B", mathsStream: "M" },
+    { sNo: 12, name: "HARIVARATHAN A", mathsStream: "M" },
+    { sNo: 13, name: "ILLAKIYA R", mathsStream: "M" },
+    { sNo: 14, name: "JAYSHREE S", mathsStream: "NM" },
+    { sNo: 15, name: "KARUPPUSAMY S", mathsStream: "M" },
+    { sNo: 16, name: "KAVIYA R", mathsStream: "NM" },
+    { sNo: 17, name: "KEERTHANA C", mathsStream: "M" },
+    { sNo: 18, name: "LAKSHITHA MAYUGA KUMARI M", mathsStream: "NM" },
+    { sNo: 19, name: "LAVANYA K", mathsStream: "M" },
+    { sNo: 20, name: "MADHUMATHI R", mathsStream: "NM" },
+    { sNo: 21, name: "MEGA SRI B", mathsStream: "NM" },
+    { sNo: 22, name: "NAVANEETHAKRISHNAN S", mathsStream: "M" },
+    { sNo: 23, name: "NAVEEN M", mathsStream: "M" },
+    { sNo: 24, name: "NIGHILA S V", mathsStream: "M" },
+    { sNo: 25, name: "NITHINRAJ S", mathsStream: "M" },
+    { sNo: 26, name: "NITHISH M", mathsStream: "M" },
+    { sNo: 27, name: "NITHYA SREE G", mathsStream: "M" },
+    { sNo: 28, name: "OMESHWAR S", mathsStream: "M" },
+    { sNo: 29, name: "PANDISELVI P", mathsStream: "M" },
+    { sNo: 30, name: "PRADHEEPA DEVI B", mathsStream: "M" },
+    { sNo: 31, name: "PRAMADEESH S", mathsStream: "M" },
+    { sNo: 32, name: "RATHNA S", mathsStream: "M" },
+    { sNo: 33, name: "RITHICK A", mathsStream: "M" },
+    { sNo: 34, name: "ROBERT JONES P", mathsStream: "NM" },
+    { sNo: 35, name: "SANJEEVKUMAR R", mathsStream: "M" },
+    { sNo: 36, name: "SANTHOSH K", mathsStream: "M" },
+    { sNo: 37, name: "SATHEESH P", mathsStream: "NM" },
+    { sNo: 38, name: "SIVARAMAKRISHNAN M", mathsStream: "NM" },
+    { sNo: 39, name: "THARUN V", mathsStream: "M" },
+    { sNo: 40, name: "VAISHNAVI S", mathsStream: "M" },
+    { sNo: 41, name: "VARSHINI R", mathsStream: "M" },
+    { sNo: 42, name: "VIPIN KRISHNA P", mathsStream: "M" },
+    { sNo: 43, name: "VISHNU R", mathsStream: "NM" },
+    { sNo: 44, name: "YOGESHWARAN R", mathsStream: "M" },
+    { sNo: 45, name: "EBINESH V", mathsStream: "NM" }
+  ];
+
+  const b3Students = [];
+  for (const st of b3StudentsData) {
+    const s = await Student.create({ ...st, batchId: batch3._id });
+    b3Students.push(s);
+  }
+
+  console.log("Seeding Batch 3 results from PDF...");
+  const b3ResultsData = [
+    { name: "AAYISHA SIDHIKA D", tamil: "15", english: "12", maths: "13", core: "46", total: 86, percentage: 86.0, isAbsent: false },
+    { name: "AGASTIAN G E", tamil: "13", english: "12", maths: "12", core: "41", total: 78, percentage: 78.0, isAbsent: false },
+    { name: "BALAJI I", tamil: "13", english: "8", maths: "9", core: "23", total: 53, percentage: 53.0, isAbsent: false },
+    { name: "DHANASRI A", tamil: "11", english: "13", maths: "9", core: "40", total: 73, percentage: 73.0, isAbsent: false },
+    { name: "DHARUNKUMAR V", tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true },
+    { name: "DINEESH KUMAR J", tamil: "12", english: "9", maths: "10", core: "53", total: 84, percentage: 84.0, isAbsent: false },
+    { name: "DIVYADHARSHINI A", tamil: "13", english: "13", maths: "9", core: "44", total: 79, percentage: 79.0, isAbsent: false },
+    { name: "DURGA SRI S", tamil: "12", english: "14", maths: "10", core: "33", total: 69, percentage: 69.0, isAbsent: false },
+    { name: "GOBIKA C R", tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true },
+    { name: "HARIHARASUDHAN M", tamil: "12", english: "14", maths: "15", core: "48", total: 89, percentage: 89.0, isAbsent: false },
+    { name: "HARITHA B", tamil: "13", english: "13", maths: "12", core: "43", total: 81, percentage: 81.0, isAbsent: false },
+    { name: "HARIVARATHAN A", tamil: "14", english: "8", maths: "13", core: "51", total: 86, percentage: 86.0, isAbsent: false },
+    { name: "ILLAKIYA R", tamil: "15", english: "13", maths: "12", core: "47", total: 87, percentage: 87.0, isAbsent: false },
+    { name: "JAYSHREE S", tamil: "14", english: "8", maths: "9", core: "32", total: 63, percentage: 63.0, isAbsent: false },
+    { name: "KARUPPUSAMY S", tamil: "12", english: "15", maths: "15", core: "50", total: 92, percentage: 92.0, isAbsent: false },
+    { name: "KAVIYA R", tamil: "12", english: "8", maths: "8", core: "27", total: 55, percentage: 55.0, isAbsent: false },
+    { name: "KEERTHANA C", tamil: "14", english: "13", maths: "12", core: "40", total: 79, percentage: 79.0, isAbsent: false },
+    { name: "LAKSHITHA MAYUGA KUMARI M", tamil: "10", english: "9", maths: "8", core: "23", total: 50, percentage: 50.0, isAbsent: false },
+    { name: "LAVANYA K", tamil: "12", english: "12", maths: "9", core: "44", total: 77, percentage: 77.0, isAbsent: false },
+    { name: "MADHUMATHI R", tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true },
+    { name: "MEGA SRI B", tamil: "9", english: "10", maths: "5", core: "31", total: 55, percentage: 55.0, isAbsent: false },
+    { name: "NAVANEETHAKRISHNAN S", tamil: "14", english: "14", maths: "15", core: "51", total: 94, percentage: 94.0, isAbsent: false },
+    { name: "NAVEEN M", tamil: "13", english: "15", maths: "14", core: "54", total: 96, percentage: 96.0, isAbsent: false },
+    { name: "NIGHILA S V", tamil: "13", english: "15", maths: "11", core: "41", total: 80, percentage: 80.0, isAbsent: false },
+    { name: "NITHINRAJ S", tamil: "14", english: "10", maths: "8", core: "41", total: 73, percentage: 73.0, isAbsent: false },
+    { name: "NITHISH M", tamil: "14", english: "15", maths: "9", core: "37", total: 75, percentage: 75.0, isAbsent: false },
+    { name: "NITHYA SREE G", tamil: "14", english: "11", maths: "12", core: "41", total: 78, percentage: 78.0, isAbsent: false },
+    { name: "OMESHWAR S", tamil: "11", english: "12", maths: "13", core: "38", total: 74, percentage: 74.0, isAbsent: false },
+    { name: "PANDISELVI P", tamil: "15", english: "6", maths: "13", core: "43", total: 77, percentage: 77.0, isAbsent: false },
+    { name: "PRADHEEPA DEVI B", tamil: "15", english: "14", maths: "11", core: "48", total: 88, percentage: 88.0, isAbsent: false },
+    { name: "PRAMADEESH S", tamil: "13", english: "11", maths: "12", core: "40", total: 76, percentage: 76.0, isAbsent: false },
+    { name: "RATHNA S", tamil: "11", english: "12", maths: "12", core: "38", total: 73, percentage: 73.0, isAbsent: false },
+    { name: "RITHICK A", tamil: "12", english: "14", maths: "14", core: "50", total: 90, percentage: 90.0, isAbsent: false },
+    { name: "ROBERT JONES P", tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true },
+    { name: "SANJEEVKUMAR R", tamil: "11", english: "12", maths: "9", core: "46", total: 78, percentage: 78.0, isAbsent: false },
+    { name: "SANTHOSH K", tamil: "11", english: "15", maths: "13", core: "51", total: 90, percentage: 90.0, isAbsent: false },
+    { name: "SATHEESH P", tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true },
+    { name: "SIVARAMAKRISHNAN M", tamil: "14", english: "8", maths: "8", core: "24", total: 54, percentage: 54.0, isAbsent: false },
+    { name: "THARUN V", tamil: "14", english: "15", maths: "15", core: "42", total: 86, percentage: 86.0, isAbsent: false },
+    { name: "VAISHNAVI S", tamil: "14", english: "14", maths: "8", core: "38", total: 74, percentage: 74.0, isAbsent: false },
+    { name: "VARSHINI R", tamil: "9", english: "11", maths: "6", core: "36", total: 62, percentage: 62.0, isAbsent: false },
+    { name: "VIPIN KRISHNA P", tamil: "14", english: "13", maths: "14", core: "53", total: 94, percentage: 94.0, isAbsent: false },
+    { name: "VISHNU R", tamil: "11", english: "4", maths: "7", core: "19", total: 41, percentage: 41.0, isAbsent: false },
+    { name: "YOGESHWARAN R", tamil: "13", english: "14", maths: "12", core: "52", total: 91, percentage: 91.0, isAbsent: false },
+    { name: "EBINESH V", tamil: "12", english: "13", maths: "10", core: "35", total: 70, percentage: 70.0, isAbsent: false }
+  ];
+
+  for (const res of b3ResultsData) {
+    const student = b3Students.find(s => s.name === res.name);
+    if (student) {
+      await Result.create({
+        batchId: batch3._id,
+        studentId: student._id,
+        tamil: res.tamil,
+        english: res.english,
+        maths: res.maths,
+        core: res.core,
+        total: res.total,
+        percentage: res.percentage,
+        isAbsent: res.isAbsent
+      });
+    }
+  }
+
   // Load Abbreviation Legends
   console.log("Seeding timetable abbreviations...");
   const b1Abbrevs = [
@@ -380,11 +542,30 @@ export async function seedDatabase() {
     { sNo: 13, abbreviation: "BCA", particulars: "BridgeCourse Assessment", facultyName: "ConcernedDepartment", noOfHours: 3 }
   ];
 
+  const b3Abbrevs = [
+    { sNo: 1, abbreviation: "CT", particulars: "Campus Tour, Institutional Rules and Regulations", facultyName: "Head of the Department", noOfHours: 1 },
+    { sNo: 2, abbreviation: "FD", particulars: "Familiarization with Department, Career Prospects, workshops, ICT and other facilities", facultyName: "Concerned Class Tutors", noOfHours: 1 },
+    { sNo: 3, abbreviation: "SSA", particulars: "Student Support Activities/Familiarization of Various Clubs", facultyName: "Bernard Edward - VP", noOfHours: 1 },
+    { sNo: 4, abbreviation: "PMF", particulars: "Physical & Mental Fitness", facultyName: "Physical Director", noOfHours: 1 },
+    { sNo: 5, abbreviation: "AI", particulars: "Alumni Interaction with fresher's", facultyName: "Alumni for the Department", noOfHours: 2 },
+    { sNo: 6, abbreviation: "PT", particulars: "Personality Training and How to Prepare Yourself in Three years at College", facultyName: "Trainer - Placement", noOfHours: 3 },
+    { sNo: 7, abbreviation: "LL", particulars: "Library Learning Tools", facultyName: "Librarian", noOfHours: 1 },
+    { sNo: 8, abbreviation: "Tamil", particulars: "General Tamil", facultyName: "Tamil Department", noOfHours: 3 },
+    { sNo: 9, abbreviation: "English", particulars: "Communicative English", facultyName: "English Department", noOfHours: 3 },
+    { sNo: 10, abbreviation: "Mathematics", particulars: "Maths Department - Syllabus", facultyName: "Maths Department", noOfHours: 3 },
+    { sNo: 11, abbreviation: "GSP", particulars: "Gender Sensitivity Programme", facultyName: "Expert", noOfHours: 2 },
+    { sNo: 12, abbreviation: "Discipline", particulars: "Concerned Department Courses", facultyName: "Concerned Department", noOfHours: 12 },
+    { sNo: 13, abbreviation: "BCA", particulars: "Bridge Course Assessment", facultyName: "Concerned Department", noOfHours: 3 }
+  ];
+
   for (const ab of b1Abbrevs) {
     await Abbreviation.create({ ...ab, batchId: batch1._id });
   }
   for (const ab of b2Abbrevs) {
     await Abbreviation.create({ ...ab, batchId: batch2._id });
+  }
+  for (const ab of b3Abbrevs) {
+    await Abbreviation.create({ ...ab, batchId: batch3._id });
   }
 
   // Load Schedule Slots
@@ -407,11 +588,23 @@ export async function seedDatabase() {
     { dayOrder: "I", date: "2025-07-03", periods: { I: "TAMIL", II: "MATHEMATICS", III: "PRG(SW)", IV: "PRG(SW)", V: "PRG(SW)", VI: "BCA" } }
   ];
 
+  const b3Slots = [
+    { dayOrder: "IV", date: "2026-06-30", periods: { I: "CT", II: "FD", III: "MAT", IV: "TAM", V: "SVK", VI: "ENG" } },
+    { dayOrder: "V", date: "2026-07-01", periods: { I: "S.B(C)", II: "PMF", III: "SSA", IV: "ENG", V: "MAT", VI: "LIB" } },
+    { dayOrder: "VI", date: "2026-07-02", periods: { I: "SB", II: "SVK", III: "VG", IV: "AS", V: "RSA", VI: "-" } },
+    { dayOrder: "I", date: "2026-07-03", periods: { I: "SB(LAB)", II: "VG", III: "TRIP TO ISHA YOGA", IV: "TAM", V: "ALUMNI TALK", VI: "-" } },
+    { dayOrder: "II", date: "2026-07-06", periods: { I: "ENG", II: "SB", III: "TAM", IV: "PLACEMENT", V: "-", VI: "-" } },
+    { dayOrder: "III", date: "2026-07-07", periods: { I: "MAT", II: "AS", III: "SVK", IV: "BCA", V: "-", VI: "-" } }
+  ];
+
   for (const slot of b1Slots) {
     await ScheduleSlot.create({ ...slot, batchId: batch1._id });
   }
   for (const slot of b2Slots) {
     await ScheduleSlot.create({ ...slot, batchId: batch2._id });
+  }
+  for (const slot of b3Slots) {
+    await ScheduleSlot.create({ ...slot, batchId: batch3._id });
   }
 
   // Load Syllabus Items
@@ -550,6 +743,135 @@ export async function seedDatabase() {
     }
   ]);
 
+  // Seed Syllabus for Batch 3 (7.0) with exact data from PDF
+  console.log("Seeding Batch 3 Syllabus from PDF...");
+  await Syllabus.create([
+    {
+      batchId: batch3._id,
+      subjectName: "English Non-Major",
+      departmentName: "Department of English",
+      hours: 3,
+      mathsStream: "ALL",
+      objectives: [
+        "To develop creativity and idea generation skills.",
+        "To improve communication and collaborative learning.",
+        "To strengthen analytical and problem-solving skills."
+      ],
+      units: [
+        { unitNo: "UNIT 1", title: "Interactive Communication", content: "Introducing Oneself and Extempore Speech." },
+        { unitNo: "UNIT 2", title: "Writing Skills", content: "Future Trends in AI." },
+        { unitNo: "UNIT 3", title: "Brainstorming", content: "Problem Solving." },
+        { unitNo: "UNIT 4", title: "Grammar", content: "Introduction to Parts of Speech." },
+        { unitNo: "UNIT 5", title: "Composition", content: "Covering letter and Bonafide." }
+      ],
+      referenceBooks: [
+        "Parts of Speech: Basics of English Grammar by Kuldeep Yadav",
+        "An AI-Powered writing assistant: Grammarly",
+        "A Handbook for Letter Writing by S C Gupta"
+      ],
+      staffIncharge: "Dr. K. Valarmathi",
+      subjectExpert: { name: "Dr. P. Sujatha", designation: "Assistant Professor", institution: "Kongunadu Arts & Science College", details: "Coimbatore-641 029" },
+      hodName: "Dr. R. Sasikala"
+    },
+    {
+      batchId: batch3._id,
+      subjectName: "Fundamentals of Computing & C Programming Essentials",
+      departmentName: "Department of CSDA",
+      hours: 5,
+      mathsStream: "ALL",
+      objectives: [
+        "To understand the basic concepts of computer systems including hardware components, memory, and operating systems.",
+        "To gain knowledge of programming basics and the structure of the C programming language.",
+        "To develop simple problem-solving skills using basic C programs with input and output functions."
+      ],
+      units: [
+        { unitNo: "Unit 1", title: "Computer Basics", content: "Introduction - Anatomy of computers - I/O devices - Control Unit - Memory - Types of Operating System (2 Hours)." },
+        { unitNo: "Unit 2", title: "Programming Basics & C Programming", content: "Introduction - C Libraries - Structure of C Program - Input and output functions - Primary Data Types - Sample programs (3 Hours)." }
+      ],
+      referenceBooks: [
+        "E. Balagurusamy 'Programming in ANSI C' Widely used in Indian universities",
+        "Brian W. Kernighan and Dennis M. Ritchie 'The C Programming Language'"
+      ],
+      staffIncharge: "S. Shanthi",
+      subjectExpert: { name: "Kala Kannan", designation: "Subject Expert", institution: "Department of CSDA", details: "Coimbatore" },
+      hodName: "Dr. R. Sasikala"
+    },
+    {
+      batchId: batch3._id,
+      subjectName: "Fundamentals of Operating Systems",
+      departmentName: "Department of CSDA",
+      hours: 2,
+      mathsStream: "ALL",
+      objectives: [
+        "Understand the basic concepts, functions, and types of Operating Systems.",
+        "Learn the services provided by Operating Systems and system call mechanisms.",
+        "Understand process concepts, process life cycle, and process management.",
+        "Study CPU scheduling algorithms, threads, and multithreading techniques.",
+        "Gain knowledge of inter-process communication and efficient resource management."
+      ],
+      units: [
+        { unitNo: "Unit 1", title: "Introduction to Operating Systems", content: "Definition and Functions of Operating System - Types of Operating Systems - Operating System Services - System Calls - Structure of Operating Systems (1 Hour)." },
+        { unitNo: "Unit 2", title: "Process Management", content: "Process Concept - Process Scheduling - Threads and Multithreading - CPU Scheduling Algorithms - Inter-Process Communication (IPC) (1 Hour)." }
+      ],
+      referenceBooks: [
+        "Silberschatz, A., Galvin, P. B., & Gagne, G. (2024). Operating System Concepts (11th Edition). Wiley. ISBN: 9781394262571.",
+        "Tanenbaum, A. S., & Bos, H. (2023). Modern Operating Systems (5th Edition). Pearson Education. ISBN: 9780137618880."
+      ],
+      staffIncharge: "N. Gayathri",
+      subjectExpert: { name: "Kala Kannan", designation: "Subject Expert", institution: "Department of CSDA", details: "Coimbatore" },
+      hodName: "Dr. R. Sasikala"
+    },
+    {
+      batchId: batch3._id,
+      subjectName: "Artificial Intelligence Tools for Smart Learning",
+      departmentName: "Department of CSDA",
+      hours: 3,
+      mathsStream: "ALL",
+      objectives: [
+        "Understand the benefits and applications of Artificial Intelligence (AI) in education and everyday life.",
+        "Organize information efficiently by collecting and managing notes, documents, PDFs, websites, and other learning resources in a single platform.",
+        "Understand the concept of prompts and use simple, clear, and direct language to communicate effectively with AI systems."
+      ],
+      units: [
+        { unitNo: "Unit 1", title: "Introduction to AI", content: "Introduction to Artificial Intelligence (AI); using AI for learning, reading, writing, and problem-solving (1 Hour)." },
+        { unitNo: "Unit 2", title: "Notebook LM", content: "Getting Started with NotebookLM for Students; Key Features and Educational Applications of NotebookLM (1 Hour)." },
+        { unitNo: "Unit 3", title: "Prompt Engineering", content: "Introduction to Prompt Engineering; Principles of Writing Effective AI Prompts; Examples of Effective Prompt Design (1 Hour)." }
+      ],
+      referenceBooks: [
+        "Russell, S., & Norvig, P. (2020). Artificial Intelligence: A Modern Approach (4th Edition). Pearson Education. ISBN: 9780134610993.",
+        "Forte, T. (2022). Building a Second Brain. Simon & Schuster. ISBN: 9781982167387.",
+        "Liu, P., Yuan, W., Fu, J., Jiang, Z., Hayashi, H., & Neubig, G. (2023). Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods. ACM Computing Surveys, 57(9), Article 185."
+      ],
+      staffIncharge: "K. Keerthika",
+      subjectExpert: { name: "Kala Kannan", designation: "Subject Expert", institution: "Department of CSDA", details: "Coimbatore" },
+      hodName: "Dr. R. Sasikala"
+    },
+    {
+      batchId: batch3._id,
+      subjectName: "Data Analytics & Modern Data Visualization Platforms",
+      departmentName: "Department of CSDA",
+      hours: 2,
+      mathsStream: "ALL",
+      objectives: [
+        "To understand the fundamentals of Data Analytics.",
+        "To gain basic knowledge of Tableau, Power BI, and Google Charts.",
+        "To understand the importance of data visualization in decision-making.",
+        "To develop awareness of dashboard creation and web-based visualization tools."
+      ],
+      units: [
+        { unitNo: "Unit 1", title: "Introduction to Data Analytics & Tableau", content: "Data Analytics workflow, Importance of visualization and Dashboard Basics (1 Hour)." },
+        { unitNo: "Unit 2", title: "Power BI Basics & Google Charts", content: "Components of Power BI, Web-Based Visualization and Comparison of Tableau, Power BI, and Google Charts (1 Hour)." }
+      ],
+      referenceBooks: [
+        "Wilke, C. O., Fundamentals of Data Visualization, O'Reilly Media, 2019.",
+        "Knaflic, C. N., Storytelling with Data: A Data Visualization Guide for Business Professionals, Wiley, 2015."
+      ],
+      staffIncharge: "A. Swarnamugi",
+      subjectExpert: { name: "Kala Kannan", designation: "Subject Expert", institution: "Department of CSDA", details: "Coimbatore" },
+      hodName: "Dr. R. Sasikala"
+    }
+  ]);
+
   // Seeding Tamil unicode questions
   console.log("Seeding assessment questions...");
   await Question.create([
@@ -609,6 +931,16 @@ export async function seedDatabase() {
       correctAnswer: "C"
     }
   ]);
+
+  // Seed Questions for Batch 3 (7.0) by duplicating Batch 2 questions
+  console.log("Seeding Batch 3 Questions...");
+  const b3Questions = await Question.find({ batchId: batch2._id });
+  for (const q of b3Questions) {
+    const qObj = q.toObject();
+    delete qObj._id;
+    qObj.batchId = batch3._id;
+    await Question.create(qObj);
+  }
 
   console.log("Seeding completed successfully!");
 }

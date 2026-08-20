@@ -13,6 +13,7 @@ import ScheduleManager from './views/ScheduleManager.jsx';
 import StudentMaster from './views/StudentMaster.jsx';
 import AttendanceModule from './views/AttendanceModule.jsx';
 import AssessmentModule from './views/AssessmentModule.jsx';
+import StudentAssessmentPortal from './views/StudentAssessmentPortal.jsx';
 import ResultAnalysis from './views/ResultAnalysis.jsx';
 import SipReportGenerator from './views/SipReportGenerator.jsx';
 import PhotoGallery from './views/PhotoGallery.jsx';
@@ -26,13 +27,14 @@ export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [role, setRole] = useState(localStorage.getItem('role') || '');
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
+  const [batches, setBatches] = useState([]);
   const [activeBatch, setActiveBatch] = useState(null);
 
   // Configure Axios defaults
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchLatestBatch();
+      fetchAllBatches();
     } else {
       delete axios.defaults.headers.common['Authorization'];
     }
@@ -54,9 +56,10 @@ export default function App() {
     };
   }, []);
 
-  const fetchLatestBatch = async () => {
+  const fetchAllBatches = async () => {
     try {
       const res = await axios.get('/api/batches');
+      setBatches(res.data);
       if (res.data.length > 0) {
         const storedBatchId = localStorage.getItem('activeBatchId');
         const found = res.data.find(b => b._id === storedBatchId);
@@ -67,7 +70,7 @@ export default function App() {
         }
       }
     } catch (err) {
-      console.error('Error fetching latest batch:', err);
+      console.error('Error fetching batches:', err);
     }
   };
 
@@ -98,6 +101,7 @@ export default function App() {
     setRole('');
     setUserName('');
     setActiveBatch(null);
+    setBatches([]);
   };
 
   return (
@@ -105,7 +109,7 @@ export default function App() {
       <Routes>
         <Route 
           path="/login" 
-          element={token ? <Navigate to="/dashboard" /> : <Login onLoginSuccess={handleLoginSuccess} />} 
+          element={token ? (role === 'student' ? <Navigate to="/assessment" /> : <Navigate to="/dashboard" />) : <Login onLoginSuccess={handleLoginSuccess} />} 
         />
         
         {/* Protected Routes Layout */}
@@ -115,16 +119,16 @@ export default function App() {
             !token ? (
               <Navigate to="/login" />
             ) : (
-              <div className="min-h-screen bg-navy-deep text-white">
+              <div className="min-h-screen bg-slate-50 text-slate-900">
                 <Sidebar role={role} onLogout={handleLogout} />
-                <Header userName={userName} role={role} activeBatch={activeBatch} />
+                <Header userName={userName} role={role} activeBatch={activeBatch} batches={batches} onSelectBatch={handleSelectBatch} />
                 
                 {/* Content main area, matching sidebar spacing */}
                 <main className="pl-64 pt-20 p-8 min-h-screen">
                   <Routes>
                     <Route 
                       path="/dashboard" 
-                      element={<Dashboard activeBatch={activeBatch} setActiveBatch={handleSelectBatch} />} 
+                      element={role === 'student' ? <Navigate to="/assessment" /> : <Dashboard activeBatch={activeBatch} setActiveBatch={handleSelectBatch} />} 
                     />
                     <Route 
                       path="/archive" 
@@ -133,7 +137,7 @@ export default function App() {
                     <Route 
                       path="/setup" 
                       element={
-                        role === 'admin' ? (
+                        role === 'admin' || role === 'faculty' ? (
                           <BatchSetup activeBatch={activeBatch} setActiveBatch={handleSelectBatch} />
                         ) : (
                           <Navigate to="/dashboard" />
@@ -159,7 +163,7 @@ export default function App() {
                     <Route 
                       path="/attendance" 
                       element={
-                        role !== 'viewer' ? (
+                        role !== 'viewer' && role !== 'student' ? (
                           <AttendanceModule activeBatch={activeBatch} role={role} />
                         ) : (
                           <Navigate to="/dashboard" />
@@ -168,7 +172,7 @@ export default function App() {
                     />
                     <Route 
                       path="/assessment" 
-                      element={<AssessmentModule activeBatch={activeBatch} role={role} />} 
+                      element={role === 'student' ? <StudentAssessmentPortal activeBatch={activeBatch} currentRole={role} /> : <AssessmentModule activeBatch={activeBatch} role={role} />} 
                     />
                     <Route 
                       path="/results" 
@@ -181,15 +185,15 @@ export default function App() {
                     <Route 
                       path="/photos" 
                       element={
-                        role !== 'viewer' ? (
+                        role !== 'viewer' && role !== 'student' ? (
                           <PhotoGallery activeBatch={activeBatch} role={role} />
                         ) : (
                           <Navigate to="/dashboard" />
                         )
                       } 
                     />
-                    {/* Default redirect to Dashboard */}
-                    <Route path="*" element={<Navigate to="/dashboard" />} />
+                    {/* Default redirect */}
+                    <Route path="*" element={role === 'student' ? <Navigate to="/assessment" /> : <Navigate to="/dashboard" />} />
                   </Routes>
                 </main>
               </div>

@@ -4,6 +4,7 @@ import {
   FileText, Upload, Copy, Edit, Trash2, Download, Printer, Eye, Plus, Search, Filter, 
   CheckCircle2, AlertCircle, RefreshCw, Calendar, Users, Shield, History
 } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 const renderFieldInput = (field, value, onChange) => {
   const lowercaseField = field.toLowerCase();
@@ -299,24 +300,24 @@ export default function DocumentTemplateManager({ activeBatch }) {
   };
 
   const handleDownloadTemplate = (tpl) => {
-    window.open(`/api/templates/${tpl._id}/download`, '_blank');
+    downloadFile(`/api/templates/${tpl._id}/download`, tpl.fileName || `${tpl.name}.pdf`);
     setTimeout(fetchLogs, 1000); // refresh logs
   };
 
-  // Document Generation Actions
   const handleOpenGenerate = (tpl) => {
     setSelectedTemplate(tpl);
     const prefilledValues = {};
-    // Pre-fill fields with active batch data if available
-    tpl.fields.forEach(field => {
-      if (field === 'department') prefilledValues[field] = 'Computer Science with Data Analytics';
-      else if (field === 'course') prefilledValues[field] = activeBatch?.className || 'I B.Sc. CSDA';
-      else if (field === 'academicYear') prefilledValues[field] = activeBatch?.academicYear || '';
-      else if (field === 'batchYearRange') prefilledValues[field] = activeBatch?.batchYearRange || '';
-      else if (field === 'hodName') prefilledValues[field] = activeBatch?.hodName || '';
-      else if (field === 'principalName') prefilledValues[field] = activeBatch?.principalName || '';
-      else prefilledValues[field] = '';
-    });
+    if (tpl.fields) {
+      tpl.fields.forEach(field => {
+        if (field === 'department') prefilledValues[field] = 'Computer Science with Data Analytics';
+        else if (field === 'course') prefilledValues[field] = activeBatch?.className || 'I B.Sc. CSDA';
+        else if (field === 'academicYear') prefilledValues[field] = activeBatch?.academicYear || '';
+        else if (field === 'batchYearRange') prefilledValues[field] = activeBatch?.batchYearRange || '';
+        else if (field === 'hodName') prefilledValues[field] = activeBatch?.hodName || '';
+        else if (field === 'principalName') prefilledValues[field] = activeBatch?.principalName || '';
+        else prefilledValues[field] = '';
+      });
+    }
 
     setGenerationForm({
       name: `${tpl.name} - Batch ${activeBatch?.batchYearRange || 'New'}`,
@@ -404,7 +405,9 @@ export default function DocumentTemplateManager({ activeBatch }) {
 
   // Document Downloads
   const handleDownload = (docId, format) => {
-    window.open(`/api/documents/${docId}/download/${format}`, '_blank');
+    const docObj = documents.find(d => d._id === docId);
+    const fileName = docObj ? `${docObj.name.replace(/\s+/g, '_')}_v${docObj.version}.${format}` : `Document.${format}`;
+    downloadFile(`/api/documents/${docId}/download/${format}`, fileName);
     setTimeout(fetchLogs, 1000); // refresh logs
   };
 

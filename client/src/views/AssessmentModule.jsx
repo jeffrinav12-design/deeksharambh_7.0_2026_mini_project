@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Save, Plus, Trash2, Shield, Award, HelpCircle, ToggleLeft, ToggleRight, CheckSquare, AlertCircle } from 'lucide-react';
+import { Save, Plus, Trash2, Edit2, Shield, Award, HelpCircle, Download, ToggleLeft, ToggleRight, CheckSquare, AlertCircle, X } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
+import AiQuestionChatbot from '../components/AiQuestionChatbot';
 
 export default function AssessmentModule({ activeBatch, role }) {
   const [students, setStudents] = useState([]);
@@ -8,6 +10,7 @@ export default function AssessmentModule({ activeBatch, role }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [activeTab, setActiveTab] = useState('Portal'); // Builder, Portal
+  const [editingQId, setEditingQId] = useState(null);
 
   // Question Form State (Builder)
   const [qFormData, setQFormData] = useState({
@@ -56,10 +59,39 @@ export default function AssessmentModule({ activeBatch, role }) {
     setTimeout(() => setMessage({ text: '', type: '' }), 5000);
   };
 
+  const startEditQuestion = (q) => {
+    setEditingQId(q._id);
+    setQFormData({
+      subject: q.subject,
+      mathsStream: q.mathsStream || 'ALL',
+      questionText: q.questionText,
+      optionA: q.optionA,
+      optionB: q.optionB,
+      optionC: q.optionC,
+      optionD: q.optionD,
+      correctAnswer: q.correctAnswer
+    });
+    setActiveTab('Builder');
+  };
+
+  const cancelEditQuestion = () => {
+    setEditingQId(null);
+    setQFormData({
+      subject: 'Core',
+      mathsStream: 'ALL',
+      questionText: '',
+      optionA: '',
+      optionB: '',
+      optionC: '',
+      optionD: '',
+      correctAnswer: 'A'
+    });
+  };
+
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
     if (role === 'viewer') {
-      showToast('Viewers cannot add questions.', 'error');
+      showToast('Viewers cannot add or edit questions.', 'error');
       return;
     }
     if (!qFormData.questionText.trim()) {
@@ -80,20 +112,17 @@ export default function AssessmentModule({ activeBatch, role }) {
         optionD: qFormData.optionD,
         correctAnswer: qFormData.correctAnswer
       };
-      await axios.post('/api/questions', payload);
-      showToast('Question added successfully to database bank!');
-      setQFormData(prev => ({
-        ...prev,
-        questionText: '',
-        optionA: '',
-        optionB: '',
-        optionC: '',
-        optionD: '',
-        correctAnswer: 'A'
-      }));
+      if (editingQId) {
+        await axios.put(`/api/questions/${editingQId}`, payload);
+        showToast('Question updated successfully!');
+      } else {
+        await axios.post('/api/questions', payload);
+        showToast('Question added successfully to database bank!');
+      }
+      cancelEditQuestion();
       fetchData();
     } catch (err) {
-      showToast('Failed to add question', 'error');
+      showToast('Failed to save question', 'error');
     } finally {
       setLoading(false);
     }
@@ -151,8 +180,8 @@ export default function AssessmentModule({ activeBatch, role }) {
   const getFilteredQuestions = () => {
     const studentObj = students.find(s => s._id === selectedStudentId);
     if (!studentObj) return [];
-    if (selectedSubject === 'Maths') {
-      return questions.filter(q => q.subject === 'Maths' && q.mathsStream === studentObj.mathsStream);
+    if (selectedSubject === 'Maths' || selectedSubject === 'Mathematics') {
+      return questions.filter(q => (q.subject === 'Maths' || q.subject === 'Mathematics') && (q.mathsStream === 'ALL' || q.mathsStream === studentObj.mathsStream));
     }
     return questions.filter(q => q.subject === selectedSubject);
   };
@@ -196,6 +225,28 @@ export default function AssessmentModule({ activeBatch, role }) {
     }
   };
 
+  const handleAiAddQuestion = async (q) => {
+    try {
+      const payload = {
+        batchId: activeBatch._id,
+        subject: q.subject,
+        mathsStream: 'ALL',
+        questionText: q.questionText,
+        optionA: q.options[0],
+        optionB: q.options[1],
+        optionC: q.options[2],
+        optionD: q.options[3],
+        correctAnswer: String.fromCharCode(65 + q.correctOption),
+        bloomLevel: q.bloomLevel
+      };
+      await axios.post('/api/questions', payload);
+      showToast(`Question added to bank (${q.bloomLevel} Level)!`, 'success');
+      fetchData();
+    } catch (err) {
+      showToast('Failed to add question to bank', 'error');
+    }
+  };
+
   if (!activeBatch) {
     return <div className="text-gray-400 text-sm">Please select a batch from the Dashboard first.</div>;
   }
@@ -207,14 +258,20 @@ export default function AssessmentModule({ activeBatch, role }) {
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white tracking-wide uppercase">Assessment Module</h2>
-          <p className="text-xs text-gray-400 mt-1">Manage MCQ exams, build subject-wise question papers, and run simulated student online test sessions.</p>
+          <h2 className="text-xl font-bold text-slate-900 tracking-wide uppercase">Assessment Module</h2>
+          <p className="text-xs text-slate-500 mt-1">Manage MCQ exams, build subject-wise question papers using Bloom's Taxonomy AI, and run student online test sessions.</p>
         </div>
+        <button
+          onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/questions/csv`, `QuestionBank_${activeBatch.batchYearRange}.csv`)}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+        >
+          <Download className="w-4 h-4" /> Export Questions (CSV)
+        </button>
       </div>
 
       {message.text && (
         <div className={`p-4 rounded-xl flex items-center gap-3 border ${
-          message.type === 'error' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-green-500/10 border-green-500/30 text-green-400'
+          message.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
         }`}>
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium">{message.text}</span>
@@ -222,19 +279,19 @@ export default function AssessmentModule({ activeBatch, role }) {
       )}
 
       {/* Tabs Menu */}
-      <div className="flex gap-2 p-1 rounded-lg bg-navy-dark/40 border border-white/5 w-full sm:w-80">
+      <div className="flex gap-2 p-1.5 rounded-xl bg-sky-50 border border-sky-200 w-full sm:w-80 shadow-sm">
         <button
           onClick={() => { setActiveTab('Portal'); setTestResult(null); }}
-          className={`flex-1 py-2 text-xs font-semibold rounded capitalize transition-all ${
-            activeTab === 'Portal' ? 'bg-gold text-navy-dark font-bold' : 'text-gray-400 hover:text-white'
+          className={`flex-1 py-2 text-xs font-bold rounded-lg capitalize transition-all ${
+            activeTab === 'Portal' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           Student Test Portal
         </button>
         <button
           onClick={() => { setActiveTab('Builder'); setTestResult(null); }}
-          className={`flex-1 py-2 text-xs font-semibold rounded capitalize transition-all ${
-            activeTab === 'Builder' ? 'bg-gold text-navy-dark font-bold' : 'text-gray-400 hover:text-white'
+          className={`flex-1 py-2 text-xs font-bold rounded-lg capitalize transition-all ${
+            activeTab === 'Builder' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           Question Bank Builder
@@ -242,8 +299,14 @@ export default function AssessmentModule({ activeBatch, role }) {
       </div>
 
       {activeTab === 'Builder' ? (
-        /* Question Bank Builder */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-6">
+          {/* AI Question Generator Chatbot */}
+          {role !== 'viewer' && (
+            <AiQuestionChatbot onAddQuestion={handleAiAddQuestion} />
+          )}
+
+          {/* Question Bank Builder */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Add Question Form */}
           {role !== 'viewer' && (
             <div className="lg:col-span-1">
@@ -402,6 +465,7 @@ export default function AssessmentModule({ activeBatch, role }) {
               )}
             </div>
           </div>
+        </div>
         </div>
       ) : (
         /* Student Test Portal (Google Forms style) */

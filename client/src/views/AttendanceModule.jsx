@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Check, X, Download, Calendar, Save, CheckCircle, AlertCircle, Grid } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 export default function AttendanceModule({ activeBatch, role }) {
   const [students, setStudents] = useState([]);
@@ -133,12 +134,20 @@ export default function AttendanceModule({ activeBatch, role }) {
           <h2 className="text-xl font-bold text-white tracking-wide uppercase">Attendance Module</h2>
           <p className="text-xs text-gray-400 mt-1">Mark and edit daily student attendance, monitor class participation stats, and export attendance sheets.</p>
         </div>
-        <button
-          onClick={() => window.open(`/api/batches/${activeBatch._id}/export/attendance`, '_blank')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
-        >
-          <Download className="w-3.5 h-3.5" /> Export Attendance Sheet
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/attendance`, `AttendanceSheet_${activeBatch.batchYearRange}.docx`)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+          >
+            <Download className="w-4 h-4" /> Export DOCX
+          </button>
+          <button
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/attendance/csv`, `AttendanceSheet_${activeBatch.batchYearRange}.csv`)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+          >
+            <Download className="w-4 h-4" /> Export CSV
+          </button>
+        </div>
       </div>
 
       {message.text && (

@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'faculty', 'viewer'], default: 'viewer' },
+  role: { type: String, enum: ['admin', 'faculty', 'viewer', 'student'], default: 'viewer' },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -33,6 +33,9 @@ const batchSchema = new mongoose.Schema({
   circularFileName: { type: String },
   brochureFile: { type: String }, // Base64 uploaded brochure
   brochureFileName: { type: String },
+  invitationFile: { type: String }, // Base64 uploaded invitation
+  invitationFileName: { type: String },
+  managingTrusteeName: { type: String, default: 'Dr. Sandhya Ramachandran' },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -40,6 +43,8 @@ const batchSchema = new mongoose.Schema({
 const studentSchema = new mongoose.Schema({
   batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch', required: true },
   sNo: { type: Number, required: true },
+  rollNo: { type: String },
+  registerNo: { type: String },
   name: { type: String, required: true },
   mathsStream: { type: String, enum: ['M', 'NM'], required: true }, // M = Maths, NM = Non-Maths
   createdAt: { type: Date, default: Date.now }

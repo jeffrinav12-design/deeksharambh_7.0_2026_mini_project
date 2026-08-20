@@ -11,7 +11,7 @@ function drawLetterhead(doc) {
      .text("E-Mail: info@sankara.ac.in | Web: www.sankara.ac.in", { align: 'center' });
   
   doc.moveDown(0.5);
-  doc.moveTo(50, doc.y).lineTo(562, doc.y).strokeColor('#1a237e').strokeWidth(1.5).stroke();
+  doc.moveTo(50, doc.y).lineTo(562, doc.y).lineWidth(1.5).strokeColor('#1a237e').stroke();
   doc.moveDown(1);
 }
 
@@ -132,7 +132,7 @@ export function compilePdf(templateName, fieldValues) {
         doc.font('Times-Bold');
         doc.text("Field Name", 60, tableTop);
         doc.text("Value", 220, tableTop);
-        doc.moveTo(50, tableTop + 14).lineTo(562, tableTop + 14).strokeColor('#cbd5e1').strokeWidth(1).stroke();
+        doc.moveTo(50, tableTop + 14).lineTo(562, tableTop + 14).lineWidth(1).strokeColor('#cbd5e1').stroke();
         
         let currentY = tableTop + 22;
         doc.font('Times-Roman');

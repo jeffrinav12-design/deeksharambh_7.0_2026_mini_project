@@ -798,16 +798,149 @@ export async function generatePhotoPage(batch, photos) {
           ...createLetterhead(),
           new Paragraph({
             alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: "Department of Computer Science with Data Analytics", bold: true, font: "Times New Roman", size: 24 })]
+            children: [
+              new TextRun({ text: "Department of Computer Science with Data Analytics", bold: true, font: "Times New Roman", size: 24 })
+            ]
           }),
           new Paragraph({
             alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: "Fleeting Views of Bridge Courses", bold: true, font: "Times New Roman", size: 22 })]
+            children: [
+              new TextRun({ text: "Fleeting Views of Bridge Courses", bold: true, font: "Times New Roman", size: 22 })
+            ]
           }),
           new Paragraph({ text: "" }),
           photosTable,
           new Paragraph({ text: "" }),
           createSignatureBlock("HOD", "Principal")
+        ]
+      }
+    ]
+  });
+
+  return Packer.toBuffer(doc);
+}
+
+export async function generateInvitationDocx(batch) {
+  const trusteeName = batch.managingTrusteeName || "Dr. Sandhya Ramachandran";
+  const doc = new Document({
+    sections: [
+      {
+        children: [
+          ...createLetterhead(),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: "INVITATION",
+                bold: true,
+                font: "Times New Roman",
+                size: 32,
+                color: "1a237e"
+              })
+            ]
+          }),
+          new Paragraph({ text: "" }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: "The Management, Principal & Faculty of the Department of Computer Science with Data Analytics cordially invite you to the Inaugural Function of the Student Induction Programme",
+                font: "Times New Roman",
+                size: 24,
+                italics: true
+              })
+            ]
+          }),
+          new Paragraph({ text: "" }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: `Deeksharambh ${batch.deeksharambhVersion}`,
+                bold: true,
+                font: "Times New Roman",
+                size: 36,
+                color: "e65100"
+              })
+            ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: `(Academic Year: ${batch.academicYear})`,
+                bold: true,
+                font: "Times New Roman",
+                size: 22
+              })
+            ]
+          }),
+          new Paragraph({ text: "" }),
+          new Paragraph({ text: "" }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: "Dignitaries of the Function:",
+                bold: true,
+                underline: {},
+                font: "Times New Roman",
+                size: 26,
+              })
+            ]
+          }),
+          new Paragraph({ text: "" }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Presidential Address: ", bold: true, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: trusteeName, bold: true, font: "Times New Roman", size: 24, color: "1a237e" }),
+              new TextRun({ text: " (Managing Trustee, SCSC)", font: "Times New Roman", size: 22 })
+            ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Felicitation Address: ", bold: true, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: batch.principalName, bold: true, font: "Times New Roman", size: 24, color: "1a237e" }),
+              new TextRun({ text: " (Principal)", font: "Times New Roman", size: 22 })
+            ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Welcome Address: ", bold: true, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: batch.hodName, bold: true, font: "Times New Roman", size: 24, color: "1a237e" }),
+              new TextRun({ text: " (Head of the Department)", font: "Times New Roman", size: 22 })
+            ]
+          }),
+          new Paragraph({ text: "" }),
+          new Paragraph({ text: "" }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Date: ", bold: true, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: batch.startDate, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: " | Time: ", bold: true, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: "10:00 AM", font: "Times New Roman", size: 24 }),
+              new TextRun({ text: " | Venue: ", bold: true, font: "Times New Roman", size: 24 }),
+              new TextRun({ text: "College Auditorium", font: "Times New Roman", size: 24 })
+            ]
+          }),
+          new Paragraph({ text: "" }),
+          new Paragraph({ text: "" }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: "All first-year B.Sc. CSDA students are cordially requested to attend.",
+                font: "Times New Roman",
+                size: 20,
+                bold: true,
+                italics: true
+              })
+            ]
+          })
         ]
       }
     ]

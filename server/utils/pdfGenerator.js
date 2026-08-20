@@ -14,10 +14,19 @@ function drawLetterhead(doc) {
   doc.moveDown(1);
 }
 
-// 1. Generate Result Analysis PDF
-export function generateResultPdf(batch, results, rangeSummary, resStream) {
+function pdfToBuffer(doc) {
+  return new Promise((resolve, reject) => {
+    const buffers = [];
+    doc.on('data', chunk => buffers.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+    doc.end();
+  });
+}
+
+// 1. Generate Result Analysis PDF Buffer
+export async function generateResultPdf(batch, results, rangeSummary) {
   const doc = new PDFDocument({ margin: 50 });
-  doc.pipe(resStream);
 
   drawLetterhead(doc);
 
@@ -105,13 +114,12 @@ export function generateResultPdf(batch, results, rangeSummary, resStream) {
   doc.text("Tutor Signature", 50, sigY);
   doc.text("HOD / Principal Signature", 400, sigY);
 
-  doc.end();
+  return pdfToBuffer(doc);
 }
 
-// 2. Generate SIP Report PDF
-export function generateSipPdf(batch, reportText, objectives, resStream) {
+// 2. Generate SIP Report PDF Buffer
+export async function generateSipPdf(batch, reportText, objectives) {
   const doc = new PDFDocument({ margin: 50 });
-  doc.pipe(resStream);
 
   drawLetterhead(doc);
 
@@ -134,7 +142,7 @@ export function generateSipPdf(batch, reportText, objectives, resStream) {
   doc.moveDown(0.5);
 
   doc.font('Times-Roman').fontSize(10);
-  objectives.forEach(obj => {
+  (objectives || []).forEach(obj => {
     doc.text(`* ${obj}`, { indent: 20, lineGap: 3 });
   });
 
@@ -144,5 +152,74 @@ export function generateSipPdf(batch, reportText, objectives, resStream) {
   doc.text("Head of the Department", 50, sigY);
   doc.text("Principal", 450, sigY);
 
-  doc.end();
+  return pdfToBuffer(doc);
+}
+
+// 3. Generate Invitation PDF Buffer
+export async function generateInvitationPdf(batch) {
+  const doc = new PDFDocument({ margin: 50 });
+
+  // Draw double border around the card
+  doc.rect(20, 20, 555, 802).lineWidth(3).strokeColor('#1a237e').stroke();
+  doc.rect(24, 24, 547, 794).lineWidth(1).strokeColor('#e65100').stroke();
+
+  drawLetterhead(doc);
+
+  doc.moveDown(1);
+  doc.font('Times-Bold').fontSize(16).fillColor('#1a237e').text("INVITATION", { align: 'center' });
+  doc.moveDown(1.5);
+
+  doc.font('Times-Italic').fontSize(11).fillColor('#333333').text(
+    "The Management, Principal & Faculty of the Department of Computer Science with Data Analytics cordially invite you to the Inaugural Function of the Student Induction Programme",
+    { align: 'center', lineGap: 4 }
+  );
+
+  doc.moveDown(1.5);
+  doc.font('Times-Bold').fontSize(18).fillColor('#e65100').text(
+    `Deeksharambh ${batch.deeksharambhVersion}`,
+    { align: 'center' }
+  );
+  doc.font('Times-Bold').fontSize(11).fillColor('#333333').text(
+    `(Academic Year: ${batch.academicYear})`,
+    { align: 'center' }
+  );
+
+  doc.moveDown(2);
+  doc.font('Times-Bold').fontSize(12).fillColor('#1a237e').text(
+    "DIGNITARIES OF THE FUNCTION",
+    { align: 'center', underline: true }
+  );
+  doc.moveDown(1);
+
+  const trusteeName = batch.managingTrusteeName || "Dr. Sandhya Ramachandran";
+  doc.font('Times-Bold').fontSize(11).fillColor('#333333');
+  doc.text("Presidential Address: ", 100, doc.y, { continued: true });
+  doc.font('Times-Bold').fillColor('#1a237e').text(trusteeName, { continued: true });
+  doc.font('Times-Roman').fillColor('#333333').text(" (Managing Trustee, SCSC)");
+  doc.moveDown(0.5);
+
+  doc.font('Times-Bold').fontSize(11).fillColor('#333333');
+  doc.text("Felicitation Address: ", 100, doc.y, { continued: true });
+  doc.font('Times-Bold').fillColor('#1a237e').text(batch.principalName, { continued: true });
+  doc.font('Times-Roman').fillColor('#333333').text(" (Principal)");
+  doc.moveDown(0.5);
+
+  doc.font('Times-Bold').fontSize(11).fillColor('#333333');
+  doc.text("Welcome Address: ", 100, doc.y, { continued: true });
+  doc.font('Times-Bold').fillColor('#1a237e').text(batch.hodName, { continued: true });
+  doc.font('Times-Roman').fillColor('#333333').text(" (Head of the Department)");
+
+  doc.moveDown(2.5);
+  doc.font('Times-Bold').fontSize(11).fillColor('#e65100').text(
+    `Date: ${batch.startDate}  |  Time: 10:00 AM  |  Venue: College Auditorium`,
+    { align: 'center' }
+  );
+
+  doc.moveDown(2.5);
+  doc.font('Times-BoldItalic').fontSize(10).fillColor('#333333').text(
+    "All first-year B.Sc. CSDA students are cordially requested to attend.",
+    { align: 'center' }
+  );
+
+  return pdfToBuffer(doc);
 }

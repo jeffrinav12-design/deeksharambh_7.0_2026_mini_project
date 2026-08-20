@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Upload, Trash2, Camera, Download, AlertCircle, Plus } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 export default function PhotoGallery({ activeBatch, role }) {
   const [photos, setPhotos] = useState([]);
@@ -108,10 +109,10 @@ export default function PhotoGallery({ activeBatch, role }) {
           <p className="text-xs text-gray-400 mt-1">Upload fleeting course photos, apply styled camera watermarks, and compile photo pages.</p>
         </div>
         <button
-          onClick={() => window.open(`/api/batches/${activeBatch._id}/export/photos`, '_blank')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+          onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/photos`, `PhotoGallery_${activeBatch.batchYearRange}.docx`)}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition-all shadow cursor-pointer"
         >
-          <Download className="w-3.5 h-3.5" /> Export Album Document
+          <Download className="w-3.5 h-3.5 text-white" /> Export Album Document
         </button>
       </div>
 

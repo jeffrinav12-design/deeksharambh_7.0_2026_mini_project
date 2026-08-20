@@ -5,8 +5,9 @@ import {
 } from 'recharts';
 import { 
   Calendar, BookOpen, Users, CheckSquare, FileQuestion, 
-  BarChart3, FileText, Image as ImageIcon, Download, Eye 
+  BarChart3, FileText, Image as ImageIcon, Download, Eye, Mail 
 } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 export default function ArchiveViewer({ activeBatch }) {
   const [activeTab, setActiveTab] = useState('schedule');
@@ -77,6 +78,7 @@ export default function ArchiveViewer({ activeBatch }) {
     { id: 'results', label: 'Results & Chart', icon: BarChart3 },
     { id: 'sip', label: 'SIP Report', icon: FileText },
     { id: 'photos', label: 'Photo Gallery', icon: ImageIcon },
+    { id: 'invitation', label: 'Invitation Card', icon: Mail },
   ];
 
   return (
@@ -130,10 +132,10 @@ export default function ArchiveViewer({ activeBatch }) {
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-white text-base">Timetable Grid</h3>
                 <button 
-                  onClick={() => window.open(`/api/batches/${activeBatch._id}/export/schedule`, '_blank')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded bg-gold/10 border border-gold/30 text-xs font-bold text-gold hover:bg-gold/20"
+                  onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/schedule`, `Schedule_${activeBatch.batchYearRange}.docx`)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 shadow cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" /> Export Schedule
+                  <Download className="w-3.5 h-3.5 text-white" /> Export Schedule
                 </button>
               </div>
 
@@ -210,10 +212,10 @@ export default function ArchiveViewer({ activeBatch }) {
                         <p className="text-[10px] text-gray-500 uppercase mt-0.5">Stream: {s.mathsStream === 'ALL' ? 'ALL' : s.mathsStream === 'M' ? 'Maths' : 'Non-Maths'}</p>
                       </div>
                       <button 
-                        onClick={() => window.open(`/api/syllabi/${s._id}/export`, '_blank')}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded bg-gold/10 border border-gold/25 text-[10px] font-bold text-gold hover:bg-gold/20"
+                        onClick={() => downloadFile(`/api/syllabi/${s._id}/export`, `Syllabus_${s.subjectName.replace(/\s+/g, '_')}.docx`)}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-sky-600 text-white text-[10px] font-bold hover:bg-sky-700 shadow-sm cursor-pointer"
                       >
-                        <Download className="w-3 h-3" /> Export DOCX
+                        <Download className="w-3 h-3 text-white" /> Export DOCX
                       </button>
                     </div>
 
@@ -250,24 +252,24 @@ export default function ArchiveViewer({ activeBatch }) {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-white text-base">Student List</h3>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/students?type=Full`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students?type=Full`, `StudentList_Full_${activeBatch.batchYearRange}.docx`)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 shadow cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> Full List
+                    <Download className="w-3.5 h-3.5 text-white" /> Full List
                   </button>
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/students?type=Maths`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students?type=Maths`, `StudentList_Maths_${activeBatch.batchYearRange}.docx`)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 shadow cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> Maths Students
+                    <Download className="w-3.5 h-3.5 text-white" /> Maths Students
                   </button>
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/students?type=NonMaths`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students?type=NonMaths`, `StudentList_NonMaths_${activeBatch.batchYearRange}.docx`)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-cyan-600 text-white text-xs font-bold hover:bg-cyan-700 shadow cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> Non-Maths List
+                    <Download className="w-3.5 h-3.5 text-white" /> Non-Maths List
                   </button>
                 </div>
               </div>
@@ -306,10 +308,10 @@ export default function ArchiveViewer({ activeBatch }) {
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-white text-base">Date-wise Attendance Grid</h3>
                 <button 
-                  onClick={() => window.open(`/api/batches/${activeBatch._id}/export/attendance`, '_blank')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                  onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/attendance`, `AttendanceSheet_${activeBatch.batchYearRange}.docx`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 shadow-sm cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" /> Export Sheet
+                  <Download className="w-3.5 h-3.5 text-white" /> Export Sheet
                 </button>
               </div>
 
@@ -389,16 +391,16 @@ export default function ArchiveViewer({ activeBatch }) {
                 <h3 className="font-bold text-white text-base">Result Analysis Scorecard</h3>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/results/docx`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/results/docx`, `ResultAnalysis_${activeBatch.batchYearRange}.docx`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 shadow-sm cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> Word Report
+                    <Download className="w-3.5 h-3.5 text-white" /> Word Report
                   </button>
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/results/pdf`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/results/pdf`, `ResultAnalysis_${activeBatch.batchYearRange}.pdf`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 shadow-sm cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> PDF Report
+                    <Download className="w-3.5 h-3.5 text-white" /> PDF Report
                   </button>
                 </div>
               </div>
@@ -500,16 +502,16 @@ export default function ArchiveViewer({ activeBatch }) {
                 <h3 className="font-bold text-white text-base">Student Induction Program Report</h3>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/sip/docx`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/docx`, `SIP_Report_${activeBatch.batchYearRange}.docx`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 shadow-sm cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> Word Report
+                    <Download className="w-3.5 h-3.5 text-white" /> Word Report
                   </button>
                   <button 
-                    onClick={() => window.open(`/api/batches/${activeBatch._id}/export/sip/pdf`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/pdf`, `SIP_Report_${activeBatch.batchYearRange}.pdf`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 shadow-sm cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" /> PDF Report
+                    <Download className="w-3.5 h-3.5 text-white" /> PDF Report
                   </button>
                 </div>
               </div>
@@ -539,10 +541,10 @@ export default function ArchiveViewer({ activeBatch }) {
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-white text-base">Fleeting Views of Bridge Courses</h3>
                 <button 
-                  onClick={() => window.open(`/api/batches/${activeBatch._id}/export/photos`, '_blank')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+                  onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/photos`, `PhotoGallery_${activeBatch.batchYearRange}.docx`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 shadow-sm cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" /> Export Album
+                  <Download className="w-3.5 h-3.5 text-white" /> Export Album
                 </button>
               </div>
 
@@ -570,6 +572,108 @@ export default function ArchiveViewer({ activeBatch }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 9: INVITATION CARD */}
+          {activeTab === 'invitation' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-white text-base">Inaugural Invitation Card</h3>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/invitation/pdf`, `Invitation_${activeBatch.deeksharambhVersion}.pdf`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-cyan-600 text-white text-xs font-bold hover:bg-cyan-700 cursor-pointer shadow-sm"
+                  >
+                    <Download className="w-3.5 h-3.5 text-white" /> PDF Invitation
+                  </button>
+                  <button 
+                    onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/invitation/docx`, `Invitation_${activeBatch.deeksharambhVersion}.docx`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 cursor-pointer shadow-sm"
+                  >
+                    <Download className="w-3.5 h-3.5 text-white" /> Word Invitation
+                  </button>
+                </div>
+              </div>
+
+              {/* Interactive Invitation Card Preview */}
+              <div className="max-w-2xl mx-auto p-8 rounded-2xl border-4 border-double border-gold/40 bg-gradient-to-b from-navy-light/60 to-navy-dark/90 text-center space-y-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                {/* Decorative border accent */}
+                <div className="absolute inset-2 border border-gold/15 rounded-lg pointer-events-none"></div>
+                
+                {/* Header */}
+                <div className="space-y-1">
+                  <h4 className="font-bold text-white text-base tracking-wide uppercase">Sankara College of Science and Commerce</h4>
+                  <p className="text-[10px] text-gray-400 font-medium">Affiliated to Bharathiar University | Approved by AICTE</p>
+                  <p className="text-[10px] text-gray-400 font-medium">Accredited with A+ Grade by NAAC | Coimbatore - 641035</p>
+                  <div className="w-32 h-[1px] bg-gradient-to-r from-transparent via-gold/40 to-transparent mx-auto mt-2"></div>
+                </div>
+
+                <div className="py-2">
+                  <span className="px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-bold tracking-widest uppercase">
+                    CORDIAL INVITATION
+                  </span>
+                </div>
+
+                {/* Body wording */}
+                <p className="text-gray-300 text-sm font-serif italic max-w-md mx-auto leading-relaxed">
+                  The Management, Principal & Faculty of the Department of Computer Science with Data Analytics cordially invite you to the Inaugural Function of the Student Induction Programme
+                </p>
+
+                {/* Deeksharambh title */}
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-black text-gold tracking-wider uppercase font-serif">
+                    Deeksharambh {activeBatch.deeksharambhVersion}
+                  </h2>
+                  <p className="text-xs text-white/80 font-bold tracking-wider">
+                    Academic Year {activeBatch.academicYear}
+                  </p>
+                </div>
+
+                {/* Dignitaries */}
+                <div className="p-4 rounded-xl bg-black/20 border border-white/5 space-y-3 text-left max-w-md mx-auto">
+                  <h5 className="text-[11px] font-bold text-gold uppercase tracking-wider text-center border-b border-white/5 pb-1.5">
+                    Dignitaries of the Function
+                  </h5>
+                  <div className="text-xs space-y-2">
+                    <div>
+                      <span className="font-bold text-gray-300">Presidential Address: </span>
+                      <span className="text-gold font-bold">{activeBatch.managingTrusteeName || "Dr. Sandhya Ramachandran"}</span>
+                      <span className="text-gray-400 text-[10px]"> (Managing Trustee)</span>
+                    </div>
+                    <div>
+                      <span className="font-bold text-gray-300">Felicitation Address: </span>
+                      <span className="text-gold font-bold">{activeBatch.principalName}</span>
+                      <span className="text-gray-400 text-[10px]"> (Principal)</span>
+                    </div>
+                    <div>
+                      <span className="font-bold text-gray-300">Welcome Address: </span>
+                      <span className="text-gold font-bold">{activeBatch.hodName}</span>
+                      <span className="text-gray-400 text-[10px]"> (HOD, CSDA)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Venue & Date */}
+                <div className="grid grid-cols-3 gap-2 border-t border-b border-white/5 py-3 text-xs max-w-md mx-auto font-medium text-gray-300">
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">Date</p>
+                    <p className="mt-1 font-bold text-white">{activeBatch.startDate}</p>
+                  </div>
+                  <div className="border-l border-r border-white/5">
+                    <p className="text-[10px] text-gray-400 uppercase">Time</p>
+                    <p className="mt-1 font-bold text-white">10:00 AM</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">Venue</p>
+                    <p className="mt-1 font-bold text-white">Auditorium</p>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-gray-400 font-bold italic">
+                  * All B.Sc. CSDA first-year students and parents are requested to join.
+                </p>
               </div>
             </div>
           )}

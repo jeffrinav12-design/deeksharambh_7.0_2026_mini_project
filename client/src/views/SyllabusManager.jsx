@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Save, Plus, Trash2, BookOpen, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 export default function SyllabusManager({ activeBatch, role }) {
   const [syllabi, setSyllabi] = useState([]);
-  const [selectedSyllabusId, setSelectedSyllabusId] = useState('');
+  const [selectedSyllabusId, setSelectedSyllabusId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
@@ -132,6 +133,23 @@ export default function SyllabusManager({ activeBatch, role }) {
     setFormData(prev => ({ ...prev, units: updatedUnits }));
   };
 
+  const handleDeleteSyllabus = async () => {
+    if (!selectedSyllabusId) return;
+    if (role !== 'admin') {
+      showToast('Only admins can delete syllabus subjects.', 'error');
+      return;
+    }
+    if (!window.confirm('Are you sure you want to delete this syllabus subject?')) return;
+
+    try {
+      await axios.delete(`/api/syllabi/${selectedSyllabusId}`);
+      showToast('Syllabus subject deleted successfully!');
+      fetchSyllabi();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to delete syllabus subject', 'error');
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     if (role === 'viewer') {
@@ -244,13 +262,31 @@ export default function SyllabusManager({ activeBatch, role }) {
                   {selectedSyllabusId ? 'Edit Subject Syllabus' : 'New Subject Syllabus Details'}
                 </h3>
                 {selectedSyllabusId && (
-                  <button
-                    type="button"
-                    onClick={() => window.open(`/api/syllabi/${selectedSyllabusId}/export`, '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
-                  >
-                    <Download className="w-3.5 h-3.5" /> Export DOCX
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => downloadFile(`/api/syllabi/${selectedSyllabusId}/export`, `Syllabus_${formData.subjectName.replace(/\s+/g, '_') || 'Subject'}.docx`)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white cursor-pointer shadow-sm"
+                    >
+                      <Download className="w-3.5 h-3.5" /> DOCX
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadFile(`/api/syllabi/${selectedSyllabusId}/export/csv`, `Syllabus_${formData.subjectName.replace(/\s+/g, '_') || 'Subject'}.csv`)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white cursor-pointer shadow-sm"
+                    >
+                      <Download className="w-3.5 h-3.5" /> CSV
+                    </button>
+                    {role === 'admin' && (
+                      <button
+                        type="button"
+                        onClick={handleDeleteSyllabus}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-red-50 border border-red-200 text-xs font-bold text-red-600 hover:bg-red-100 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 

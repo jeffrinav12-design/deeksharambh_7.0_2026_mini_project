@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Save, Plus, Trash2, Calendar, Download, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 export default function ScheduleManager({ activeBatch, role }) {
   const [slots, setSlots] = useState([]);
@@ -50,6 +51,14 @@ export default function ScheduleManager({ activeBatch, role }) {
   const showToast = (text, type = 'success') => {
     setMessage({ text, type });
     setTimeout(() => setMessage({ text: '', type: '' }), 5000);
+  };
+
+  const clearDaySlot = (dayIndex) => {
+    if (role === 'viewer') return;
+    const updated = [...slots];
+    updated[dayIndex].periods = { I: '', II: '', III: '', IV: '', V: '', VI: '' };
+    setSlots(updated);
+    showToast(`Cleared periods for Day Order ${updated[dayIndex].dayOrder}`);
   };
 
   const handlePeriodChange = (dayIndex, periodKey, value) => {
@@ -135,12 +144,29 @@ export default function ScheduleManager({ activeBatch, role }) {
           <h2 className="text-xl font-bold text-white tracking-wide uppercase">Schedule & Abbreviation Legend</h2>
           <p className="text-xs text-gray-400 mt-1">Design the 6-day timetables, map periods I-VI, and map assigned faculty contacts.</p>
         </div>
-        <button
-          onClick={() => window.open(`/api/batches/${activeBatch._id}/export/schedule`, '_blank')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
-        >
-          <Download className="w-3.5 h-3.5" /> Export Timetable Page
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/schedule`, `Schedule_${activeBatch.batchYearRange}.docx`)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+          >
+            <Download className="w-4 h-4" /> Word (.docx)
+          </button>
+          <button
+            type="button"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/schedule/csv`, `Schedule_${activeBatch.batchYearRange}.csv`)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+          >
+            <Download className="w-4 h-4" /> CSV (.csv)
+          </button>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+          >
+            <Calendar className="w-4 h-4" /> Printable Grid
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -187,12 +213,13 @@ export default function ScheduleManager({ activeBatch, role }) {
                   <th className="p-3">Period IV (1:15-1:55)</th>
                   <th className="p-3">Period V (1:55-2:50)</th>
                   <th className="p-3">Period VI (2:50-3:45)</th>
+                  {role !== 'viewer' && <th className="p-3 w-16 text-center">Clear</th>}
                 </tr>
               </thead>
               <tbody>
                 {slots.map((slot, sIdx) => (
                   <tr key={sIdx} className="hover:bg-white/5 border-b border-white/5">
-                    <td className="p-3 font-semibold text-gold">{slot.dayOrder}</td>
+                    <td className="p-3 font-semibold text-blue-600">{slot.dayOrder}</td>
                     <td className="p-3">
                       <input
                         type="date"
@@ -215,6 +242,18 @@ export default function ScheduleManager({ activeBatch, role }) {
                         />
                       </td>
                     ))}
+                    {role !== 'viewer' && (
+                      <td className="p-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => clearDaySlot(sIdx)}
+                          className="p-1 rounded.lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                          title="Clear Day Order periods"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

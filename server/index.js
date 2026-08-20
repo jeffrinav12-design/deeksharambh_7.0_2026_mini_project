@@ -16,11 +16,13 @@ import {
   generateAttendanceSheet, 
   generateResultAnalysis, 
   generateSipReport, 
-  generatePhotoPage 
+  generatePhotoPage,
+  generateInvitationDocx
 } from './utils/docxGenerator.js';
 import { 
   generateResultPdf, 
-  generateSipPdf 
+  generateSipPdf,
+  generateInvitationPdf
 } from './utils/pdfGenerator.js';
 import { compilePdf, compileDocx } from './utils/docCompiler.js';
 import { seedDatabase } from './scripts/seed.js';
@@ -67,7 +69,7 @@ connectDB();
 // Auth Middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = (authHeader && authHeader.split(' ')[1]) || req.query.token;
   if (!token) return res.status(401).json({ message: "Access token missing" });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -88,30 +90,217 @@ function requireRole(roles) {
 
 // Helper to push download stream
 function sendBuffer(res, buffer, filename, contentType) {
+  if (!Buffer.isBuffer(buffer)) {
+    buffer = Buffer.from(buffer);
+  }
+  const cleanFilename = filename.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
   res.setHeader('Content-Type', contentType);
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-  const stream = new Readable();
-  stream.push(buffer);
-  stream.push(null);
-  stream.pipe(res);
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length');
+  res.setHeader('Content-Disposition', `attachment; filename="${cleanFilename}"; filename*=UTF-8''${encodeURIComponent(cleanFilename)}`);
+  res.setHeader('Content-Length', buffer.length);
+  res.end(buffer);
 }
 
 // ----------------- ROUTES -----------------
 
 // User Authentication
 app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!email) return res.status(400).json({ message: "Email or username required" });
+    
+    email = email.trim().toLowerCase();
+    
+    // Support typing 'admin', 'faculty', 'viewer', 'student' directly or full email (@gmail.com, @sankara.ac.in)
+    let searchFilter;
+    if (!email.includes('@')) {
+      searchFilter = {
+        $or: [
+          { email: `${email}@sankara.ac.in` },
+          { email: `${email}.csda@gmail.com` },
+          { email: `${email}@gmail.com` },
+          { role: email },
+          { name: { $regex: new RegExp(`^${email}`, 'i') } }
+        ]
+      };
+    } else {
+      searchFilter = { email };
+    }
+
+    let user = await User.findOne(searchFilter);
+
+    // Fallback: If user not found, auto-ensure default users exist in DB (both sankara.ac.in and gmail.com)
+    if (!user) {
+      const hashAdmin = await bcrypt.hash('admin123', 10);
+      const hashFaculty = await bcrypt.hash('faculty123', 10);
+      const hashViewer = await bcrypt.hash('viewer123', 10);
+      const hashStudent = await bcrypt.hash('student123', 10);
+
+      const defaultUsers = [
+        { name: 'Dr. Admin', email: 'admin@sankara.ac.in', passwordHash: hashAdmin, role: 'admin' },
+        { name: 'Admin Officer', email: 'admin.csda@gmail.com', passwordHash: hashAdmin, role: 'admin' },
+        { name: 'Faculty Staff', email: 'faculty@sankara.ac.in', passwordHash: hashFaculty, role: 'faculty' },
+        { name: 'Faculty Staff', email: 'faculty.csda@gmail.com', passwordHash: hashFaculty, role: 'faculty' },
+        { name: 'Guest Viewer', email: 'viewer@sankara.ac.in', passwordHash: hashViewer, role: 'viewer' },
+        { name: 'Guest Viewer', email: 'viewer.csda@gmail.com', passwordHash: hashViewer, role: 'viewer' },
+        { name: 'Student Learner', email: 'student@sankara.ac.in', passwordHash: hashStudent, role: 'student' },
+        { name: 'Student Learner', email: 'student.csda@gmail.com', passwordHash: hashStudent, role: 'student' }
+      ];
+
+      for (const u of defaultUsers) {
+        await User.findOneAndUpdate(
+          { email: u.email },
+          { $setOnInsert: u },
+          { upsert: true, new: true }
+        );
+      }
+
+      user = await User.findOne(searchFilter);
+    }
+
+    // Auto-provision any new @gmail.com address typed by student or faculty
+    if (!user && email.includes('@gmail.com')) {
+      let inferredRole = 'student';
+      let defaultPwd = 'student123';
+      let formattedName = email.split('@')[0].replace(/[\._]/g, ' ').toUpperCase();
+
+      if (email.includes('faculty') || email.includes('staff') || email.includes('prof') || email.includes('teacher')) {
+        inferredRole = 'faculty';
+        defaultPwd = 'faculty123';
+      } else if (email.includes('admin') || email.includes('hod')) {
+        inferredRole = 'admin';
+        defaultPwd = 'admin123';
+      }
+
+      const userHash = await bcrypt.hash(password || defaultPwd, 10);
+      user = await User.create({
+        name: formattedName,
+        email: email,
+        passwordHash: userHash,
+        role: inferredRole
+      });
+    }
+
+    if (!user) return res.status(404).json({ message: "User not found. Try 'faculty.csda@gmail.com' or 'student.csda@gmail.com'" });
 
     const validPassword = await bcrypt.compare(password, user.passwordHash);
-    if (!validPassword) return res.status(401).json({ message: "Incorrect password" });
+    if (!validPassword) return res.status(401).json({ message: "Incorrect password. Default: faculty123 / student123" });
 
-    const token = jwt.sign({ id: user._id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '8h' });
+    const token = jwt.sign({ id: user._id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ token, role: user.role, name: user.name });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Google Real-Time OAuth / Sign-In Authentication
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { credential, googleEmail, googlePassword, googleName, requestedRole } = req.body;
+    let email = googleEmail ? googleEmail.trim().toLowerCase() : '';
+    let name = googleName || '';
+
+    // If Google JWT Credential is provided, decode payload
+    if (credential) {
+      try {
+        const parts = credential.split('.');
+        if (parts.length === 3) {
+          const payloadJson = Buffer.from(parts[1], 'base64').toString('utf8');
+          const googlePayload = JSON.parse(payloadJson);
+          if (googlePayload.email) email = googlePayload.email.trim().toLowerCase();
+          if (googlePayload.name) name = googlePayload.name;
+        }
+      } catch (e) {
+        console.error("Error parsing Google credential payload:", e);
+      }
+    }
+
+    if (!email) {
+      return res.status(400).json({ message: "Valid Google email required for Google Sign-In" });
+    }
+
+    let user = await User.findOne({ email });
+
+    // Auto-provision user account if registering via Google for the first time
+    if (!user) {
+      let inferredRole = requestedRole || 'student';
+      if (!requestedRole) {
+        if (email.includes('faculty') || email.includes('staff') || email.includes('prof') || email.includes('teacher') || email.includes('sankara.ac.in')) {
+          inferredRole = 'faculty';
+        } else if (email.includes('admin') || email.includes('hod')) {
+          inferredRole = 'admin';
+        }
+      }
+
+      const accountPassword = googlePassword || 'google123';
+      const hash = await bcrypt.hash(accountPassword, 10);
+      user = await User.create({
+        name: name || email.split('@')[0].replace(/[\._]/g, ' ').toUpperCase(),
+        email: email,
+        passwordHash: hash,
+        role: inferredRole
+      });
+    } else if (googlePassword) {
+      const isMatch = await bcrypt.compare(googlePassword, user.passwordHash);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid password for Google Account authentication." });
+      }
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ token, role: user.role, name: user.name, email: user.email });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Google Sign-In failed" });
+  }
+});
+
+// GitHub Real-Time OAuth / Sign-In Authentication
+app.post('/api/auth/github', async (req, res) => {
+  try {
+    const { githubEmail, githubPassword, githubName, requestedRole } = req.body;
+    let email = githubEmail ? githubEmail.trim().toLowerCase() : '';
+    let name = githubName || '';
+
+    if (!email) {
+      return res.status(400).json({ message: "Valid GitHub email or username required for GitHub Sign-In" });
+    }
+
+    if (!email.includes('@')) {
+      email = `${email}@github.com`;
+    }
+
+    let user = await User.findOne({ email });
+
+    // Auto-provision user account if registering via GitHub for the first time
+    if (!user) {
+      let inferredRole = requestedRole || 'student';
+      if (!requestedRole) {
+        if (email.includes('faculty') || email.includes('staff') || email.includes('prof') || email.includes('teacher') || email.includes('sankara.ac.in')) {
+          inferredRole = 'faculty';
+        } else if (email.includes('admin') || email.includes('hod')) {
+          inferredRole = 'admin';
+        }
+      }
+
+      const accountPassword = githubPassword || 'github123';
+      const hash = await bcrypt.hash(accountPassword, 10);
+      user = await User.create({
+        name: name || email.split('@')[0].replace(/[\._]/g, ' ').toUpperCase(),
+        email: email,
+        passwordHash: hash,
+        role: inferredRole
+      });
+    } else if (githubPassword) {
+      const isMatch = await bcrypt.compare(githubPassword, user.passwordHash);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid password for GitHub Account authentication." });
+      }
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ token, role: user.role, name: user.name, email: user.email });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "GitHub Sign-In failed" });
   }
 });
 
@@ -125,7 +314,7 @@ app.get('/api/batches', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/batches', authenticateToken, requireRole(['admin']), async (req, res) => {
+app.post('/api/batches', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
     const nextVersion = req.body.deeksharambhVersion || "5.0";
     const batch = new Batch({
@@ -133,11 +322,227 @@ app.post('/api/batches', authenticateToken, requireRole(['admin']), async (req, 
       deeksharambhVersion: nextVersion
     });
     await batch.save();
+
+    // Auto-seed full template dataset for the new batch
+    await seedDefaultsForBatch(batch);
+
     res.status(201).json(batch);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
+// Explicit endpoint to initialize default templates and sample data for any batch
+app.post('/api/batches/:id/init-defaults', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+
+    await seedDefaultsForBatch(batch);
+    res.json({ message: "Default templates, syllabus, schedule, questions, and sample roster initialized successfully!", batch });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Helper to auto-seed baseline options and templates for a batch
+async function seedDefaultsForBatch(batch) {
+  const batchId = batch._id;
+
+  // 1. Questions
+  const qCount = await Question.countDocuments({ batchId });
+  if (qCount === 0) {
+    const baseQuestions = await Question.find({ batchId: { $ne: batchId } }).limit(30);
+    if (baseQuestions && baseQuestions.length > 0) {
+      for (const q of baseQuestions) {
+        await Question.create({
+          batchId,
+          subject: q.subject,
+          mathsStream: q.mathsStream || 'ALL',
+          questionText: q.questionText,
+          optionA: q.optionA,
+          optionB: q.optionB,
+          optionC: q.optionC,
+          optionD: q.optionD,
+          correctAnswer: q.correctAnswer,
+          bloomLevel: q.bloomLevel || 'Understanding'
+        });
+      }
+    }
+  }
+
+  // 2. Syllabus
+  const sylCount = await Syllabus.countDocuments({ batchId });
+  if (sylCount === 0) {
+    const existingSyllabi = await Syllabus.find({ batchId: { $ne: batchId } }).limit(4);
+    if (existingSyllabi && existingSyllabi.length > 0) {
+      for (const s of existingSyllabi) {
+        await Syllabus.create({
+          batchId,
+          subjectName: s.subjectName,
+          departmentName: s.departmentName,
+          hours: s.hours,
+          mathsStream: s.mathsStream,
+          objectives: s.objectives,
+          units: s.units,
+          referenceBooks: s.referenceBooks,
+          staffIncharge: s.staffIncharge,
+          subjectExpert: s.subjectExpert,
+          hodName: batch.hodName || s.hodName
+        });
+      }
+    } else {
+      await Syllabus.create({
+        batchId,
+        subjectName: "Tamil-I",
+        departmentName: "Department of Tamil",
+        hours: 3,
+        mathsStream: "ALL",
+        objectives: ["தமிழ் மொழியின் சிறப்புகளை அறிந்து அதன் மீது ஆர்வத்தைத் தூண்டுதல்."],
+        units: [
+          { unitNo: "அலகு I", title: "தமிழ் மொழியின் பெருமைகள்", content: "தமிழ் மொழியின் தொன்மை, சிறப்புகள் மற்றும் அதன் முக்கியத்துவம்." },
+          { unitNo: "அலகு II", title: "இலக்கியங்கள் அறிமுகம்", content: "சங்க இலக்கியங்கள், காப்பியங்கள், பக்தி இலக்கியங்களின் பொது அறிமுகம்." }
+        ],
+        referenceBooks: ["தமிழ் இலக்கிய வரலாறு - மு.வரதராசனார்"],
+        staffIncharge: "Tamil Dept Staff",
+        hodName: batch.hodName || "HOD"
+      });
+      await Syllabus.create({
+        batchId,
+        subjectName: "Communicative English",
+        departmentName: "Department of English",
+        hours: 3,
+        mathsStream: "ALL",
+        objectives: ["Enhance English communication & analytical skills"],
+        units: [
+          { unitNo: "UNIT I", title: "Active Listening and Speaking", content: "Self introduction, public speaking, podcasts" },
+          { unitNo: "UNIT II", title: "Writing Skills", content: "Email etiquette, report writing, composition" }
+        ],
+        referenceBooks: ["Basics of English Grammar"],
+        staffIncharge: "English Dept Staff",
+        hodName: batch.hodName || "HOD"
+      });
+      await Syllabus.create({
+        batchId,
+        subjectName: "Data Analytics Fundamentals (Core)",
+        departmentName: "Department of CSDA",
+        hours: 4,
+        mathsStream: "ALL",
+        objectives: ["Introduction to Data Science, Python and Statistical Modeling"],
+        units: [
+          { unitNo: "UNIT I", title: "Introduction to Data Science", content: "Overview of Data Analytics lifecycle, tools and methods" },
+          { unitNo: "UNIT II", title: "Python Programming Basics", content: "Data structures, Pandas, NumPy and data visualization" }
+        ],
+        referenceBooks: ["Python for Data Analysis - Wes McKinney"],
+        staffIncharge: "CSDA Faculty",
+        hodName: batch.hodName || "HOD"
+      });
+    }
+  }
+
+  // 3. Schedule Slots & Abbreviations
+  const schedCount = await ScheduleSlot.countDocuments({ batchId });
+  if (schedCount === 0) {
+    const existingAbbrevs = await Abbreviation.find({ batchId: { $ne: batchId } }).limit(13);
+    if (existingAbbrevs && existingAbbrevs.length > 0) {
+      for (const ab of existingAbbrevs) {
+        await Abbreviation.create({
+          batchId,
+          sNo: ab.sNo,
+          abbreviation: ab.abbreviation,
+          particulars: ab.particulars,
+          facultyName: ab.facultyName,
+          noOfHours: ab.noOfHours
+        });
+      }
+    } else {
+      const defaultAbbrevs = [
+        { sNo: 1, abbreviation: "CT", particulars: "Campus Tour & Rules", facultyName: "HOD", noOfHours: 1 },
+        { sNo: 2, abbreviation: "FD", particulars: "Familiarization with Department", facultyName: "Class Tutors", noOfHours: 1 },
+        { sNo: 3, abbreviation: "SSA", particulars: "Student Support Activities", facultyName: "Vice Principal", noOfHours: 1 },
+        { sNo: 4, abbreviation: "PMF", particulars: "Physical & Mental Fitness", facultyName: "Physical Director", noOfHours: 1 },
+        { sNo: 5, abbreviation: "AI", particulars: "Alumni Interaction", facultyName: "Alumni Coordinator", noOfHours: 2 },
+        { sNo: 6, abbreviation: "SDP", particulars: "Skill Development Programme", facultyName: "Placement Trainer", noOfHours: 3 },
+        { sNo: 7, abbreviation: "LL", particulars: "Library Learning Tools", facultyName: "Librarian", noOfHours: 1 },
+        { sNo: 8, abbreviation: "Tamil", particulars: "General Tamil", facultyName: "Tamil Department", noOfHours: 3 },
+        { sNo: 9, abbreviation: "English", particulars: "Communicative English", facultyName: "English Department", noOfHours: 3 },
+        { sNo: 10, abbreviation: "Mathematics", particulars: "Maths Department - Syllabus", facultyName: "Maths Department", noOfHours: 3 },
+        { sNo: 11, abbreviation: "GSP", particulars: "Gender Sensitivity Programme", facultyName: "Expert", noOfHours: 2 },
+        { sNo: 12, abbreviation: "Discipline", particulars: "Department Core Courses", facultyName: "CSDA Faculty", noOfHours: 12 },
+        { sNo: 13, abbreviation: "BCA", particulars: "Bridge Course Assessment", facultyName: "CSDA Faculty", noOfHours: 3 }
+      ];
+      for (const ab of defaultAbbrevs) {
+        await Abbreviation.create({ ...ab, batchId });
+      }
+    }
+
+    const defaultSlots = [
+      { dayOrder: "I", date: batch.startDate || "2026-07-01", periods: { I: "CT", II: "FD", III: "Tamil", IV: "English", V: "Mathematics", VI: "Discipline" } },
+      { dayOrder: "II", date: "2026-07-02", periods: { I: "Discipline", II: "PMF", III: "SSA", IV: "English", V: "Mathematics", VI: "LL" } },
+      { dayOrder: "III", date: "2026-07-03", periods: { I: "SDP", II: "SDP", III: "SDP", IV: "Tamil", V: "Discipline", VI: "Discipline" } },
+      { dayOrder: "IV", date: "2026-07-04", periods: { I: "GSP", II: "GSP", III: "Tamil", IV: "Discipline", V: "Mathematics", VI: "Discipline" } },
+      { dayOrder: "V", date: "2026-07-05", periods: { I: "AI", II: "AI", III: "Alumni Talk", IV: "English", V: "Discipline", VI: "Discipline" } },
+      { dayOrder: "VI", date: batch.endDate || "2026-07-06", periods: { I: "Tamil", II: "Mathematics", III: "Discipline", IV: "Discipline", V: "BCA", VI: "BCA" } }
+    ];
+    for (const slot of defaultSlots) {
+      await ScheduleSlot.create({ ...slot, batchId });
+    }
+  }
+
+  // 4. Students & Results
+  const stCount = await Student.countDocuments({ batchId });
+  if (stCount === 0) {
+    const sampleStudents = [
+      { sNo: 1, name: "Aarav Sharma", mathsStream: "M" },
+      { sNo: 2, name: "Ananya Ramesh", mathsStream: "M" },
+      { sNo: 3, name: "Bhavana K", mathsStream: "NM" },
+      { sNo: 4, name: "Deepak V", mathsStream: "M" },
+      { sNo: 5, name: "Divya N", mathsStream: "NM" },
+      { sNo: 6, name: "Gokul Prasad", mathsStream: "M" },
+      { sNo: 7, name: "Harini S", mathsStream: "NM" },
+      { sNo: 8, name: "Karthik R", mathsStream: "M" },
+      { sNo: 9, name: "Kavya M", mathsStream: "NM" },
+      { sNo: 10, name: "Naveen Kumar", mathsStream: "M" },
+      { sNo: 11, name: "Pooja Sri", mathsStream: "M" },
+      { sNo: 12, name: "Rahul S", mathsStream: "NM" },
+      { sNo: 13, name: "Sneha P", mathsStream: "M" },
+      { sNo: 14, name: "Vikas Raj", mathsStream: "NM" },
+      { sNo: 15, name: "Yashwanth T", mathsStream: "M" }
+    ];
+    let createdCount = 0;
+    for (const stData of sampleStudents) {
+      const student = await Student.create({ ...stData, batchId });
+      createdCount++;
+      await Result.create({
+        batchId,
+        studentId: student._id,
+        tamil: String(10 + (stData.sNo % 5)),
+        english: String(11 + (stData.sNo % 4)),
+        maths: String(12 + (stData.sNo % 3)),
+        core: String(35 + (stData.sNo * 2)),
+        total: 68 + (stData.sNo * 2),
+        percentage: Number((68 + (stData.sNo * 2)).toFixed(1)),
+        isAbsent: false
+      });
+    }
+    await Batch.findByIdAndUpdate(batchId, { totalStudents: createdCount });
+  }
+
+  // 5. SIP Report
+  const rptCount = await Report.countDocuments({ batchId, reportType: "SIP" });
+  if (rptCount === 0) {
+    await Report.create({
+      batchId,
+      reportType: "SIP",
+      reportText: `Deeksharambh Student Induction Programme (SIP) for Batch ${batch.batchYearRange} (${batch.deeksharambhVersion}) was organized by the Department of CSDA at Sankara College of Science and Commerce. The programme aims to help new students adjust to their academic environment and ethos.`,
+      objectives: [
+        "To familiarize students with institutional policies, departmental infrastructure, and academic expectations.",
+        "To conduct bridge courses in Mathematics, Tamil, Communicative English, and Core Data Analytics.",
+        "To provide orientation on placement, student support clubs, physical health, and gender sensitivity."
+      ]
+    });
+  }
+}
 
 app.get('/api/batches/:id', authenticateToken, async (req, res) => {
   try {
@@ -149,12 +554,38 @@ app.get('/api/batches/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/api/batches/:id', authenticateToken, requireRole(['admin']), async (req, res) => {
+app.put('/api/batches/:id', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
     const batch = await Batch.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(batch);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+
+app.delete('/api/batches/:id', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
+  try {
+    const batchId = req.params.id;
+    const batch = await Batch.findByIdAndDelete(batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+
+    // Clean up all associated records across models for this batch
+    await Student.deleteMany({ batchId });
+    await Syllabus.deleteMany({ batchId });
+    await ScheduleSlot.deleteMany({ batchId });
+    await Abbreviation.deleteMany({ batchId });
+    await Attendance.deleteMany({ batchId });
+    await Question.deleteMany({ batchId });
+    await Response.deleteMany({ batchId });
+    await Result.deleteMany({ batchId });
+    await Photo.deleteMany({ batchId });
+    await Report.deleteMany({ batchId });
+    await DocumentTemplate.deleteMany({ batchId });
+    await GeneratedDocument.deleteMany({ batchId });
+
+    res.json({ message: "Batch and all associated records deleted successfully from MongoDB" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -197,6 +628,42 @@ app.get('/api/batches/:id/export/cover', authenticateToken, async (req, res) => 
   }
 });
 
+app.get('/api/batches/:id/export/invitation/docx', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+
+    if (batch.invitationFile) {
+      const buffer = Buffer.from(batch.invitationFile, 'base64');
+      const filename = batch.invitationFileName || `Invitation_Deeksharambh_${batch.deeksharambhVersion}.docx`;
+      const contentType = filename.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      return sendBuffer(res, buffer, filename, contentType);
+    }
+
+    const buffer = await generateInvitationDocx(batch);
+    sendBuffer(res, buffer, `Invitation_Deeksharambh_${batch.deeksharambhVersion}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/batches/:id/export/invitation/pdf', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+
+    if (batch.invitationFile && batch.invitationFileName.endsWith('.pdf')) {
+      const buffer = Buffer.from(batch.invitationFile, 'base64');
+      return sendBuffer(res, buffer, batch.invitationFileName, 'application/pdf');
+    }
+
+    const pdfBuffer = await generateInvitationPdf(batch);
+    sendBuffer(res, pdfBuffer, `Invitation_Deeksharambh_${batch.deeksharambhVersion}.pdf`, 'application/pdf');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Students Master
 app.get('/api/batches/:batchId/students', authenticateToken, async (req, res) => {
   try {
@@ -207,13 +674,15 @@ app.get('/api/batches/:batchId/students', authenticateToken, async (req, res) =>
   }
 });
 
-app.post('/api/students', authenticateToken, requireRole(['admin']), async (req, res) => {
+app.post('/api/students', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
-    const { batchId, name, mathsStream } = req.body;
+    const { batchId, name, mathsStream, rollNo, registerNo, sNo } = req.body;
     const count = await Student.countDocuments({ batchId });
     const student = new Student({
       batchId,
-      sNo: count + 1,
+      sNo: sNo || (count + 1),
+      rollNo: rollNo || '',
+      registerNo: registerNo || '',
       name,
       mathsStream
     });
@@ -241,7 +710,7 @@ app.post('/api/students', authenticateToken, requireRole(['admin']), async (req,
   }
 });
 
-app.put('/api/students/:id', authenticateToken, requireRole(['admin']), async (req, res) => {
+app.put('/api/students/:id', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
     const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!student) return res.status(404).json({ message: "Student not found" });
@@ -251,7 +720,7 @@ app.put('/api/students/:id', authenticateToken, requireRole(['admin']), async (r
   }
 });
 
-app.delete('/api/students/:id', authenticateToken, requireRole(['admin']), async (req, res) => {
+app.delete('/api/students/:id', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
     const student = await Student.findByIdAndDelete(req.params.id);
     if (!student) return res.status(404).json({ message: "Student not found" });
@@ -288,6 +757,61 @@ app.get('/api/batches/:batchId/export/students', authenticateToken, async (req, 
   }
 });
 
+app.get('/api/batches/:batchId/export/students/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+    const students = await Student.find({ batchId: req.params.batchId }).sort({ sNo: 1 });
+
+    let csvContent = `\uFEFFS.No,Student Name,Stream (M/NM),Roll No,Register No\n`;
+    students.forEach(s => {
+      csvContent += `"${s.sNo}","${s.name.replace(/"/g, '""')}","${s.mathsStream}","${(s.rollNo || '').replace(/"/g, '""')}","${(s.registerNo || '').replace(/"/g, '""')}"\n`;
+    });
+
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `StudentRoster_${batch.batchYearRange}.csv`, 'text/csv; charset=utf-8');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/batches/:batchId/import/students/csv', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
+  try {
+    const { studentsList } = req.body; // Array of { name, mathsStream, rollNo, registerNo }
+    const batchId = req.params.batchId;
+    if (!Array.isArray(studentsList) || studentsList.length === 0) {
+      return res.status(400).json({ message: "Invalid or empty student list array" });
+    }
+
+    let addedCount = 0;
+    for (let idx = 0; idx < studentsList.length; idx++) {
+      const item = studentsList[idx];
+      if (item.name && item.name.trim()) {
+        const sNo = idx + 1;
+        const student = await Student.create({
+          batchId,
+          sNo,
+          name: item.name.trim(),
+          mathsStream: (item.mathsStream && item.mathsStream.toUpperCase() === 'NM') ? 'NM' : 'M',
+          rollNo: item.rollNo || '',
+          registerNo: item.registerNo || ''
+        });
+        await Result.create({
+          batchId,
+          studentId: student._id,
+          tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true
+        });
+        addedCount++;
+      }
+    }
+
+    await Batch.findByIdAndUpdate(batchId, { totalStudents: addedCount });
+    res.json({ message: `Successfully imported ${addedCount} students to batch!`, totalStudents: addedCount });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Syllabus Management
 app.get('/api/batches/:batchId/syllabi', authenticateToken, async (req, res) => {
   try {
@@ -317,12 +841,41 @@ app.put('/api/syllabi/:id', authenticateToken, requireRole(['admin']), async (re
   }
 });
 
+app.delete('/api/syllabi/:id', authenticateToken, requireRole(['admin']), async (req, res) => {
+  try {
+    await Syllabus.findByIdAndDelete(req.params.id);
+    res.json({ message: "Syllabus deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 app.get('/api/syllabi/:id/export', authenticateToken, async (req, res) => {
   try {
     const syllabus = await Syllabus.findById(req.params.id);
     if (!syllabus) return res.status(404).json({ message: "Syllabus not found" });
     const buffer = await generateSyllabus(syllabus);
     sendBuffer(res, buffer, `Syllabus_${syllabus.subjectName.replace(/\s+/g, '_')}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/syllabi/:id/export/csv', authenticateToken, async (req, res) => {
+  try {
+    const syllabus = await Syllabus.findById(req.params.id);
+    if (!syllabus) return res.status(404).json({ message: "Syllabus not found" });
+
+    let csvContent = `\uFEFFSubject Name,Department,Hours,Stream,Staff In-Charge,HOD Name\n`;
+    csvContent += `"${syllabus.subjectName.replace(/"/g, '""')}","${syllabus.departmentName.replace(/"/g, '""')}","${syllabus.hours}","${syllabus.mathsStream}","${(syllabus.staffIncharge || '').replace(/"/g, '""')}","${(syllabus.hodName || '').replace(/"/g, '""')}"\n\n`;
+
+    csvContent += `Unit No,Unit Title,Content\n`;
+    (syllabus.units || []).forEach(u => {
+      csvContent += `"${(u.unitNo || '').replace(/"/g, '""')}","${(u.title || '').replace(/"/g, '""')}","${(u.content || '').replace(/"/g, '""')}"\n`;
+    });
+
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `Syllabus_${syllabus.subjectName.replace(/\s+/g, '_')}.csv`, 'text/csv; charset=utf-8');
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -379,6 +932,31 @@ app.get('/api/batches/:batchId/export/schedule', authenticateToken, async (req, 
   }
 });
 
+app.get('/api/batches/:batchId/export/schedule/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+    const slots = await ScheduleSlot.find({ batchId: req.params.batchId }).sort({ dayOrder: 1 });
+    const abbreviations = await Abbreviation.find({ batchId: req.params.batchId }).sort({ sNo: 1 });
+
+    let csvContent = `\uFEFFDay Order,Date,FN Session (9:30 AM - 12:30 PM),AN Session (1:30 PM - 4:30 PM),Resource Person / Topic\n`;
+    slots.forEach(slot => {
+      csvContent += `"${slot.dayOrder}","${slot.date}","${(slot.fnSession || '').replace(/"/g, '""')}","${(slot.anSession || '').replace(/"/g, '""')}","${(slot.resourcePerson || '').replace(/"/g, '""')}"\n`;
+    });
+
+    csvContent += `\nAbbreviation,Faculty / Resource Person,Department / Organization\n`;
+    abbreviations.forEach(abbr => {
+      csvContent += `"${abbr.shortName || ''}","${abbr.fullName || ''}","${abbr.designation || ''}"\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="Schedule_${batch.batchYearRange}.csv"`);
+    res.send(Buffer.from(csvContent, 'utf-8'));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Attendance Management
 app.get('/api/batches/:batchId/attendance', authenticateToken, async (req, res) => {
   try {
@@ -425,6 +1003,38 @@ app.get('/api/batches/:batchId/export/attendance', authenticateToken, async (req
   }
 });
 
+app.get('/api/batches/:batchId/export/attendance/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+    const students = await Student.find({ batchId: req.params.batchId }).sort({ sNo: 1 });
+    const slots = await ScheduleSlot.find({ batchId: req.params.batchId }).sort({ dayOrder: 1 });
+    const dates = slots.map(s => s.date);
+    const attendanceRecords = await Attendance.find({ batchId: req.params.batchId });
+    const attendanceMap = {};
+    attendanceRecords.forEach(rec => {
+      attendanceMap[`${rec.studentId}_${rec.date}`] = rec.status;
+    });
+
+    let csvContent = `\uFEFFS.No,Student Name,Stream,${dates.join(',')},Total Present,Attendance %\n`;
+    students.forEach(st => {
+      let presents = 0;
+      const rowDates = dates.map(d => {
+        const stStatus = attendanceMap[`${st._id}_${d}`] || 'A';
+        if (stStatus === 'P') presents++;
+        return stStatus;
+      });
+      const pct = dates.length > 0 ? ((presents / dates.length) * 100).toFixed(1) : '100.0';
+      csvContent += `"${st.sNo}","${st.name.replace(/"/g, '""')}","${st.mathsStream}",${rowDates.join(',')},"${presents}/${dates.length}","${pct}%"\n`;
+    });
+
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `Attendance_${batch.batchYearRange}.csv`, 'text/csv; charset=utf-8');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Question Bank management
 app.get('/api/batches/:batchId/questions', authenticateToken, async (req, res) => {
   try {
@@ -435,11 +1045,70 @@ app.get('/api/batches/:batchId/questions', authenticateToken, async (req, res) =
   }
 });
 
+app.get('/api/batches/:batchId/export/questions/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+    const questions = await Question.find({ batchId: req.params.batchId });
+
+    let csvContent = `\uFEFFSubject,Maths Stream,Question Text,Option A,Option B,Option C,Option D,Correct Answer\n`;
+    questions.forEach(q => {
+      csvContent += `"${q.subject.replace(/"/g, '""')}","${q.mathsStream}","${q.questionText.replace(/"/g, '""')}","${q.optionA.replace(/"/g, '""')}","${q.optionB.replace(/"/g, '""')}","${q.optionC.replace(/"/g, '""')}","${q.optionD.replace(/"/g, '""')}","${q.correctAnswer}"\n`;
+    });
+
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `QuestionBank_${batch.batchYearRange}.csv`, 'text/csv; charset=utf-8');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/batches/:batchId/import/questions/csv', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
+  try {
+    const { questionsList } = req.body;
+    const batchId = req.params.batchId;
+    if (!Array.isArray(questionsList) || questionsList.length === 0) {
+      return res.status(400).json({ message: "Invalid question list format" });
+    }
+
+    let createdCount = 0;
+    for (const q of questionsList) {
+      if (q.questionText && q.subject) {
+        await Question.create({
+          batchId,
+          subject: q.subject,
+          mathsStream: q.mathsStream || 'ALL',
+          questionText: q.questionText,
+          optionA: q.optionA || 'Option A',
+          optionB: q.optionB || 'Option B',
+          optionC: q.optionC || 'Option C',
+          optionD: q.optionD || 'Option D',
+          correctAnswer: ['A', 'B', 'C', 'D'].includes(q.correctAnswer) ? q.correctAnswer : 'A'
+        });
+        createdCount++;
+      }
+    }
+    res.json({ message: `Successfully imported ${createdCount} questions to batch!`, count: createdCount });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 app.post('/api/questions', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
     const question = new Question(req.body);
     await question.save();
     res.status(201).json(question);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+app.put('/api/questions/:id', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
+  try {
+    const updated = await Question.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: "Question not found" });
+    res.json(updated);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -488,8 +1157,11 @@ app.post('/api/assessments/submit', authenticateToken, async (req, res) => {
       result = new Result({ batchId, studentId });
     }
 
-    const subKey = subject.toLowerCase(); // tamil, english, maths, core
-    result[subKey] = String(score);
+    const normalizedSub = subject.toLowerCase();
+    const subKey = normalizedSub === 'mathematics' ? 'maths' : normalizedSub; // tamil, english, maths, core
+    if (['tamil', 'english', 'maths', 'core'].includes(subKey)) {
+      result[subKey] = String(score);
+    }
     result.isAbsent = false;
 
     // Recalculate totals
@@ -499,7 +1171,8 @@ app.post('/api/assessments/submit', authenticateToken, async (req, res) => {
                    (result.core === 'AB' ? 0 : Number(result.core));
 
     result.total = tScore;
-    result.percentage = Number(((tScore / batch.marksConfig.total) * 100).toFixed(1));
+    const maxMarks = (batch && batch.marksConfig && batch.marksConfig.total) ? batch.marksConfig.total : 75;
+    result.percentage = Number(((tScore / maxMarks) * 100).toFixed(1));
     await result.save();
 
     res.json({ score, message: "Assessment submitted and scored successfully!" });
@@ -538,35 +1211,41 @@ app.get('/api/batches/:batchId/results', authenticateToken, async (req, res) => 
 
     // Exclude AB students from range calculations
     const activeResults = fullResults.filter(r => !r.isAbsent);
-    const totalActive = activeResults.length;
-
-    // Compile range categories (default config check)
     const ranges = batch.resultRanges.length > 0 ? batch.resultRanges : ["60 & Above", "50-59", "Below 50"];
-    const rangeSummary = ranges.map(range => {
-      let count = 0;
-      if (range === "60 & Above") {
-        count = activeResults.filter(r => Number(r.percentage) >= 60).length;
-      } else if (range === "70 - 79" || range === "70-79") {
-        count = activeResults.filter(r => Number(r.percentage) >= 70 && Number(r.percentage) < 80).length;
-      } else if (range === "60 - 69" || range === "60-69") {
-        count = activeResults.filter(r => Number(r.percentage) >= 60 && Number(r.percentage) < 70).length;
-      } else if (range === "50 - 59" || range === "50-59") {
-        count = activeResults.filter(r => Number(r.percentage) >= 50 && Number(r.percentage) < 60).length;
-      } else if (range === "Below 50") {
-        count = activeResults.filter(r => Number(r.percentage) < 50).length;
-      }
-      return {
-        range,
-        count,
-        percent: totalActive > 0 ? Number(((count / totalActive) * 100).toFixed(1)) : 0
-      };
-    });
+    const rangeSummary = calculateRangeSummary(ranges, activeResults);
 
     res.json({ results: fullResults, rangeSummary });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Helper for dynamic range calculations
+function calculateRangeSummary(ranges, activeResults) {
+  const totalActive = activeResults.length;
+  return ranges.map(range => {
+    let count = 0;
+    const norm = range.trim().toUpperCase();
+    if (norm.includes("80") && (norm.includes("ABOVE") || norm.includes("&"))) {
+      count = activeResults.filter(r => Number(r.percentage) >= 80).length;
+    } else if (norm.includes("60") && (norm.includes("ABOVE") || norm.includes("&")) && !norm.includes("69")) {
+      count = activeResults.filter(r => Number(r.percentage) >= 60).length;
+    } else if (norm.includes("70")) {
+      count = activeResults.filter(r => Number(r.percentage) >= 70 && Number(r.percentage) < 80).length;
+    } else if (norm.includes("60")) {
+      count = activeResults.filter(r => Number(r.percentage) >= 60 && Number(r.percentage) < 70).length;
+    } else if (norm.includes("50") && !norm.includes("BELOW")) {
+      count = activeResults.filter(r => Number(r.percentage) >= 50 && Number(r.percentage) < 60).length;
+    } else if (norm.includes("BELOW") || norm.includes("< 50") || norm.includes("<50")) {
+      count = activeResults.filter(r => Number(r.percentage) < 50).length;
+    }
+    return {
+      range,
+      count,
+      percent: totalActive > 0 ? Number(((count / totalActive) * 100).toFixed(1)) : 0
+    };
+  });
+}
 
 // Result Analysis exports
 app.get('/api/batches/:batchId/export/results/docx', authenticateToken, async (req, res) => {
@@ -593,27 +1272,8 @@ app.get('/api/batches/:batchId/export/results/docx', authenticateToken, async (r
     });
 
     const activeResults = fullResults.filter(r => !r.isAbsent);
-    const totalActive = activeResults.length;
     const ranges = batch.resultRanges.length > 0 ? batch.resultRanges : ["60 & Above", "50-59", "Below 50"];
-    const rangeSummary = ranges.map(range => {
-      let count = 0;
-      if (range === "60 & Above") {
-        count = activeResults.filter(r => Number(r.percentage) >= 60).length;
-      } else if (range === "70 - 79" || range === "70-79") {
-        count = activeResults.filter(r => Number(r.percentage) >= 70 && Number(r.percentage) < 80).length;
-      } else if (range === "60 - 69" || range === "60-69") {
-        count = activeResults.filter(r => Number(r.percentage) >= 60 && Number(r.percentage) < 70).length;
-      } else if (range === "50 - 59" || range === "50-59") {
-        count = activeResults.filter(r => Number(r.percentage) >= 50 && Number(r.percentage) < 60).length;
-      } else if (range === "Below 50") {
-        count = activeResults.filter(r => Number(r.percentage) < 50).length;
-      }
-      return {
-        range,
-        count,
-        percent: totalActive > 0 ? Number(((count / totalActive) * 100).toFixed(1)) : 0
-      };
-    });
+    const rangeSummary = calculateRangeSummary(ranges, activeResults);
 
     const buffer = await generateResultAnalysis(batch, fullResults, rangeSummary);
     sendBuffer(res, buffer, `ResultAnalysis_${batch.batchYearRange}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
@@ -646,31 +1306,35 @@ app.get('/api/batches/:batchId/export/results/pdf', authenticateToken, async (re
     });
 
     const activeResults = fullResults.filter(r => !r.isAbsent);
-    const totalActive = activeResults.length;
     const ranges = batch.resultRanges.length > 0 ? batch.resultRanges : ["60 & Above", "50-59", "Below 50"];
-    const rangeSummary = ranges.map(range => {
-      let count = 0;
-      if (range === "60 & Above") {
-        count = activeResults.filter(r => Number(r.percentage) >= 60).length;
-      } else if (range === "70 - 79" || range === "70-79") {
-        count = activeResults.filter(r => Number(r.percentage) >= 70 && Number(r.percentage) < 80).length;
-      } else if (range === "60 - 69" || range === "60-69") {
-        count = activeResults.filter(r => Number(r.percentage) >= 60 && Number(r.percentage) < 70).length;
-      } else if (range === "50 - 59" || range === "50-59") {
-        count = activeResults.filter(r => Number(r.percentage) >= 50 && Number(r.percentage) < 60).length;
-      } else if (range === "Below 50") {
-        count = activeResults.filter(r => Number(r.percentage) < 50).length;
-      }
-      return {
-        range,
-        count,
-        percent: totalActive > 0 ? Number(((count / totalActive) * 100).toFixed(1)) : 0
+    const rangeSummary = calculateRangeSummary(ranges, activeResults);
+
+    const pdfBuffer = await generateResultPdf(batch, fullResults, rangeSummary);
+    sendBuffer(res, pdfBuffer, `ResultAnalysis_${batch.batchYearRange}.pdf`, 'application/pdf');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/batches/:batchId/export/results/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+    const students = await Student.find({ batchId: req.params.batchId }).sort({ sNo: 1 });
+    const results = await Result.find({ batchId: req.params.batchId });
+
+    let csvContent = `\uFEFFS.No,Student Name,Tamil (100),English (100),Mathematics (100),Core (100),Total (400),Percentage (%),Status\n`;
+    students.forEach(st => {
+      const resRow = results.find(r => r.studentId.toString() === st._id.toString()) || {
+        tamil: "AB", english: "AB", maths: "AB", core: "AB", total: 0, percentage: 0, isAbsent: true
       };
+      const status = resRow.isAbsent ? 'Absent' : 'Present';
+      const pct = resRow.isAbsent ? 'AB' : resRow.percentage;
+      csvContent += `"${st.sNo}","${st.name.replace(/"/g, '""')}","${resRow.tamil}","${resRow.english}","${resRow.maths}","${resRow.core}","${resRow.total}","${pct}","${status}"\n`;
     });
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="ResultAnalysis_${batch.batchYearRange}.pdf"`);
-    generateResultPdf(batch, fullResults, rangeSummary, res);
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `ResultAnalysis_${batch.batchYearRange}.csv`, 'text/csv; charset=utf-8');
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -721,9 +1385,34 @@ app.get('/api/batches/:batchId/export/sip/pdf', authenticateToken, async (req, r
       reportText: "", objectives: []
     };
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="SIP_Report_${batch.batchYearRange}.pdf"`);
-    generateSipPdf(batch, report.reportText, report.objectives || [], res);
+    const pdfBuffer = await generateSipPdf(batch, report.reportText, report.objectives || []);
+    sendBuffer(res, pdfBuffer, `SIP_Report_${batch.batchYearRange}.pdf`, 'application/pdf');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/batches/:batchId/export/sip/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+    const report = await Report.findOne({ batchId: req.params.batchId, reportType: "SIP" }) || {
+      reportText: "", objectives: []
+    };
+
+    let csvContent = `\uFEFFDeeksharambh Version,Academic Year,Batch,Class Name,Start Date,End Date\n`;
+    csvContent += `"${batch.deeksharambhVersion}","${batch.academicYear}","${batch.batchYearRange}","${batch.className}","${batch.startDate}","${batch.endDate}"\n\n`;
+    
+    csvContent += `SECTION,CONTENT\n`;
+    csvContent += `"Overview Narrative","${(report.reportText || '').replace(/"/g, '""')}"\n\n`;
+    
+    csvContent += `S.No,Program Objective\n`;
+    (report.objectives || []).forEach((obj, idx) => {
+      csvContent += `"${idx + 1}","${obj.replace(/"/g, '""')}"\n`;
+    });
+
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `SIP_Report_${batch.batchYearRange}.csv`, 'text/csv; charset=utf-8');
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

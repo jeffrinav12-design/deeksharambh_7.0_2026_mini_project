@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Save, Check, Download, FileText } from 'lucide-react';
+import { downloadFile } from '../utils/downloadHelper';
 
 export default function SipReport({ activeBatch }) {
   const [reportText, setReportText] = useState('');
@@ -86,16 +87,18 @@ Over the years, this Student Induction Programme has made a noticeable impact on
         </div>
         <div className="flex gap-2">
           <button 
-            onClick={() => window.open(`/api/batches/${activeBatch._id}/export/sip/docx`, '_blank')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+            type="button"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/docx`, `SIP_Report_${activeBatch.batchYearRange}.docx`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 cursor-pointer shadow-sm"
           >
-            <Download className="w-3.5 h-3.5" /> Word Doc
+            <Download className="w-3.5 h-3.5 text-white" /> Word Doc
           </button>
           <button 
-            onClick={() => window.open(`/api/batches/${activeBatch._id}/export/sip/pdf`, '_blank')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold/10 border border-gold/25 text-xs font-bold text-gold hover:bg-gold/20"
+            type="button"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/pdf`, `SIP_Report_${activeBatch.batchYearRange}.pdf`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 cursor-pointer shadow-sm"
           >
-            <Download className="w-3.5 h-3.5" /> PDF Doc
+            <Download className="w-3.5 h-3.5 text-white" /> PDF Doc
           </button>
         </div>
       </div>
