@@ -1721,6 +1721,22 @@ app.get('/api/activity-logs', authenticateToken, async (req, res) => {
   }
 });
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDistPath = path.join(__dirname, '../client/dist');
+
+app.use(express.static(clientDistPath));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+    if (err) next();
+  });
+});
+
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
