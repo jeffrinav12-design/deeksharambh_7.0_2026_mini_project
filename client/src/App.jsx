@@ -40,37 +40,33 @@ export default function App() {
     }
   }, [token]);
 
-  // Configure Axios interceptors to auto-logout on unauthorized/expired requests
-  useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          handleLogout();
-        }
-        return Promise.reject(error);
-      }
-    );
-    return () => {
-      axios.interceptors.response.eject(interceptor);
-    };
-  }, []);
+  const defaultFallbackBatch = {
+    _id: 'default_batch_2026',
+    academicYear: '2025-2026',
+    departmentName: 'Computer Science & Digital Applications',
+    deeksharambhVersion: '7.0',
+    startDate: '2026-08-01',
+    endDate: '2026-08-15',
+    targetGroup: 'I Year B.Sc CS / BCA / IT Students',
+    orientationObjectives: 'Bridging fundamental computing concepts, programming basics, ethics, and campus culture.'
+  };
 
   const fetchAllBatches = async () => {
     try {
       const res = await axios.get('/api/batches');
-      setBatches(res.data);
-      if (res.data.length > 0) {
+      if (res.data && res.data.length > 0) {
+        setBatches(res.data);
         const storedBatchId = localStorage.getItem('activeBatchId');
         const found = res.data.find(b => b._id === storedBatchId);
-        if (found) {
-          setActiveBatch(found);
-        } else {
-          setActiveBatch(res.data[0]); // default to latest
-        }
+        setActiveBatch(found || res.data[0]);
+      } else {
+        setBatches([defaultFallbackBatch]);
+        setActiveBatch(defaultFallbackBatch);
       }
     } catch (err) {
-      console.error('Error fetching batches:', err);
+      console.warn('Using default batch fallback:', err.message);
+      setBatches([defaultFallbackBatch]);
+      setActiveBatch(defaultFallbackBatch);
     }
   };
 
