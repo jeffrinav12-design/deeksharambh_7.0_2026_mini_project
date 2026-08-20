@@ -1,0 +1,28 @@
+services:
+  # Deeksharambh Backend API Web Service on Render
+  - type: web
+    name: deeksharambh-backend-api
+    env: node
+    plan: free
+    buildCommand: npm run install-all
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        value: mongodb+srv://deeksharambh:sankara2026@cluster0.mongodb.net/deeksharambh?retryWrites=true&w=majority
+      - key: JWT_SECRET
+        value: deeksharambh_sankara_bridge_course_secret_2026
+
+  # Deeksharambh Frontend Static Web App on Render
+  - type: web
+    name: deeksharambh-frontend-app
+    env: static
+    buildCommand: npm run build --prefix client
+    staticPublishPath: client/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
