@@ -11,7 +11,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "seed": "node server/scripts/seed.js",
-    "build": "npm run install-all && npm run build --prefix client"
+    "build": "cd client && npm install && npm run build && node -e \"import('fs').then(fs => fs.cpSync('dist', '../dist', {recursive: true}))\""
   },
   "dependencies": {
     "concurrently": "^8.2.2"
