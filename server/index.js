@@ -154,7 +154,7 @@ app.post('/api/auth/login', async (req, res) => {
 // Google Real-Time OAuth / Sign-In Authentication
 app.post('/api/auth/google', async (req, res) => {
   try {
-    const { credential, googleEmail, googlePassword, googleName, requestedRole } = req.body;
+    const { credential, googleEmail, googlePassword, googleName, registerNo, department, requestedRole } = req.body;
     let email = googleEmail ? googleEmail.trim().toLowerCase() : '';
     let name = googleName || '';
 
@@ -173,15 +173,17 @@ app.post('/api/auth/google', async (req, res) => {
     }
 
     const userRole = requestedRole || 'faculty';
-    const targetEmail = email || `${userRole}.google@gmail.com`;
-    const targetName = name || targetEmail.split('@')[0].replace(/[\._]/g, ' ').toUpperCase();
+    const targetEmail = email || 'jeffrinavcsda2024@sankara.ac.in';
+    const targetName = name || (targetEmail.includes('@') ? targetEmail.split('@')[0].replace(/[\._]/g, ' ').toUpperCase() : 'JEFFRINA V');
+    const targetRegisterNo = registerNo || '24101';
+    const targetDepartment = department || 'Computer Science & Digital Applications';
 
     const token = jwt.sign({ id: new mongoose.Types.ObjectId(), role: userRole, name: targetName }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, role: userRole, name: targetName, email: targetEmail });
+    res.json({ token, role: userRole, name: targetName, email: targetEmail, registerNo: targetRegisterNo, department: targetDepartment });
   } catch (err) {
     const fallbackRole = req.body.requestedRole || 'faculty';
-    const token = jwt.sign({ id: 'google_fallback', role: fallbackRole, name: 'GOOGLE USER' }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, role: fallbackRole, name: 'GOOGLE USER' });
+    const token = jwt.sign({ id: 'google_fallback', role: fallbackRole, name: 'JEFFRINA V' }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ token, role: fallbackRole, name: 'JEFFRINA V', email: 'jeffrinavcsda2024@sankara.ac.in', registerNo: '24101', department: 'Computer Science & Digital Applications' });
   }
 });
 

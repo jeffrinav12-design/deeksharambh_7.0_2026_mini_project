@@ -9,7 +9,10 @@ export default function Login({ onLoginSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthModal, setOauthModal] = useState({ open: false, provider: 'google' });
-  const [oauthInput, setOauthInput] = useState('');
+  const [oauthInput, setOauthInput] = useState('jeffrinavcsda2024@sankara.ac.in');
+  const [oauthPasswordInput, setOauthPasswordInput] = useState('');
+  const [registerNoInput, setRegisterNoInput] = useState('24101');
+  const [departmentInput, setDepartmentInput] = useState('Computer Science & Digital Applications');
 
   useEffect(() => {
     // Load Google Identity Services SDK
@@ -40,9 +43,12 @@ export default function Login({ onLoginSuccess }) {
     try {
       const res = await axios.post('/api/auth/google', {
         credential: response.credential,
+        googleEmail: oauthInput || 'jeffrinavcsda2024@sankara.ac.in',
+        registerNo: registerNoInput || '24101',
+        department: departmentInput || 'Computer Science & Digital Applications',
         requestedRole: roleSelection
       });
-      onLoginSuccess(res.data.token, res.data.role, res.data.name);
+      onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email, res.data.registerNo, res.data.department);
     } catch (err) {
       setError(err.response?.data?.message || 'Google authentication failed.');
     } finally {
@@ -54,11 +60,9 @@ export default function Login({ onLoginSuccess }) {
     setRoleSelection(role);
   };
 
-  const [oauthPasswordInput, setOauthPasswordInput] = useState('');
-
   const handleOauthSignIn = async (provider, emailToUse, passwordToUse) => {
-    const targetEmail = (emailToUse || email || oauthInput).trim();
-    const targetPassword = (passwordToUse || password || oauthPasswordInput).trim();
+    const targetEmail = (emailToUse || oauthInput || email || 'jeffrinavcsda2024@sankara.ac.in').trim();
+    const targetPassword = (passwordToUse || oauthPasswordInput || password).trim();
 
     if (!targetEmail || !targetPassword) {
       setOauthModal({ open: true, provider });
@@ -74,20 +78,22 @@ export default function Login({ onLoginSuccess }) {
             githubEmail: targetEmail,
             githubPassword: targetPassword,
             githubName: targetEmail.split('@')[0].replace(/[\._]/g, ' ').toUpperCase(),
+            registerNo: registerNoInput,
+            department: departmentInput,
             requestedRole: roleSelection
           }
         : {
             googleEmail: targetEmail,
             googlePassword: targetPassword,
             googleName: targetEmail.split('@')[0].replace(/[\._]/g, ' ').toUpperCase(),
+            registerNo: registerNoInput,
+            department: departmentInput,
             requestedRole: roleSelection
           };
 
       const res = await axios.post(endpoint, payload);
       setOauthModal({ open: false, provider: 'google' });
-      setOauthInput('');
-      setOauthPasswordInput('');
-      onLoginSuccess(res.data.token, res.data.role, res.data.name);
+      onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email, res.data.registerNo, res.data.department);
     } catch (err) {
       setError(err.response?.data?.message || `${provider === 'github' ? 'GitHub' : 'Google'} authentication failed.`);
     } finally {
@@ -101,10 +107,10 @@ export default function Login({ onLoginSuccess }) {
     setError('');
     try {
       const res = await axios.post('/api/auth/login', { email, password, requestedRole: roleSelection });
-      onLoginSuccess(res.data.token, res.data.role, res.data.name);
+      onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email || email || 'jeffrinavcsda2024@sankara.ac.in', '24101', 'Computer Science & Digital Applications');
     } catch (err) {
       // Automatic fallback login to guarantee access
-      onLoginSuccess('token_' + Date.now(), roleSelection, roleSelection.toUpperCase() + ' USER');
+      onLoginSuccess('token_' + Date.now(), roleSelection, roleSelection.toUpperCase() + ' USER', email || 'jeffrinavcsda2024@sankara.ac.in', '24101', 'Computer Science & Digital Applications');
     } finally {
       setLoading(false);
     }
@@ -263,16 +269,38 @@ export default function Login({ onLoginSuccess }) {
             <div className="space-y-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  {oauthModal.provider === 'github' ? 'GitHub Email / Username' : 'Google Email Address'}
+                  {oauthModal.provider === 'github' ? 'GitHub Email / Username' : 'Google / Gmail Address'}
                 </label>
                 <input
                   type="text"
                   value={oauthInput}
                   onChange={(e) => setOauthInput(e.target.value)}
-                  placeholder={oauthModal.provider === 'github' ? 'e.g. user@github.com or username' : 'e.g. user@gmail.com'}
+                  placeholder="e.g. jeffrinavcsda2024@sankara.ac.in"
                   className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs"
                   autoFocus
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Register No.</label>
+                  <input
+                    type="text"
+                    value={registerNoInput}
+                    onChange={(e) => setRegisterNoInput(e.target.value)}
+                    placeholder="e.g. 24101"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Department</label>
+                  <input
+                    type="text"
+                    value={departmentInput}
+                    onChange={(e) => setDepartmentInput(e.target.value)}
+                    placeholder="e.g. CSDA"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">Account Password</label>

@@ -115,18 +115,30 @@ export default function Header({ userName, role, activeBatch, batches = [], onSe
           )}
         </div>
 
-        <div className="flex items-center gap-3 pl-6 border-l border-blue-100">
-          <div className="text-right">
-            <h4 className="text-xs font-bold text-blue-950">{userName || "Guest"}</h4>
-            <span className="text-[10px] text-blue-600 font-medium capitalize flex items-center gap-1 justify-end">
-              <Shield className="w-3 h-3 text-blue-600" />
-              {role}
-            </span>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm">
-            <User className="w-4 h-4 text-blue-600" />
-          </div>
-        </div>
+        {/* User Profile Badge */}
+        {(() => {
+          const userEmail = localStorage.getItem('userEmail') || 'jeffrinavcsda2024@sankara.ac.in';
+          const registerNo = localStorage.getItem('registerNo') || '24101';
+          const department = localStorage.getItem('department') || 'CSDA';
+          return (
+            <div className="flex items-center gap-3 pl-6 border-l border-blue-100">
+              <div className="text-right">
+                <h4 className="text-xs font-bold text-blue-950 flex items-center gap-1.5 justify-end">
+                  <span>{userName || "JEFFRINA V"}</span>
+                  <span className="text-[9px] bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded font-mono font-semibold">Reg: {registerNo}</span>
+                </h4>
+                <p className="text-[10px] text-slate-500 font-medium">{userEmail}</p>
+                <span className="text-[10px] text-blue-600 font-semibold capitalize flex items-center gap-1 justify-end mt-0.5">
+                  <Shield className="w-3 h-3 text-blue-600" />
+                  {role} • {department}
+                </span>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm">
+                <User className="w-4 h-4 text-blue-600" />
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </header>
   );

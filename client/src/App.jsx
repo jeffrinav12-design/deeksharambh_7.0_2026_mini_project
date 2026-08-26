@@ -105,10 +105,27 @@ export default function App() {
     }
   };
 
-  const handleLoginSuccess = (newToken, newRole, newName) => {
+  const handleLoginSuccess = (newToken, newRole, newName, newEmail, newRegisterNo, newDepartment) => {
+    const emailToSave = newEmail || 'jeffrinavcsda2024@sankara.ac.in';
+    const regToSave = newRegisterNo || '24101';
+    const deptToSave = newDepartment || 'Computer Science & Digital Applications';
+
     localStorage.setItem('token', newToken);
     localStorage.setItem('role', newRole);
     localStorage.setItem('userName', newName);
+    localStorage.setItem('userEmail', emailToSave);
+    localStorage.setItem('registerNo', regToSave);
+    localStorage.setItem('department', deptToSave);
+
+    const profile = {
+      name: newName,
+      email: emailToSave,
+      registerNo: regToSave,
+      department: deptToSave,
+      role: newRole
+    };
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+
     setToken(newToken);
     setRole(newRole);
     setUserName(newName);
@@ -118,12 +135,16 @@ export default function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('registerNo');
+    localStorage.removeItem('department');
+    localStorage.removeItem('userProfile');
     localStorage.removeItem('activeBatchId');
     setToken('');
     setRole('');
     setUserName('');
-    setActiveBatch(null);
-    setBatches([]);
+    setActiveBatch(defaultFallbackBatches[0]);
+    setBatches(defaultFallbackBatches);
   };
 
   return (
