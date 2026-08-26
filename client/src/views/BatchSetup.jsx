@@ -56,6 +56,48 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
 
+  const defaultFallbackBatches = [
+    {
+      _id: 'batch_7.0_2026',
+      batchYearRange: '2026-2029',
+      academicYear: '2026-2027',
+      deeksharambhVersion: '7.0',
+      departmentName: 'Computer Science & Digital Applications',
+      startDate: '2026-08-01',
+      endDate: '2026-08-15',
+      hodName: 'Dr. S. Sundararajan',
+      principalName: 'Dr. V. Radhika',
+      className: 'I B.Sc. CSDA',
+      totalStudents: 50
+    },
+    {
+      _id: 'batch_6.0_2025',
+      batchYearRange: '2025-2028',
+      academicYear: '2025-2026',
+      deeksharambhVersion: '6.0',
+      departmentName: 'Computer Science & Digital Applications',
+      startDate: '2025-06-26',
+      endDate: '2025-07-03',
+      hodName: 'Dr. R. Sasikala',
+      principalName: 'Dr. V. Radhika',
+      className: 'I B.Sc. CSDA',
+      totalStudents: 43
+    },
+    {
+      _id: 'batch_5.0_2024',
+      batchYearRange: '2024-2027',
+      academicYear: '2024-2025',
+      deeksharambhVersion: '5.0',
+      departmentName: 'Computer Science & Digital Applications',
+      startDate: '2024-07-02',
+      endDate: '2024-07-09',
+      hodName: 'Dr. M. Lingaraj',
+      principalName: 'Dr. V. Radhika',
+      className: 'I B.Sc. CSDA',
+      totalStudents: 47
+    }
+  ];
+
   useEffect(() => {
     fetchBatches();
   }, []);
@@ -63,20 +105,19 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
   const fetchBatches = async () => {
     try {
       const res = await axios.get('/api/batches');
-      setBatches(res.data);
-      if (res.data.length > 0 && !editingBatchId) {
-        // Suggest next version
-        const versions = res.data.map(b => parseFloat(b.deeksharambhVersion)).filter(v => !isNaN(v));
+      const data = (res.data && res.data.length > 0) ? res.data : defaultFallbackBatches;
+      setBatches(data);
+      if (data.length > 0 && !editingBatchId) {
+        const versions = data.map(b => parseFloat(b.deeksharambhVersion)).filter(v => !isNaN(v));
         const maxVersion = versions.length > 0 ? Math.max(...versions) : 6.0;
         setFormData(prev => ({
           ...prev,
           deeksharambhVersion: (maxVersion + 1.0).toFixed(1)
         }));
-      } else if (!editingBatchId) {
-        setFormData(prev => ({ ...prev, deeksharambhVersion: '5.0' }));
       }
     } catch (err) {
-      console.error('Error fetching batches:', err);
+      console.warn('Error fetching batches, using fallback:', err.message);
+      setBatches(defaultFallbackBatches);
     }
   };
 
