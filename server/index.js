@@ -207,6 +207,37 @@ app.post('/api/auth/github', async (req, res) => {
   }
 });
 
+// Google AI Studio Generator API
+app.post('/api/ai/studio-generate', authenticateToken, async (req, res) => {
+  try {
+    const { prompt, model, category, batchVersion } = req.body;
+    const modelToUse = model || 'gemini-1.5-pro';
+    
+    let result = `### 🤖 Google AI Studio (${modelToUse}) Generated Content\n`;
+    result += `**Category**: ${(category || 'General').toUpperCase()} • **Batch Version**: ${batchVersion || '7.0'}\n\n`;
+
+    if ((prompt || '').toLowerCase().includes('math') || category === 'questions') {
+      result += `**1. Bloom's Taxonomy MCQs (Applying Level)**\n`;
+      result += `*Question*: In bridge calculus, what is the derivative of f(x) = x³ + 4x²?\n`;
+      result += `- A) 3x² + 8x [Correct]\n- B) 3x³ + 4x\n- C) x² + 8x\n- D) 3x² + 4\n\n`;
+      result += `**2. Bloom's Taxonomy MCQs (Analyzing Level)**\n`;
+      result += `*Question*: Analyze the array [12, 45, 67, 89]. What is the time complexity of linear search?\n`;
+      result += `- A) O(1)\n- B) O(n) [Correct]\n- C) O(n log n)\n- D) O(n²)\n`;
+    } else if (category === 'syllabus') {
+      result += `#### Unit 1: Introduction to Data Science & Python\n`;
+      result += `- Overview of CSDA curriculum & career pathways.\n`;
+      result += `- Python data structures: Lists, Tuples, Dictionaries, and Sets.\n`;
+      result += `- Reference: *Data Science from Scratch* by Joel Grus.\n`;
+    } else {
+      result += `The Student Induction Programme (SIP) for Deeksharambh ${batchVersion || '7.0'} successfully bridges academic gaps in Mathematics, Tamil, Communicative English, and Core CSDA.`;
+    }
+
+    res.json({ success: true, model: modelToUse, result });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Batches Management
 app.get('/api/batches', authenticateToken, async (req, res) => {
   try {
@@ -661,16 +692,16 @@ app.get('/api/batches/:batchId/students', authenticateToken, async (req, res) =>
         ];
       } else {
         students = [
-          { _id: 'std_7_1', sNo: 1, rollNo: '26CS01', registerNo: '26101', name: 'AARAV KUMAR', mathsStream: 'HSC', attendancePercentage: 96, category: 'Advanced Learner' },
-          { _id: 'std_7_2', sNo: 2, rollNo: '26CS02', registerNo: '26102', name: 'ABINAYA SRI', mathsStream: 'NON_HSC', attendancePercentage: 92, category: 'Advanced Learner' },
-          { _id: 'std_7_3', sNo: 3, rollNo: '26CS03', registerNo: '26103', name: 'ANANYA R', mathsStream: 'HSC', attendancePercentage: 88, category: 'Average' },
-          { _id: 'std_7_4', sNo: 4, rollNo: '26CS04', registerNo: '26104', name: 'BALAJI V', mathsStream: 'HSC', attendancePercentage: 94, category: 'Advanced Learner' },
-          { _id: 'std_7_5', sNo: 5, rollNo: '26CS05', registerNo: '26105', name: 'DEEPAK SHARMA', mathsStream: 'NON_HSC', attendancePercentage: 85, category: 'Slow Learner' },
-          { _id: 'std_7_6', sNo: 6, rollNo: '26CS06', registerNo: '26106', name: 'DIVYA M', mathsStream: 'HSC', attendancePercentage: 90, category: 'Average' },
-          { _id: 'std_7_7', sNo: 7, rollNo: '26CS07', registerNo: '26107', name: 'GOKUL PRASATH', mathsStream: 'HSC', attendancePercentage: 98, category: 'Advanced Learner' },
-          { _id: 'std_7_8', sNo: 8, rollNo: '26CS08', registerNo: '26108', name: 'HARIHARAN K', mathsStream: 'NON_HSC', attendancePercentage: 82, category: 'Slow Learner' },
-          { _id: 'std_7_9', sNo: 9, rollNo: '26CS09', registerNo: '26109', name: 'ISWARYA LAKSHMI', mathsStream: 'HSC', attendancePercentage: 95, category: 'Advanced Learner' },
-          { _id: 'std_7_10', sNo: 10, rollNo: '26CS10', registerNo: '26110', name: 'KAVIN RAJ', mathsStream: 'HSC', attendancePercentage: 91, category: 'Average' }
+          { _id: 'std_7_1', sNo: 1, rollNo: '26CS01', registerNo: '26101', name: 'AAYISHA SIDHIKA D', mathsStream: 'HSC', attendancePercentage: 96, category: 'Advanced Learner' },
+          { _id: 'std_7_2', sNo: 2, rollNo: '26CS02', registerNo: '26102', name: 'AGASTIAN G E', mathsStream: 'HSC', attendancePercentage: 94, category: 'Advanced Learner' },
+          { _id: 'std_7_3', sNo: 3, rollNo: '26CS03', registerNo: '26103', name: 'BALAJI I', mathsStream: 'NON_HSC', attendancePercentage: 88, category: 'Average' },
+          { _id: 'std_7_4', sNo: 4, rollNo: '26CS04', registerNo: '26104', name: 'DHANASRI A', mathsStream: 'HSC', attendancePercentage: 97, category: 'Advanced Learner' },
+          { _id: 'std_7_5', sNo: 5, rollNo: '26CS05', registerNo: '26105', name: 'DHARUNKUMAR V', mathsStream: 'NON_HSC', attendancePercentage: 85, category: 'Slow Learner' },
+          { _id: 'std_7_6', sNo: 6, rollNo: '26CS06', registerNo: '26106', name: 'DINEESH KUMAR J', mathsStream: 'HSC', attendancePercentage: 91, category: 'Average' },
+          { _id: 'std_7_7', sNo: 7, rollNo: '26CS07', registerNo: '26107', name: 'DIVYADHARSHINI A', mathsStream: 'HSC', attendancePercentage: 98, category: 'Advanced Learner' },
+          { _id: 'std_7_8', sNo: 8, rollNo: '26CS08', registerNo: '26108', name: 'DURGA SRI S', mathsStream: 'NON_HSC', attendancePercentage: 83, category: 'Slow Learner' },
+          { _id: 'std_7_9', sNo: 9, rollNo: '26CS09', registerNo: '26109', name: 'GOBIKA C R', mathsStream: 'NON_HSC', attendancePercentage: 95, category: 'Advanced Learner' },
+          { _id: 'std_7_10', sNo: 10, rollNo: '26CS10', registerNo: '26110', name: 'GOKULAKRISHNAN M', mathsStream: 'HSC', attendancePercentage: 90, category: 'Average' }
         ];
       }
     }
