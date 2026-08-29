@@ -13,74 +13,54 @@ export default function GmailAppView({ role }) {
   const currentUserName = localStorage.getItem('userName') || 'JEFFRINA V';
   const currentDepartment = localStorage.getItem('department') || 'Computer Science & Digital Applications';
 
-  const [mails, setMails] = useState([
-    {
-      id: 1,
-      senderName: "Sankara HOD CSDA",
-      senderEmail: "hod.csda@sankara.ac.in",
-      subject: "Deeksharambh 7.0 Bridge Course Orientation Schedule & Guidelines",
-      snippet: "Dear Faculty & Student Team, Please find attached the updated 7-day orientation timetable and syllabus details...",
-      date: "10:30 AM",
-      category: "inbox",
-      starred: true,
-      body: `Dear ${currentUserName},
+  const getInitialMails = () => {
+    const defaultMails = [
+      {
+        id: 1,
+        senderName: "Google Security Alert",
+        senderEmail: "no-reply@accounts.google.com",
+        subject: `🔒 Security Alert: New Sign-in to Deeksharambh Portal from ${currentUserEmail}`,
+        snippet: `Your Google Account (${currentUserEmail}) was used to sign in to Deeksharambh 7.0...`,
+        date: "Just Now",
+        category: "inbox",
+        starred: true,
+        body: `Hello ${currentUserName},\n\nYour Google Account (${currentUserEmail}) was used to sign in to the Deeksharambh 7.0 Bridge Course Management System at Sankara College of Science and Commerce.\n\nSign-in Details:\n- Role: ${role.toUpperCase()}\n- Account Email: ${currentUserEmail}\n- Department: ${currentDepartment}\n- Date & Time: ${new Date().toLocaleString()}\n\nIf this was you, no action is required. Security alert notification registered successfully.\n\nRegards,\nGoogle Security & Deeksharambh Auth`
+      },
+      {
+        id: 2,
+        senderName: "Sankara HOD CSDA",
+        senderEmail: "hod.csda@sankara.ac.in",
+        subject: "Deeksharambh 7.0 Bridge Course Orientation Schedule & Guidelines",
+        snippet: "Dear Faculty & Student Team, Please find attached the updated 7-day orientation timetable and syllabus details...",
+        date: "10:30 AM",
+        category: "inbox",
+        starred: true,
+        body: `Dear ${currentUserName},\n\nWelcome to the Deeksharambh 7.0 Bridge Course Programme at Sankara College of Science and Commerce.\n\nThe Department of Computer Science & Digital Applications (CSDA) has finalized the orientation schedule, student assessment portal, and syllabus modules for Tamil-I, Communicative English, Bridge Mathematics, and Data Analytics.\n\nKey Instructions:\n1. Student attendance is mandatory for all 7 orientation days.\n2. Assessment tests will be conducted on the 7th day via the online portal.\n3. SIP reports should be generated post-completion.\n\nRegards,\nHead of Department (CSDA)\nSankara College of Science and Commerce`
+      },
+      {
+        id: 3,
+        senderName: "Bridge Maths Faculty",
+        senderEmail: "maths.csda@sankara.ac.in",
+        subject: "Non-HSC Bridge Mathematics Study Materials & Problem Sheets",
+        snippet: "Reference worksheets on Matrix Inversion and Calculus fundamentals have been uploaded...",
+        date: "Aug 24",
+        category: "inbox",
+        starred: true,
+        body: `Dear Students and Staff,\n\nThe supplementary learning materials for Non-HSC stream students in Bridge Mathematics are now active in the Syllabus Manager.\n\nTopics Included:\n- Determinants and Matrices\n- Differential and Integral Calculus Basics\n- Statistical Data Summaries\n\nBest regards,\nDepartment of Mathematics`
+      }
+    ];
 
-Welcome to the Deeksharambh 7.0 Bridge Course Programme at Sankara College of Science and Commerce.
-
-The Department of Computer Science & Digital Applications (CSDA) has finalized the orientation schedule, student assessment portal, and syllabus modules for Tamil-I, Communicative English, Bridge Mathematics, and Data Analytics.
-
-Key Instructions:
-1. Student attendance is mandatory for all 7 orientation days.
-2. Assessment tests will be conducted on the 7th day via the online portal.
-3. SIP reports should be generated post-completion.
-
-Regards,
-Head of Department (CSDA)
-Sankara College of Science and Commerce`
-    },
-    {
-      id: 2,
-      senderName: "Google Academic Services",
-      senderEmail: "no-reply@accounts.google.com",
-      subject: "Google Workspace & Gmail Account Verification Complete",
-      snippet: "Your Google Account jeffrinavcsda2024@sankara.ac.in has been verified successfully for Deeksharambh SSO...",
-      date: "Yesterday",
-      category: "inbox",
-      starred: false,
-      body: `Hello ${currentUserName},
-
-Your institutional Google / Gmail Account (${currentUserEmail}) has been successfully authenticated and integrated into the Deeksharambh Bridge Course Management Portal.
-
-Profile Summary:
-- Name: ${currentUserName}
-- Gmail: ${currentUserEmail}
-- Department: ${currentDepartment}
-- Role: ${role.toUpperCase()}
-
-If you have any questions, contact your system administrator.`
-    },
-    {
-      id: 3,
-      senderName: "Bridge Maths Faculty",
-      senderEmail: "maths.csda@sankara.ac.in",
-      subject: "Non-HSC Bridge Mathematics Study Materials & Problem Sheets",
-      snippet: "Reference worksheets on Matrix Inversion and Calculus fundamentals have been uploaded...",
-      date: "Aug 24",
-      category: "inbox",
-      starred: true,
-      body: `Dear Students and Staff,
-
-The supplementary learning materials for Non-HSC stream students in Bridge Mathematics are now active in the Syllabus Manager.
-
-Topics Included:
-- Determinants and Matrices
-- Differential and Integral Calculus Basics
-- Statistical Data Summaries
-
-Best regards,
-Department of Mathematics`
+    const savedNotif = localStorage.getItem('lastLoginNotification');
+    if (savedNotif) {
+      try {
+        const parsedNotif = JSON.parse(savedNotif);
+        return [parsedNotif, ...defaultMails];
+      } catch (e) {}
     }
-  ]);
+    return defaultMails;
+  };
+
+  const [mails, setMails] = useState(getInitialMails);
 
   const showToast = (msg) => {
     setToastMessage(msg);

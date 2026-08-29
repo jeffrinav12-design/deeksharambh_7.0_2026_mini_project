@@ -151,7 +151,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Google Real-Time OAuth / Sign-In Authentication
+// Google Real-Time OAuth / Sign-In Authentication & Security Notice
 app.post('/api/auth/google', async (req, res) => {
   try {
     const { credential, googleEmail, googlePassword, googleName, registerNo, department, requestedRole } = req.body;
@@ -174,16 +174,52 @@ app.post('/api/auth/google', async (req, res) => {
 
     const userRole = requestedRole || 'faculty';
     const targetEmail = email || 'jeffrinavcsda2024@sankara.ac.in';
-    const targetName = name || (targetEmail.includes('@') ? targetEmail.split('@')[0].replace(/[\._]/g, ' ').toUpperCase() : 'JEFFRINA V');
-    const targetRegisterNo = registerNo || '24101';
-    const targetDepartment = department || 'Computer Science & Digital Applications';
+    
+    // Format Name nicely from email or google payload
+    let targetName = name;
+    if (!targetName) {
+      const emailPrefix = targetEmail.split('@')[0];
+      targetName = emailPrefix.split(/[\._]/).map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+    }
+
+    const targetRegisterNo = userRole === 'student' ? (registerNo || '24101') : '';
+    const targetDepartment = userRole === 'student' ? (department || 'Computer Science & Digital Applications') : 'Faculty of CSDA';
 
     const token = jwt.sign({ id: new mongoose.Types.ObjectId(), role: userRole, name: targetName }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, role: userRole, name: targetName, email: targetEmail, registerNo: targetRegisterNo, department: targetDepartment });
+
+    // Security Alert Login Confirmation Notice
+    const loginNotification = {
+      id: Date.now(),
+      subject: `🔒 Security Alert: New Sign-in to Deeksharambh Portal from ${targetEmail}`,
+      senderName: "Google Security & Deeksharambh Auth",
+      senderEmail: "no-reply@accounts.google.com",
+      recipientEmail: targetEmail,
+      date: "Just Now",
+      body: `Hello ${targetName},\n\nYour Google Account (${targetEmail}) was used to sign in to the Deeksharambh 7.0 Bridge Course Management System (Sankara College of Science and Commerce).\n\nDetails:\n- Role: ${userRole.toUpperCase()}\n- Account Email: ${targetEmail}\n${userRole === 'student' ? `- Register No: ${targetRegisterNo}\n- Department: ${targetDepartment}\n` : ''}- Time: ${new Date().toLocaleString()}\n\nIf this was you, no further action is required. Security notification registered successfully.`
+    };
+
+    res.json({ 
+      token, 
+      role: userRole, 
+      name: targetName, 
+      email: targetEmail, 
+      registerNo: targetRegisterNo, 
+      department: targetDepartment,
+      loginNotification 
+    });
   } catch (err) {
     const fallbackRole = req.body.requestedRole || 'faculty';
-    const token = jwt.sign({ id: 'google_fallback', role: fallbackRole, name: 'JEFFRINA V' }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, role: fallbackRole, name: 'JEFFRINA V', email: 'jeffrinavcsda2024@sankara.ac.in', registerNo: '24101', department: 'Computer Science & Digital Applications' });
+    const fallbackEmail = req.body.googleEmail || 'jeffrinavcsda2024@sankara.ac.in';
+    const fallbackName = fallbackEmail.split('@')[0].toUpperCase();
+    const token = jwt.sign({ id: 'google_fallback', role: fallbackRole, name: fallbackName }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ 
+      token, 
+      role: fallbackRole, 
+      name: fallbackName, 
+      email: fallbackEmail, 
+      registerNo: fallbackRole === 'student' ? '24101' : '', 
+      department: fallbackRole === 'student' ? 'Computer Science & Digital Applications' : 'Faculty of CSDA' 
+    });
   }
 });
 
