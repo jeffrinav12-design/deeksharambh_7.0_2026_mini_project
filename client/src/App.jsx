@@ -225,7 +225,7 @@ export default function App() {
                     />
                     <Route 
                       path="/assessment" 
-                      element={role === 'student' ? <StudentAssessmentPortal activeBatch={activeBatch} currentRole={role} /> : <AssessmentModule activeBatch={activeBatch} role={role} />} 
+                      element={role === 'student' ? <StudentAssessmentPortal activeBatch={activeBatch} batches={batches} onSelectBatch={handleSelectBatch} currentRole={role} /> : <AssessmentModule activeBatch={activeBatch} role={role} />} 
                     />
                     <Route 
                       path="/results" 

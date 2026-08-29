@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Award, CheckCircle, Clock, FileText, AlertCircle, RefreshCw, BarChart2, Check, X } from 'lucide-react';
 
-export default function StudentAssessmentPortal({ activeBatch, currentRole }) {
+export default function StudentAssessmentPortal({ activeBatch, batches = [], onSelectBatch, currentRole }) {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -42,13 +42,12 @@ export default function StudentAssessmentPortal({ activeBatch, currentRole }) {
           if (res.data && res.data.length > 0) {
             setQuestions(normalizeQuestions(res.data));
           } else {
-            // Default fallback sample questions for student practice
-            setQuestions(normalizeQuestions(getSampleQuestions()));
+            setQuestions(normalizeQuestions(getSampleQuestions(activeBatch)));
           }
         })
-        .catch(() => setQuestions(normalizeQuestions(getSampleQuestions())));
+        .catch(() => setQuestions(normalizeQuestions(getSampleQuestions(activeBatch))));
     } else {
-      setQuestions(normalizeQuestions(getSampleQuestions()));
+      setQuestions(normalizeQuestions(getSampleQuestions(activeBatch)));
     }
   }, [activeBatch]);
 
@@ -59,52 +58,105 @@ export default function StudentAssessmentPortal({ activeBatch, currentRole }) {
     }
   }, [submitted, timeLeft]);
 
-  const getSampleQuestions = () => [
-    {
-      _id: 'q1',
-      subject: 'Core',
-      questionText: 'Which data structure follows the LIFO (Last-In, First-Out) principle?',
-      optionA: 'Queue',
-      optionB: 'Stack',
-      optionC: 'Array',
-      optionD: 'Linked List',
-      correctAnswer: 'B',
-      bloomLevel: 'Understanding'
-    },
-    {
-      _id: 'q2',
-      subject: 'Maths',
-      questionText: 'What is the derivative of f(x) = 4x³ + 2x?',
-      optionA: '12x² + 2',
-      optionB: '4x² + 2',
-      optionC: '12x + 2',
-      optionD: '8x² + 2',
-      correctAnswer: 'A',
-      bloomLevel: 'Applying'
-    },
-    {
-      _id: 'q3',
-      subject: 'English',
-      questionText: 'Which word is a synonym for "Meticulous"?',
-      optionA: 'Hasty',
-      optionB: 'Diligent / Thorough',
-      optionC: 'Careless',
-      optionD: 'Vague',
-      correctAnswer: 'B',
-      bloomLevel: 'Remembering'
-    },
-    {
-      _id: 'q4',
-      subject: 'Tamil',
-      questionText: 'திருக்குறளில் மொத்தம் எத்தனை அதிகாரங்கள் உள்ளன?',
-      optionA: '100',
-      optionB: '133',
-      optionC: '150',
-      optionD: '1330',
-      correctAnswer: 'B',
-      bloomLevel: 'Remembering'
+  const getSampleQuestions = (batch) => {
+    const bId = (batch?.deeksharambhVersion || batch?._id || '').toString();
+    
+    if (bId.includes('5.0') || bId.includes('2024')) {
+      return [
+        {
+          _id: 'q_5_1',
+          subject: 'Core',
+          questionText: 'Batch 5.0 (2024): Which data structure follows the LIFO (Last-In, First-Out) principle?',
+          optionA: 'Queue', optionB: 'Stack', optionC: 'Array', optionD: 'Linked List',
+          correctAnswer: 'B', bloomLevel: 'Understanding'
+        },
+        {
+          _id: 'q_5_2',
+          subject: 'Maths',
+          questionText: 'Batch 5.0 (2024): What is the determinant of a 2x2 identity matrix?',
+          optionA: '0', optionB: '1', optionC: '2', optionD: '-1',
+          correctAnswer: 'B', bloomLevel: 'Applying'
+        },
+        {
+          _id: 'q_5_3',
+          subject: 'English',
+          questionText: 'Batch 5.0 (2024): Identify the synonym for "Meticulous":',
+          optionA: 'Hasty', optionB: 'Diligent / Thorough', optionC: 'Careless', optionD: 'Vague',
+          correctAnswer: 'B', bloomLevel: 'Remembering'
+        },
+        {
+          _id: 'q_5_4',
+          subject: 'Tamil',
+          questionText: 'Batch 5.0 (2024): திருக்குறளில் மொத்தம் எத்தனை அதிகாரங்கள் உள்ளன?',
+          optionA: '100', optionB: '133', optionC: '150', optionD: '1330',
+          correctAnswer: 'B', bloomLevel: 'Remembering'
+        }
+      ];
+    } else if (bId.includes('6.0') || bId.includes('2025')) {
+      return [
+        {
+          _id: 'q_6_1',
+          subject: 'Core',
+          questionText: 'Batch 6.0 (2025): In Python Pandas, which object represents a 2D tabular data structure?',
+          optionA: 'Series', optionB: 'DataFrame', optionC: 'Panel', optionD: 'Array',
+          correctAnswer: 'B', bloomLevel: 'Understanding'
+        },
+        {
+          _id: 'q_6_2',
+          subject: 'Maths',
+          questionText: 'Batch 6.0 (2025): What is the derivative of f(x) = 4x³ + 2x?',
+          optionA: '12x² + 2', optionB: '4x² + 2', optionC: '12x + 2', optionD: '8x² + 2',
+          correctAnswer: 'A', bloomLevel: 'Applying'
+        },
+        {
+          _id: 'q_6_3',
+          subject: 'English',
+          questionText: 'Batch 6.0 (2025): Which tense is used for an action completed before a past point in time?',
+          optionA: 'Simple Past', optionB: 'Past Perfect', optionC: 'Present Continuous', optionD: 'Future Perfect',
+          correctAnswer: 'B', bloomLevel: 'Applying'
+        },
+        {
+          _id: 'q_6_4',
+          subject: 'Tamil',
+          questionText: 'Batch 6.0 (2025): சங்க இலக்கியங்களில் எட்டுத்தொகை நூல்களுள் ஒன்று எது?',
+          optionA: 'நாலடியார்', optionB: 'நற்றிணை', optionC: 'இனியவை நாற்பது', optionD: 'திரிகடுகம்',
+          correctAnswer: 'B', bloomLevel: 'Remembering'
+        }
+      ];
     }
-  ];
+
+    // Default Batch 7.0 (2026)
+    return [
+      {
+        _id: 'q_7_1',
+        subject: 'Core',
+        questionText: 'Batch 7.0 (2026): Which Machine Learning technique is used for classifying labeled data?',
+        optionA: 'Unsupervised Learning', optionB: 'Supervised Learning', optionC: 'Reinforcement Learning', optionD: 'Clustering',
+        correctAnswer: 'B', bloomLevel: 'Understanding'
+      },
+      {
+        _id: 'q_7_2',
+        subject: 'Maths',
+        questionText: 'Batch 7.0 (2026): What is the limit of (sin x / x) as x approaches 0?',
+        optionA: '0', optionB: '1', optionC: 'Infinity', optionD: 'Undefined',
+        correctAnswer: 'B', bloomLevel: 'Evaluating'
+      },
+      {
+        _id: 'q_7_3',
+        subject: 'English',
+        questionText: 'Batch 7.0 (2026): Choose the correct sentence with proper subject-verb agreement:',
+        optionA: 'Each student have a notebook.', optionB: 'Each student has a notebook.', optionC: 'Each student are having notebooks.', optionD: 'Each students has notebooks.',
+        correctAnswer: 'B', bloomLevel: 'Analyzing'
+      },
+      {
+        _id: 'q_7_4',
+        subject: 'Tamil',
+        questionText: 'Batch 7.0 (2026): கணினி மற்றும் தரவு அறிவியலில் "Data" என்பதன் இணையான தமிழ் சொல் எது?',
+        optionA: 'தகவல்', optionB: 'தரவு', optionC: 'செய்தி', optionD: 'அறிவு',
+        correctAnswer: 'B', bloomLevel: 'Remembering'
+      }
+    ];
+  };
 
   const filteredQuestions = selectedSubject === 'All'
     ? questions
@@ -191,7 +243,7 @@ export default function StudentAssessmentPortal({ activeBatch, currentRole }) {
           </span>
           <h1 className="text-2xl font-extrabold mt-2">Bridge Course Assessment & Evaluation</h1>
           <p className="text-sm text-blue-100 mt-1">
-            Batch: {activeBatch?.batchYearRange || '2026-2029'} | Class: B.Sc CSDA
+            Batch: {activeBatch?.batchYearRange || '2026-2029'} (v{activeBatch?.deeksharambhVersion || '7.0'}) | Class: I B.Sc CSDA
           </p>
         </div>
 
@@ -204,6 +256,31 @@ export default function StudentAssessmentPortal({ activeBatch, currentRole }) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Student Batch Switcher Toolbar */}
+      <div className="bg-white rounded-2xl p-4 border border-sky-100 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Select College Academic Batch:</span>
+          <span className="text-[11px] text-slate-500">(Questions & Evaluation auto-switch per batch)</span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {batches.map(b => (
+            <button
+              key={b._id || b.deeksharambhVersion}
+              type="button"
+              onClick={() => onSelectBatch && onSelectBatch(b)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeBatch?._id === b._id || activeBatch?.deeksharambhVersion === b.deeksharambhVersion
+                  ? 'bg-sky-600 text-white shadow-sm ring-2 ring-sky-300'
+                  : 'bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700'
+              }`}
+            >
+              Batch {b.deeksharambhVersion} ({b.batchYearRange})
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Score Summary Modal/Card */}
