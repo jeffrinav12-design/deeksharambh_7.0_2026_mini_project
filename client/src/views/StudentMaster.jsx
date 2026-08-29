@@ -43,16 +43,16 @@ export default function StudentMaster({ activeBatch, role }) {
     }
     if (ver.includes('6.0') || ver.includes('2025')) {
       return [
-        { _id: 'std_6_1', sNo: 1, rollNo: '25CS01', registerNo: '25101', name: 'BUSHRA F', mathsStream: 'HSC', attendancePercentage: 95, category: 'Advanced Learner' },
-        { _id: 'std_6_2', sNo: 2, rollNo: '25CS02', registerNo: '25102', name: 'CHARAN V', mathsStream: 'NON_HSC', attendancePercentage: 89, category: 'Average' },
-        { _id: 'std_6_3', sNo: 3, rollNo: '25CS03', registerNo: '25103', name: 'DHARSHINI K', mathsStream: 'HSC', attendancePercentage: 97, category: 'Advanced Learner' },
-        { _id: 'std_6_4', sNo: 4, rollNo: '25CS04', registerNo: '25104', name: 'ELANGO T', mathsStream: 'HSC', attendancePercentage: 93, category: 'Advanced Learner' },
-        { _id: 'std_6_5', sNo: 5, rollNo: '25CS05', registerNo: '25105', name: 'FARAHA S', mathsStream: 'NON_HSC', attendancePercentage: 84, category: 'Slow Learner' },
-        { _id: 'std_6_6', sNo: 6, rollNo: '25CS06', registerNo: '25106', name: 'GOWTHAM M', mathsStream: 'HSC', attendancePercentage: 91, category: 'Average' },
-        { _id: 'std_6_7', sNo: 7, rollNo: '25CS07', registerNo: '25107', name: 'HARI R', mathsStream: 'HSC', attendancePercentage: 96, category: 'Advanced Learner' },
-        { _id: 'std_6_8', sNo: 8, rollNo: '25CS08', registerNo: '25108', name: 'INDHU M', mathsStream: 'NON_HSC', attendancePercentage: 82, category: 'Slow Learner' },
-        { _id: 'std_6_9', sNo: 9, rollNo: '25CS09', registerNo: '25109', name: 'JAYANTHAN P', mathsStream: 'HSC', attendancePercentage: 94, category: 'Advanced Learner' },
-        { _id: 'std_6_10', sNo: 10, rollNo: '25CS10', registerNo: '25110', name: 'KAVYA R', mathsStream: 'HSC', attendancePercentage: 90, category: 'Average' }
+        { _id: 'std_6_1', sNo: 1, rollNo: '25CS01', registerNo: '25101', name: 'Saarah Azizah K.M', mathsStream: 'HSC', attendancePercentage: 95, category: 'Advanced Learner' },
+        { _id: 'std_6_2', sNo: 2, rollNo: '25CS02', registerNo: '25102', name: 'Mahadharshini V', mathsStream: 'NON_HSC', attendancePercentage: 89, category: 'Average' },
+        { _id: 'std_6_3', sNo: 3, rollNo: '25CS03', registerNo: '25103', name: 'Kaavya P', mathsStream: 'HSC', attendancePercentage: 97, category: 'Advanced Learner' },
+        { _id: 'std_6_4', sNo: 4, rollNo: '25CS04', registerNo: '25104', name: 'Karthikaa P', mathsStream: 'HSC', attendancePercentage: 98, category: 'Advanced Learner' },
+        { _id: 'std_6_5', sNo: 5, rollNo: '25CS05', registerNo: '25105', name: 'Abarna C', mathsStream: 'NON_HSC', attendancePercentage: 84, category: 'Slow Learner' },
+        { _id: 'std_6_6', sNo: 6, rollNo: '25CS06', registerNo: '25106', name: 'Subiskha . P', mathsStream: 'HSC', attendancePercentage: 91, category: 'Average' },
+        { _id: 'std_6_7', sNo: 7, rollNo: '25CS07', registerNo: '25107', name: 'Neha Sai .S', mathsStream: 'HSC', attendancePercentage: 96, category: 'Average' },
+        { _id: 'std_6_8', sNo: 8, rollNo: '25CS08', registerNo: '25108', name: 'Varshini M', mathsStream: 'NON_HSC', attendancePercentage: 88, category: 'Advanced Learner' },
+        { _id: 'std_6_9', sNo: 9, rollNo: '25CS09', registerNo: '25109', name: 'Abhinaya M', mathsStream: 'HSC', attendancePercentage: 94, category: 'Slow Learner' },
+        { _id: 'std_6_10', sNo: 10, rollNo: '25CS10', registerNo: '25110', name: 'Gowri P', mathsStream: 'HSC', attendancePercentage: 90, category: 'Average' }
       ];
     }
     return [

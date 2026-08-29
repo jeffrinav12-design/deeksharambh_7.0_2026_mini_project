@@ -65,7 +65,14 @@ export default function Login({ onLoginSuccess }) {
     const targetPassword = (passwordToUse || oauthPasswordInput || password).trim();
 
     if (!targetEmail) {
-      setOauthModal({ open: true, provider });
+      setError('Please enter your Google / Gmail account address.');
+      setOauthModal({ open: true, provider: 'google' });
+      return;
+    }
+
+    if (!targetEmail.includes('@')) {
+      setError('Please enter a valid Gmail or Institutional email address (e.g. user@gmail.com).');
+      setOauthModal({ open: true, provider: 'google' });
       return;
     }
 
@@ -172,17 +179,7 @@ export default function Login({ onLoginSuccess }) {
         <div className="mb-5 space-y-3">
           <button
             type="button"
-            onClick={() => {
-              if (window.google?.accounts?.id) {
-                window.google.accounts.id.prompt((notification) => {
-                  if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    handleOauthSignIn('google');
-                  }
-                });
-              } else {
-                handleOauthSignIn('google');
-              }
-            }}
+            onClick={() => setOauthModal({ open: true, provider: 'google' })}
             disabled={loading}
             className="w-full py-3.5 px-4 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-800 font-bold text-xs transition-all duration-150 shadow-sm flex items-center justify-center gap-3 cursor-pointer hover:bg-slate-50"
           >
