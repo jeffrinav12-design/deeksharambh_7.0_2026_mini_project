@@ -19,6 +19,7 @@ import SipReportGenerator from './views/SipReportGenerator.jsx';
 import PhotoGallery from './views/PhotoGallery.jsx';
 import DocumentTemplateManager from './views/DocumentTemplateManager.jsx';
 import GoogleAiStudioView from './views/GoogleAiStudioView.jsx';
+import GmailAppView from './views/GmailAppView.jsx';
 
 // Components
 import Sidebar from './components/Sidebar.jsx';
@@ -173,6 +174,10 @@ export default function App() {
                     <Route 
                       path="/dashboard" 
                       element={role === 'student' ? <Navigate to="/assessment" /> : <Dashboard activeBatch={activeBatch} setActiveBatch={handleSelectBatch} />} 
+                    />
+                    <Route 
+                      path="/gmail" 
+                      element={<GmailAppView role={role} />} 
                     />
                     <Route 
                       path="/ai-studio" 

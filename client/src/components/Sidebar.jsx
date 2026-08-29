@@ -3,12 +3,13 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, Archive, PlusCircle, BookOpen, Calendar, 
   Users, CheckSquare, FileQuestion, BarChart3, FileText, 
-  Image as ImageIcon, LogOut, Sparkles 
+  Image as ImageIcon, LogOut, Sparkles, Mail 
 } from 'lucide-react';
 
 export default function Sidebar({ role, onLogout }) {
   const allLinks = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ['admin', 'faculty', 'viewer'] },
+    { to: "/gmail", label: "Google Gmail App", icon: Mail, roles: ['admin', 'faculty', 'student', 'viewer'] },
     { to: "/ai-studio", label: "Google AI Studio", icon: Sparkles, roles: ['admin', 'faculty', 'student', 'viewer'] },
     { to: "/archive", label: "Batch Archive Viewer", icon: Archive, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/setup", label: "New Batch Setup", icon: PlusCircle, roles: ['admin', 'faculty'] },
