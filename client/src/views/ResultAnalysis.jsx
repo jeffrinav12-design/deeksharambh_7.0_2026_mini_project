@@ -109,27 +109,15 @@ export default function ResultAnalysis({ activeBatch, role }) {
   const isExportDisabled = activeSubmissionCount === 0;
 
   const handleWordExport = () => {
-    if (isExportDisabled) {
-      showToast('Cannot export Result Analysis: No assessment responses have been submitted yet.', 'error');
-      return;
-    }
-    downloadFile(`/api/batches/${activeBatch._id}/export/results/docx`, `ResultAnalysis_${activeBatch.batchYearRange}.docx`);
+    downloadFile(`/api/batches/${activeBatch._id}/export/results/docx`, `ResultAnalysis_${activeBatch.batchYearRange}.docx`, results);
   };
 
   const handlePdfExport = () => {
-    if (isExportDisabled) {
-      showToast('Cannot export Result Analysis: No assessment responses have been submitted yet.', 'error');
-      return;
-    }
-    downloadFile(`/api/batches/${activeBatch._id}/export/results/pdf`, `ResultAnalysis_${activeBatch.batchYearRange}.pdf`);
+    downloadFile(`/api/batches/${activeBatch._id}/export/results/pdf`, `ResultAnalysis_${activeBatch.batchYearRange}.pdf`, results);
   };
 
   const handleCsvExport = () => {
-    if (isExportDisabled) {
-      showToast('Cannot export Result Analysis: No assessment responses have been submitted yet.', 'error');
-      return;
-    }
-    downloadFile(`/api/batches/${activeBatch._id}/export/results/csv`, `ResultAnalysis_${activeBatch.batchYearRange}.csv`);
+    downloadFile(`/api/batches/${activeBatch._id}/export/results/csv`, `ResultAnalysis_${activeBatch.batchYearRange}.csv`, results);
   };
 
   // Google Charts Data Preparation

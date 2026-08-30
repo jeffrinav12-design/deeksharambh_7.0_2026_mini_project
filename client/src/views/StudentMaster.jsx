@@ -233,13 +233,13 @@ export default function StudentMaster({ activeBatch, role }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students?type=${activeTab}`, `StudentList_${activeTab}_${activeBatch.batchYearRange}.docx`)}
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students?type=${activeTab}`, `StudentList_${activeTab}_${activeBatch.batchYearRange}.docx`, filteredStudents)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> Export DOCX
           </button>
           <button
-            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students/csv`, `StudentRoster_${activeBatch.batchYearRange}.csv`)}
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students/csv`, `StudentRoster_${activeBatch.batchYearRange}.csv`, filteredStudents)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> Export CSV
