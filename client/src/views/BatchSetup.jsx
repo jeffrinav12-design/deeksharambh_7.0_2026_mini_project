@@ -552,14 +552,14 @@ export default function BatchSetup({ activeBatch, setActiveBatch }) {
             <button
               type="button"
               onClick={() => handleAutofill('7.0')}
-              className="flex-1 min-w-[200px] py-2.5 rounded-lg bg-gold/10 border border-gold/30 text-gold font-bold text-xs hover:bg-gold/20 transition-all cursor-pointer"
+              className="flex-1 min-w-[200px] py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-extrabold text-xs transition-all cursor-pointer shadow-sm"
             >
               Autofill Deeksharambh 7.0 (2026-2029)
             </button>
             <button
               type="button"
               onClick={() => handleAutofill('8.0')}
-              className="flex-1 min-w-[200px] py-2.5 rounded-lg bg-gold/10 border border-gold/30 text-gold font-bold text-xs hover:bg-gold/20 transition-all cursor-pointer"
+              className="flex-1 min-w-[200px] py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-extrabold text-xs transition-all cursor-pointer shadow-sm"
             >
               Autofill Deeksharambh 8.0 (2027-2030)
             </button>

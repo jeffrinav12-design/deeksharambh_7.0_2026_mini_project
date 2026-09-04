@@ -224,18 +224,18 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={handleExportInvitationPdf}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs transition-all shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 font-bold text-xs transition-all shadow-sm cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5" /> PDF Invitation
+                <Download className="w-3.5 h-3.5 text-rose-700" /> PDF Invitation
               </button>
               <button
                 onClick={handleExportInvitationDocx}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 font-bold text-xs transition-all shadow-sm cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5" /> Word Invitation
+                <Download className="w-3.5 h-3.5 text-sky-700" /> Word Invitation
               </button>
-              <label className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs transition-all cursor-pointer shadow-sm">
-                <Upload className="w-3.5 h-3.5" />
+              <label className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-100 hover:bg-cyan-200 text-cyan-900 border border-cyan-300 font-bold text-xs transition-all cursor-pointer shadow-sm">
+                <Upload className="w-3.5 h-3.5 text-cyan-700" />
                 <span>Update Invitation</span>
                 <input type="file" accept=".pdf,.doc,.docx" onChange={handleUpdateInvitation} className="hidden" />
               </label>

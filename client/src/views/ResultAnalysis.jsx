@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Chart } from 'react-google-charts';
 import { Download, AlertTriangle, ArrowUpDown, PieChart, BarChart3 } from 'lucide-react';
 import { downloadFile } from '../utils/downloadHelper';
+import { getFullBatchStudents } from '../utils/studentData';
 
 export default function ResultAnalysis({ activeBatch, role }) {
   const [results, setResults] = useState([]);
@@ -13,47 +14,29 @@ export default function ResultAnalysis({ activeBatch, role }) {
   const [chartType, setChartType] = useState('column'); // 'column' | 'pie'
 
   const getBatchSampleResults = (batch) => {
-    const bId = (batch?.deeksharambhVersion || batch?._id || '').toString();
-    if (bId.includes('5.0') || bId.includes('2024')) {
-      return [
-        { sNo: 1, name: 'ABINESH.M', mathsStream: 'NON_HSC', tamil: 7, english: 3, maths: 9, core: 23, total: 42, percentage: 56.0, grade: 'B', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 2, name: 'ABISHEK.S', mathsStream: 'NON_HSC', tamil: 0, english: 0, maths: 0, core: 0, total: 0, percentage: 0, grade: 'U', category: 'Average', isAbsent: true },
-        { sNo: 3, name: 'ANGELIN GIFTY.I', mathsStream: 'HSC', tamil: 8, english: 6, maths: 9, core: 31, total: 54, percentage: 72.0, grade: 'A', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 4, name: 'ARTHI.M', mathsStream: 'HSC', tamil: 9, english: 3, maths: 4, core: 12, total: 28, percentage: 37.3, grade: 'C', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 5, name: 'ASWINI.S', mathsStream: 'NON_HSC', tamil: 0, english: 4, maths: 6, core: 18, total: 28, percentage: 43.1, grade: 'C', category: 'Slow Learner', isAbsent: false },
-        { sNo: 6, name: 'DEVI PRIYA.M', mathsStream: 'HSC', tamil: 6, english: 5, maths: 7, core: 13, total: 31, percentage: 41.3, grade: 'C', category: 'Average', isAbsent: false },
-        { sNo: 7, name: 'DHANABAL.L', mathsStream: 'NON_HSC', tamil: 6, english: 4, maths: 5, core: 9, total: 24, percentage: 32.0, grade: 'U', category: 'Average', isAbsent: false },
-        { sNo: 8, name: 'DHANUSH.S', mathsStream: 'HSC', tamil: 0, english: 4, maths: 7, core: 18, total: 29, percentage: 44.6, grade: 'C', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 9, name: 'DHANYA.D', mathsStream: 'NON_HSC', tamil: 9, english: 5, maths: 6, core: 29, total: 49, percentage: 65.3, grade: 'B+', category: 'Slow Learner', isAbsent: false },
-        { sNo: 10, name: 'JEFFRINA.V', mathsStream: 'HSC', tamil: 10, english: 10, maths: 10, core: 43, total: 73, percentage: 97.3, grade: 'O', category: 'Advanced Learner', isAbsent: false }
-      ];
-    } else if (bId.includes('6.0') || bId.includes('2025')) {
-      return [
-        { sNo: 1, name: 'Saarah Azizah K.M', mathsStream: 'HSC', tamil: 11, english: 12, maths: 12, core: 36, total: 71, percentage: 71.0, grade: 'A', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 2, name: 'Mahadharshini V', mathsStream: 'HSC', tamil: 0, english: 0, maths: 0, core: 0, total: 0, percentage: 0, grade: 'U', category: 'Average', isAbsent: true },
-        { sNo: 3, name: 'Kaavya P', mathsStream: 'HSC', tamil: 11, english: 13, maths: 15, core: 39, total: 78, percentage: 78.0, grade: 'A+', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 4, name: 'Karthikaa P', mathsStream: 'HSC', tamil: 12, english: 14, maths: 14, core: 45, total: 85, percentage: 85.0, grade: 'O', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 5, name: 'Abarna C', mathsStream: 'NON_HSC', tamil: 13, english: 13, maths: 14, core: 30, total: 70, percentage: 70.0, grade: 'A', category: 'Slow Learner', isAbsent: false },
-        { sNo: 6, name: 'Subiskha . P', mathsStream: 'HSC', tamil: 13, english: 15, maths: 13, core: 38, total: 79, percentage: 79.0, grade: 'A+', category: 'Average', isAbsent: false },
-        { sNo: 7, name: 'Neha Sai .S', mathsStream: 'HSC', tamil: 12, english: 8, maths: 9, core: 20, total: 49, percentage: 49.0, grade: 'C', category: 'Average', isAbsent: false },
-        { sNo: 8, name: 'Varshini M', mathsStream: 'NON_HSC', tamil: 12, english: 14, maths: 15, core: 48, total: 89, percentage: 89.0, grade: 'O', category: 'Advanced Learner', isAbsent: false },
-        { sNo: 9, name: 'Abhinaya M', mathsStream: 'HSC', tamil: 13, english: 12, maths: 14, core: 31, total: 70, percentage: 70.0, grade: 'A', category: 'Slow Learner', isAbsent: false },
-        { sNo: 10, name: 'Gowri P', mathsStream: 'HSC', tamil: 13, english: 13, maths: 15, core: 43, total: 84, percentage: 84.0, grade: 'O', category: 'Average', isAbsent: false }
-      ];
-    }
-
-    return [
-      { sNo: 1, name: 'AAYISHA SIDHIKA D', mathsStream: 'HSC', tamil: 10, english: 10, maths: 10, core: 42, total: 72, percentage: 96.0, grade: 'O', category: 'Advanced Learner', isAbsent: false },
-      { sNo: 2, name: 'AGASTIAN G E', mathsStream: 'HSC', tamil: 9, english: 9, maths: 9, core: 42, total: 69, percentage: 92.0, grade: 'A+', category: 'Advanced Learner', isAbsent: false },
-      { sNo: 3, name: 'BALAJI I', mathsStream: 'NON_HSC', tamil: 8, english: 8, maths: 8, core: 42, total: 66, percentage: 88.0, grade: 'A+', category: 'Average', isAbsent: false },
-      { sNo: 4, name: 'DHANASRI A', mathsStream: 'HSC', tamil: 9, english: 9, maths: 10, core: 42, total: 70, percentage: 93.3, grade: 'O', category: 'Advanced Learner', isAbsent: false },
-      { sNo: 5, name: 'DHARUNKUMAR V', mathsStream: 'NON_HSC', tamil: 7, english: 7, maths: 7, core: 42, total: 63, percentage: 84.0, grade: 'A', category: 'Slow Learner', isAbsent: false },
-      { sNo: 6, name: 'DINEESH KUMAR J', mathsStream: 'HSC', tamil: 9, english: 8, maths: 9, core: 42, total: 68, percentage: 90.7, grade: 'A+', category: 'Average', isAbsent: false },
-      { sNo: 7, name: 'DIVYADHARSHINI A', mathsStream: 'HSC', tamil: 10, english: 10, maths: 10, core: 43, total: 73, percentage: 97.3, grade: 'O', category: 'Advanced Learner', isAbsent: false },
-      { sNo: 8, name: 'DURGA SRI S', mathsStream: 'NON_HSC', tamil: 6, english: 7, maths: 6, core: 42, total: 61, percentage: 81.3, grade: 'A', category: 'Slow Learner', isAbsent: false },
-      { sNo: 9, name: 'GOBIKA C R', mathsStream: 'NON_HSC', tamil: 9, english: 10, maths: 9, core: 43, total: 71, percentage: 94.7, grade: 'O', category: 'Advanced Learner', isAbsent: false },
-      { sNo: 10, name: 'GOKULAKRISHNAN M', mathsStream: 'HSC', tamil: 8, english: 9, maths: 9, core: 42, total: 68, percentage: 90.7, grade: 'A+', category: 'Average', isAbsent: false }
-    ];
+    const list = getFullBatchStudents(batch);
+    return list.map((s, idx) => {
+      const isAb = idx === 1 || idx === 14 || idx === 20;
+      const total = isAb ? 0 : Math.min(100, 52 + ((idx * 7) % 46));
+      const pct = isAb ? 0 : total;
+      return {
+        _id: s._id,
+        sNo: s.sNo,
+        rollNo: s.rollNo,
+        registerNo: s.registerNo,
+        name: s.name,
+        mathsStream: s.mathsStream,
+        tamil: isAb ? 'AB' : String(Math.floor(total * 0.2)),
+        english: isAb ? 'AB' : String(Math.floor(total * 0.2)),
+        maths: isAb ? 'AB' : String(Math.floor(total * 0.2)),
+        core: isAb ? 'AB' : String(Math.floor(total * 0.4)),
+        total,
+        percentage: isAb ? 'AB' : pct.toFixed(1),
+        grade: isAb ? 'U' : (pct >= 85 ? 'O' : pct >= 70 ? 'A+' : pct >= 60 ? 'A' : 'B'),
+        category: isAb ? 'Average' : (pct >= 70 ? 'Advanced Learner' : 'Slow Learner'),
+        isAbsent: isAb
+      };
+    });
   };
 
   const defaultSampleRangeSummary = [
@@ -155,21 +138,21 @@ export default function ResultAnalysis({ activeBatch, role }) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleWordExport}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 text-xs font-extrabold transition-all shadow-sm cursor-pointer"
           >
-            <Download className="w-4 h-4" /> Word (.docx)
+            <Download className="w-4 h-4 text-sky-700" /> Word (.docx)
           </button>
           <button
             onClick={handlePdfExport}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 text-xs font-extrabold transition-all shadow-sm cursor-pointer"
           >
-            <Download className="w-4 h-4" /> PDF (.pdf)
+            <Download className="w-4 h-4 text-rose-700" /> PDF (.pdf)
           </button>
           <button
             onClick={handleCsvExport}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-100 hover:bg-cyan-200 text-cyan-900 border border-cyan-300 text-xs font-extrabold transition-all shadow-sm cursor-pointer"
           >
-            <Download className="w-4 h-4" /> CSV (.csv)
+            <Download className="w-4 h-4 text-cyan-700" /> CSV (.csv)
           </button>
         </div>
       </div>
@@ -189,7 +172,7 @@ export default function ResultAnalysis({ activeBatch, role }) {
           <button
             type="button"
             onClick={handleSort}
-            className="flex items-center gap-1.5 text-sky-700 text-xs font-bold hover:underline"
+            className="flex items-center gap-1.5 text-sky-700 text-xs font-bold hover:underline cursor-pointer"
           >
             <ArrowUpDown className="w-3.5 h-3.5" /> Sort by % ({sortDesc ? 'Asc' : 'Desc'})
           </button>
@@ -290,16 +273,16 @@ export default function ResultAnalysis({ activeBatch, role }) {
               <div className="flex gap-1 p-1 bg-sky-50 rounded-xl border border-sky-200">
                 <button
                   onClick={() => setChartType('column')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg flex items-center gap-1 transition-all ${
-                    chartType === 'column' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-sky-700'
+                  className={`px-3 py-1 text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
+                    chartType === 'column' ? 'bg-sky-500 text-white shadow-sm font-extrabold' : 'text-slate-600 hover:text-sky-700 font-medium'
                   }`}
                 >
                   <BarChart3 className="w-3.5 h-3.5" /> Column Chart
                 </button>
                 <button
                   onClick={() => setChartType('pie')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg flex items-center gap-1 transition-all ${
-                    chartType === 'pie' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-sky-700'
+                  className={`px-3 py-1 text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
+                    chartType === 'pie' ? 'bg-sky-500 text-white shadow-sm font-extrabold' : 'text-slate-600 hover:text-sky-700 font-medium'
                   }`}
                 >
                   <PieChart className="w-3.5 h-3.5" /> Pie / Donut Chart

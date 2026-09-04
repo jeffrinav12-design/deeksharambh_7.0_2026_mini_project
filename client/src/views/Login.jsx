@@ -159,8 +159,8 @@ export default function Login({ onLoginSuccess }) {
               onClick={() => handleRoleChange(r)}
               className={`py-2 text-xs font-bold rounded-lg capitalize transition-all duration-150 cursor-pointer ${
                 roleSelection === r 
-                  ? 'bg-sky-600 text-white shadow-sm' 
-                  : 'text-slate-600 hover:text-sky-700'
+                  ? 'bg-sky-500 text-white shadow-sm font-extrabold' 
+                  : 'text-slate-600 hover:text-sky-700 font-medium'
               }`}
             >
               {r} Account
@@ -181,7 +181,7 @@ export default function Login({ onLoginSuccess }) {
             type="button"
             onClick={() => setOauthModal({ open: true, provider: 'google' })}
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-800 font-bold text-xs transition-all duration-150 shadow-sm flex items-center justify-center gap-3 cursor-pointer hover:bg-slate-50"
+            className="w-full py-3.5 px-4 rounded-xl bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-900 font-extrabold text-xs transition-all duration-150 shadow-sm flex items-center justify-center gap-3 cursor-pointer"
           >
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -234,7 +234,7 @@ export default function Login({ onLoginSuccess }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -261,21 +261,20 @@ export default function Login({ onLoginSuccess }) {
             <div className="space-y-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  {oauthModal.provider === 'github' ? 'GitHub Email / Username' : 'Google / Gmail Address'}
+                  {oauthModal.provider === 'github' ? 'GitHub Username / Email' : 'Google Email'}
                 </label>
                 <input
                   type="text"
                   value={oauthInput}
                   onChange={(e) => setOauthInput(e.target.value)}
-                  placeholder="e.g. jeffrinavcsda2024@sankara.ac.in"
+                  placeholder={oauthModal.provider === 'github' ? 'e.g. username' : 'e.g. user@gmail.com'}
                   className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs"
-                  autoFocus
                 />
               </div>
               {roleSelection === 'student' && (
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Register No.</label>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Register No</label>
                     <input
                       type="text"
                       value={registerNoInput}
@@ -312,14 +311,14 @@ export default function Login({ onLoginSuccess }) {
               <button
                 type="button"
                 onClick={() => setOauthModal({ open: false, provider: 'google' })}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 hover:bg-slate-200 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => handleOauthSignIn(oauthModal.provider, oauthInput, oauthPasswordInput)}
-                className="px-4 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-sky-500 text-white text-xs font-extrabold hover:bg-sky-600 cursor-pointer shadow-sm"
               >
                 Verify & Sign In
               </button>
@@ -330,5 +329,3 @@ export default function Login({ onLoginSuccess }) {
     </div>
   );
 }
-
-

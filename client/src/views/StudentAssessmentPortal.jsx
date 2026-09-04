@@ -426,7 +426,7 @@ export default function StudentAssessmentPortal({ activeBatch, batches = [], onS
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-sky-100 flex justify-end">
           <button
             onClick={handleSubmit}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-sm transition-all"
+            className="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-sm rounded-xl flex items-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <CheckCircle className="w-4 h-4" /> Submit Assessment
           </button>

@@ -47,14 +47,14 @@ export default function Sidebar({ role, onLogout }) {
               key={link.to}
               to={link.to}
               className={({ isActive }) => 
-                `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                `flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
                   isActive 
-                    ? 'bg-blue-600 text-white shadow-md font-bold' 
-                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-800'
+                    ? 'bg-sky-100 text-sky-900 border border-sky-300 shadow-sm font-extrabold' 
+                    : 'text-gray-600 hover:bg-sky-50 hover:text-sky-800 font-medium'
                 }`
               }
             >
-              <link.icon className="w-4 h-4" />
+              <link.icon className="w-4 h-4 text-sky-600" />
               <span>{link.label}</span>
             </NavLink>
           ))}
@@ -62,12 +62,12 @@ export default function Sidebar({ role, onLogout }) {
       </div>
 
       {/* Logout button */}
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-blue-100">
         <button 
           onClick={onLogout}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold text-rose-800 bg-rose-100 hover:bg-rose-200 border border-rose-300 transition-all duration-200 cursor-pointer shadow-sm"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4 text-rose-700" />
           <span>Logout</span>
         </button>
       </div>

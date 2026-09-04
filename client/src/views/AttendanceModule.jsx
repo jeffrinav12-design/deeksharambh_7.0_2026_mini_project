@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Check, X, Download, Calendar, Save, CheckCircle, AlertCircle, Grid } from 'lucide-react';
 import { downloadFile } from '../utils/downloadHelper';
+import { getFullBatchStudents } from '../utils/studentData';
 
 export default function AttendanceModule({ activeBatch, role }) {
   const [students, setStudents] = useState([]);
@@ -17,56 +18,12 @@ export default function AttendanceModule({ activeBatch, role }) {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [activeTab, setActiveTab] = useState('Mark'); // Mark, GridView
 
-  const getBatchSampleStudents = (batch) => {
-    const ver = (batch?.deeksharambhVersion || batch?.batchYearRange || '').toString();
-    if (ver.includes('5.0') || ver.includes('2024')) {
-      return [
-        { _id: 'std_5_1', sNo: 1, rollNo: '24CS01', registerNo: '24101', name: 'ABINESH.M', mathsStream: 'NON_HSC' },
-        { _id: 'std_5_2', sNo: 2, rollNo: '24CS02', registerNo: '24102', name: 'ABISHEK.S', mathsStream: 'NON_HSC' },
-        { _id: 'std_5_3', sNo: 3, rollNo: '24CS03', registerNo: '24103', name: 'ANGELIN GIFTY.I', mathsStream: 'HSC' },
-        { _id: 'std_5_4', sNo: 4, rollNo: '24CS04', registerNo: '24104', name: 'ARTHI.M', mathsStream: 'HSC' },
-        { _id: 'std_5_5', sNo: 5, rollNo: '24CS05', registerNo: '24105', name: 'ASWINI.S', mathsStream: 'NON_HSC' },
-        { _id: 'std_5_6', sNo: 6, rollNo: '24CS06', registerNo: '24106', name: 'DEVI PRIYA.M', mathsStream: 'HSC' },
-        { _id: 'std_5_7', sNo: 7, rollNo: '24CS07', registerNo: '24107', name: 'DHANABAL.L', mathsStream: 'NON_HSC' },
-        { _id: 'std_5_8', sNo: 8, rollNo: '24CS08', registerNo: '24108', name: 'DHANUSH.S', mathsStream: 'HSC' },
-        { _id: 'std_5_9', sNo: 9, rollNo: '24CS09', registerNo: '24109', name: 'DHANYA.D', mathsStream: 'NON_HSC' },
-        { _id: 'std_5_10', sNo: 10, rollNo: '24CS10', registerNo: '24110', name: 'JEFFRINA.V', mathsStream: 'HSC' }
-      ];
-    }
-    if (ver.includes('6.0') || ver.includes('2025')) {
-      return [
-        { _id: 'std_6_1', sNo: 1, rollNo: '25CS01', registerNo: '25101', name: 'Saarah Azizah K.M', mathsStream: 'HSC' },
-        { _id: 'std_6_2', sNo: 2, rollNo: '25CS02', registerNo: '25102', name: 'Mahadharshini V', mathsStream: 'NON_HSC' },
-        { _id: 'std_6_3', sNo: 3, rollNo: '25CS03', registerNo: '25103', name: 'Kaavya P', mathsStream: 'HSC' },
-        { _id: 'std_6_4', sNo: 4, rollNo: '25CS04', registerNo: '25104', name: 'Karthikaa P', mathsStream: 'HSC' },
-        { _id: 'std_6_5', sNo: 5, rollNo: '25CS05', registerNo: '25105', name: 'Abarna C', mathsStream: 'NON_HSC' },
-        { _id: 'std_6_6', sNo: 6, rollNo: '25CS06', registerNo: '25106', name: 'Subiskha . P', mathsStream: 'HSC' },
-        { _id: 'std_6_7', sNo: 7, rollNo: '25CS07', registerNo: '25107', name: 'Neha Sai .S', mathsStream: 'HSC' },
-        { _id: 'std_6_8', sNo: 8, rollNo: '25CS08', registerNo: '25108', name: 'Varshini M', mathsStream: 'NON_HSC' },
-        { _id: 'std_6_9', sNo: 9, rollNo: '25CS09', registerNo: '25109', name: 'Abhinaya M', mathsStream: 'HSC' },
-        { _id: 'std_6_10', sNo: 10, rollNo: '25CS10', registerNo: '25110', name: 'Gowri P', mathsStream: 'HSC' }
-      ];
-    }
-    return [
-      { _id: 'std_7_1', sNo: 1, rollNo: '26CS01', registerNo: '26101', name: 'AAYISHA SIDHIKA D', mathsStream: 'HSC' },
-      { _id: 'std_7_2', sNo: 2, rollNo: '26CS02', registerNo: '26102', name: 'AGASTIAN G E', mathsStream: 'HSC' },
-      { _id: 'std_7_3', sNo: 3, rollNo: '26CS03', registerNo: '26103', name: 'BALAJI I', mathsStream: 'NON_HSC' },
-      { _id: 'std_7_4', sNo: 4, rollNo: '26CS04', registerNo: '26104', name: 'DHANASRI A', mathsStream: 'HSC' },
-      { _id: 'std_7_5', sNo: 5, rollNo: '26CS05', registerNo: '26105', name: 'DHARUNKUMAR V', mathsStream: 'NON_HSC' },
-      { _id: 'std_7_6', sNo: 6, rollNo: '26CS06', registerNo: '26106', name: 'DINEESH KUMAR J', mathsStream: 'HSC' },
-      { _id: 'std_7_7', sNo: 7, rollNo: '26CS07', registerNo: '26107', name: 'DIVYADHARSHINI A', mathsStream: 'HSC' },
-      { _id: 'std_7_8', sNo: 8, rollNo: '26CS08', registerNo: '26108', name: 'DURGA SRI S', mathsStream: 'NON_HSC' },
-      { _id: 'std_7_9', sNo: 9, rollNo: '26CS09', registerNo: '26109', name: 'GOBIKA C R', mathsStream: 'NON_HSC' },
-      { _id: 'std_7_10', sNo: 10, rollNo: '26CS10', registerNo: '26110', name: 'GOKULAKRISHNAN M', mathsStream: 'HSC' }
-    ];
-  };
-
   useEffect(() => {
     initAttendanceData();
   }, [activeBatch]);
 
   const initAttendanceData = async () => {
-    const sampleList = getBatchSampleStudents(activeBatch);
+    const sampleList = getFullBatchStudents(activeBatch);
     try {
       if (!activeBatch?._id) {
         setStudents(sampleList);
