@@ -164,12 +164,12 @@ export default function App() {
             !token ? (
               <Navigate to="/login" />
             ) : (
-              <div className="min-h-screen bg-slate-50 text-slate-900">
+              <div className="min-h-screen bg-white text-slate-900">
                 <Sidebar role={role} onLogout={handleLogout} />
                 <Header userName={userName} role={role} activeBatch={activeBatch} batches={batches} onSelectBatch={handleSelectBatch} />
                 
                 {/* Content main area, matching sidebar spacing */}
-                <main className="pl-64 pt-20 p-8 min-h-screen">
+                <main className="pl-64 pt-20 p-8 min-h-screen bg-white">
                   <Routes>
                     <Route 
                       path="/dashboard" 
@@ -181,7 +181,7 @@ export default function App() {
                     />
                     <Route 
                       path="/ai-studio" 
-                      element={<GoogleAiStudioView activeBatch={activeBatch} role={role} />} 
+                      element={role === 'student' ? <Navigate to="/assessment" /> : <GoogleAiStudioView activeBatch={activeBatch} role={role} />} 
                     />
                     <Route 
                       path="/archive" 
