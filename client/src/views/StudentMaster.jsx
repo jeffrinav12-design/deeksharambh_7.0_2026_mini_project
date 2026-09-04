@@ -191,18 +191,18 @@ export default function StudentMaster({ activeBatch, role }) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students?type=${activeTab}`, `StudentList_${activeTab}_${activeBatch.batchYearRange}.docx`, filteredStudents)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-50 border border-sky-300 text-sky-800 hover:bg-sky-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> Export DOCX
           </button>
           <button
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/students/csv`, `StudentRoster_${activeBatch.batchYearRange}.csv`, filteredStudents)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
           {role !== 'viewer' && (
-            <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer">
+            <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-800 hover:bg-indigo-100 text-xs font-bold transition-all shadow-sm cursor-pointer">
               <Upload className="w-4 h-4" />
               <span>Import CSV</span>
               <input type="file" accept=".csv" onChange={handleCsvImport} className="hidden" />
@@ -272,7 +272,7 @@ export default function StudentMaster({ activeBatch, role }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                  className="w-full py-2.5 rounded-lg bg-sky-100 border border-sky-300 text-sky-800 hover:bg-sky-200 font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <Plus className="w-4 h-4" /> Add Student
                 </button>
@@ -306,8 +306,8 @@ export default function StudentMaster({ activeBatch, role }) {
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-semibold rounded capitalize transition-all duration-150 ${
                     activeTab === tab
-                      ? 'bg-sky-600 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-sky-800'
+                      ? 'bg-sky-200 border border-sky-400 text-sky-900 font-bold shadow-sm'
+                      : 'text-slate-700 hover:bg-sky-100'
                   }`}
                 >
                   {tab === 'Full' ? 'All' : tab === 'Maths' ? 'Maths (M)' : 'Non-Maths (NM)'}

@@ -331,14 +331,14 @@ export default function SyllabusManager({ activeBatch, role }) {
                     <button
                       type="button"
                       onClick={() => downloadFile(`/api/syllabi/${selectedSyllabusId}/export`, `Syllabus_${formData.subjectName.replace(/\s+/g, '_') || 'Subject'}.docx`)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white cursor-pointer shadow-sm"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-300 text-sky-800 hover:bg-sky-100 text-xs font-bold cursor-pointer shadow-sm"
                     >
                       <Download className="w-3.5 h-3.5" /> DOCX
                     </button>
                     <button
                       type="button"
                       onClick={() => downloadFile(`/api/syllabi/${selectedSyllabusId}/export/csv`, `Syllabus_${formData.subjectName.replace(/\s+/g, '_') || 'Subject'}.csv`)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white cursor-pointer shadow-sm"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold cursor-pointer shadow-sm"
                     >
                       <Download className="w-3.5 h-3.5" /> CSV
                     </button>
@@ -346,7 +346,7 @@ export default function SyllabusManager({ activeBatch, role }) {
                       <button
                         type="button"
                         onClick={handleDeleteSyllabus}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-red-50 border border-red-200 text-xs font-bold text-red-600 hover:bg-red-100 cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-100 cursor-pointer shadow-sm"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Delete
                       </button>

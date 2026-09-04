@@ -1,3 +1,5 @@
+import { getFullBatchStudents } from './studentData';
+
 export async function downloadFile(url, fallbackFilename, dataToExport = null) {
   try {
     const token = localStorage.getItem('token');
@@ -61,50 +63,22 @@ function getBatchDataFromContext(url, filename, dataToExport) {
   }
   
   const combined = `${url} ${filename}`.toLowerCase();
-  
+  let b = { deeksharambhVersion: '7.0' };
   if (combined.includes('2024') || combined.includes('5.0')) {
-    return [
-      { sNo: 1, registerNo: '24101', name: 'ABINESH.M', dept: 'CSDA', stream: 'NON_HSC', grade: 'B', percent: '56%' },
-      { sNo: 2, registerNo: '24102', name: 'ABISHEK.S', dept: 'CSDA', stream: 'NON_HSC', grade: 'U', percent: '0%' },
-      { sNo: 3, registerNo: '24103', name: 'ANGELIN GIFTY.I', dept: 'CSDA', stream: 'HSC', grade: 'A', percent: '72%' },
-      { sNo: 4, registerNo: '24104', name: 'ARTHI.M', dept: 'CSDA', stream: 'HSC', grade: 'C', percent: '37%' },
-      { sNo: 5, registerNo: '24105', name: 'ASWINI.S', dept: 'CSDA', stream: 'NON_HSC', grade: 'C', percent: '43%' },
-      { sNo: 6, registerNo: '24106', name: 'DEVI PRIYA.M', dept: 'CSDA', stream: 'HSC', grade: 'C', percent: '41%' },
-      { sNo: 7, registerNo: '24107', name: 'DHANABAL.L', dept: 'CSDA', stream: 'NON_HSC', grade: 'U', percent: '32%' },
-      { sNo: 8, registerNo: '24108', name: 'DHANUSH.S', dept: 'CSDA', stream: 'HSC', grade: 'C', percent: '45%' },
-      { sNo: 9, registerNo: '24109', name: 'DHANYA.D', dept: 'CSDA', stream: 'NON_HSC', grade: 'B+', percent: '65%' },
-      { sNo: 10, registerNo: '24110', name: 'JEFFRINA.V', dept: 'CSDA', stream: 'HSC', grade: 'O', percent: '97%' }
-    ];
+    b = { deeksharambhVersion: '5.0' };
+  } else if (combined.includes('2025') || combined.includes('6.0')) {
+    b = { deeksharambhVersion: '6.0' };
   }
-
-  if (combined.includes('2025') || combined.includes('6.0')) {
-    return [
-      { sNo: 1, registerNo: '25101', name: 'Saarah Azizah K.M', dept: 'CSDA', stream: 'HSC', grade: 'A', percent: '71%' },
-      { sNo: 2, registerNo: '25102', name: 'Mahadharshini V', dept: 'CSDA', stream: 'NON_HSC', grade: 'U', percent: '0%' },
-      { sNo: 3, registerNo: '25103', name: 'Kaavya P', dept: 'CSDA', stream: 'HSC', grade: 'A+', percent: '78%' },
-      { sNo: 4, registerNo: '25104', name: 'Karthikaa P', dept: 'CSDA', stream: 'HSC', grade: 'O', percent: '85%' },
-      { sNo: 5, registerNo: '25105', name: 'Abarna C', dept: 'CSDA', stream: 'NON_HSC', grade: 'A', percent: '70%' },
-      { sNo: 6, registerNo: '25106', name: 'Subiskha . P', dept: 'CSDA', stream: 'HSC', grade: 'A+', percent: '79%' },
-      { sNo: 7, registerNo: '25107', name: 'Neha Sai .S', dept: 'CSDA', stream: 'HSC', grade: 'C', percent: '49%' },
-      { sNo: 8, registerNo: '25108', name: 'Varshini M', dept: 'CSDA', stream: 'NON_HSC', grade: 'O', percent: '89%' },
-      { sNo: 9, registerNo: '25109', name: 'Abhinaya M', dept: 'CSDA', stream: 'HSC', grade: 'A', percent: '70%' },
-      { sNo: 10, registerNo: '25110', name: 'Gowri P', dept: 'CSDA', stream: 'HSC', grade: 'O', percent: '84%' }
-    ];
-  }
-
-  // Default Batch 7.0 (2026)
-  return [
-    { sNo: 1, registerNo: '26101', name: 'AAYISHA SIDHIKA D', dept: 'CSDA', stream: 'HSC', grade: 'O', percent: '96%' },
-    { sNo: 2, registerNo: '26102', name: 'AGASTIAN G E', dept: 'CSDA', stream: 'HSC', grade: 'A+', percent: '92%' },
-    { sNo: 3, registerNo: '26103', name: 'BALAJI I', dept: 'CSDA', stream: 'NON_HSC', grade: 'A+', percent: '88%' },
-    { sNo: 4, registerNo: '26104', name: 'DHANASRI A', dept: 'CSDA', stream: 'HSC', grade: 'O', percent: '93%' },
-    { sNo: 5, registerNo: '26105', name: 'DHARUNKUMAR V', dept: 'CSDA', stream: 'NON_HSC', grade: 'A', percent: '84%' },
-    { sNo: 6, registerNo: '26106', name: 'DINEESH KUMAR J', dept: 'CSDA', stream: 'HSC', grade: 'A+', percent: '90%' },
-    { sNo: 7, registerNo: '26107', name: 'DIVYADHARSHINI A', dept: 'CSDA', stream: 'HSC', grade: 'O', percent: '97%' },
-    { sNo: 8, registerNo: '26108', name: 'DURGA SRI S', dept: 'CSDA', stream: 'NON_HSC', grade: 'A', percent: '81%' },
-    { sNo: 9, registerNo: '26109', name: 'GOBIKA C R', dept: 'CSDA', stream: 'NON_HSC', grade: 'O', percent: '94%' },
-    { sNo: 10, registerNo: '26110', name: 'GOKULAKRISHNAN M', dept: 'CSDA', stream: 'HSC', grade: 'A+', percent: '90%' }
-  ];
+  const rawList = getFullBatchStudents(b);
+  return rawList.map((st, idx) => ({
+    sNo: st.sNo || idx + 1,
+    registerNo: st.registerNo || st.rollNo,
+    name: st.name,
+    dept: 'CSDA',
+    stream: st.mathsStream || 'HSC',
+    grade: st.category === 'Slow Learner' ? 'B' : (st.category === 'Average' ? 'A' : 'O'),
+    percent: st.attendancePercentage ? `${st.attendancePercentage}%` : '92%'
+  }));
 }
 
 function generateClientSideDownload(url, filename, dataToExport) {

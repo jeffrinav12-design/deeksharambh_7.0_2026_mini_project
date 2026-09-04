@@ -159,21 +159,21 @@ export default function ScheduleManager({ activeBatch, role }) {
           <button
             type="button"
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/schedule`, `Schedule_${activeBatch.batchYearRange}.docx`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-50 border border-sky-300 text-sky-800 hover:bg-sky-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> Word (.docx)
           </button>
           <button
             type="button"
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/schedule/csv`, `Schedule_${activeBatch.batchYearRange}.csv`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> CSV (.csv)
           </button>
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-800 hover:bg-indigo-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Calendar className="w-4 h-4" /> Printable Grid
           </button>
@@ -373,7 +373,7 @@ export default function ScheduleManager({ activeBatch, role }) {
           <button
             type="submit"
             disabled={loading || totalHours !== 36}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-gold to-yellow-400 text-navy-dark font-bold text-sm hover:from-yellow-400 hover:to-gold transition-all duration-200 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 rounded-lg bg-sky-100 border border-sky-300 text-sky-900 font-bold text-sm hover:bg-sky-200 transition-all duration-200 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <span className="w-4 h-4 border-2 border-navy border-t-transparent rounded-full animate-spin"></span>

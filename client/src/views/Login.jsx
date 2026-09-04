@@ -234,13 +234,13 @@ export default function Login({ onLoginSuccess }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-sky-100 border border-sky-300 hover:bg-sky-200 text-sky-900 font-extrabold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span className="w-4 h-4 border-2 border-sky-800 border-t-transparent rounded-full animate-spin"></span>
             ) : (
               <>
-                <Shield className="w-4 h-4" />
+                <Shield className="w-4 h-4 text-sky-800" />
                 <span>Secure Log In</span>
               </>
             )}
@@ -261,7 +261,7 @@ export default function Login({ onLoginSuccess }) {
             <div className="space-y-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  {oauthModal.provider === 'github' ? 'GitHub Username / Email' : 'Google Email'}
+                  {oauthModal.provider === 'github' ? 'GitHub Username / Email' : 'Google Gmail Account'}
                 </label>
                 <input
                   type="text"
@@ -318,7 +318,7 @@ export default function Login({ onLoginSuccess }) {
               <button
                 type="button"
                 onClick={() => handleOauthSignIn(oauthModal.provider, oauthInput, oauthPasswordInput)}
-                className="px-4 py-2 rounded-xl bg-sky-500 text-white text-xs font-extrabold hover:bg-sky-600 cursor-pointer shadow-sm"
+                className="px-4 py-2 rounded-xl bg-sky-100 border border-sky-300 text-sky-900 text-xs font-extrabold hover:bg-sky-200 cursor-pointer shadow-sm"
               >
                 Verify & Sign In
               </button>

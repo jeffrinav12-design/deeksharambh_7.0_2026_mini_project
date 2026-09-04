@@ -494,9 +494,9 @@ export default function DocumentTemplateManager({ activeBatch }) {
           {activeTab === 'templates' && (
             <button
               onClick={() => setShowUploadModal(true)}
-              className="px-4 py-2 bg-navy text-white rounded-lg font-semibold text-xs flex items-center gap-2 hover:bg-navy-light transition-all"
+              className="px-4 py-2 bg-sky-100 border border-sky-300 text-sky-900 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-sky-200 shadow-sm transition-all cursor-pointer"
             >
-              <Upload className="w-4 h-4" /> Upload PDF Template
+              <Upload className="w-4 h-4 text-sky-800" /> Upload PDF Template
             </button>
           )}
         </div>
@@ -895,7 +895,7 @@ export default function DocumentTemplateManager({ activeBatch }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 text-xs font-bold bg-navy text-white rounded-lg hover:bg-navy-light"
+                  className="px-5 py-2 text-xs font-bold bg-sky-100 border border-sky-300 text-sky-900 rounded-lg hover:bg-sky-200 shadow-sm cursor-pointer"
                 >
                   {loading ? 'Uploading...' : 'Save Template'}
                 </button>
@@ -963,7 +963,7 @@ export default function DocumentTemplateManager({ activeBatch }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 text-xs font-bold bg-navy text-white rounded-lg hover:bg-navy-light"
+                  className="px-5 py-2 text-xs font-bold bg-sky-100 border border-sky-300 text-sky-900 rounded-lg hover:bg-sky-200 shadow-sm cursor-pointer"
                 >
                   {loading ? 'Compiling Documents...' : 'Generate & Export'}
                 </button>
@@ -1017,7 +1017,7 @@ export default function DocumentTemplateManager({ activeBatch }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 text-xs font-bold bg-navy text-white rounded-lg hover:bg-navy-light"
+                  className="px-5 py-2 text-xs font-bold bg-sky-100 border border-sky-300 text-sky-900 rounded-lg hover:bg-sky-200 shadow-sm cursor-pointer"
                 >
                   {loading ? 'Recompiling...' : 'Save & Compile (Increment Version)'}
                 </button>

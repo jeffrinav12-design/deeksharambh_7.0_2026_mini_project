@@ -154,28 +154,28 @@ Key Highlights:
           <button
             type="button"
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/docx`, `SIP_Report_${activeBatch.batchYearRange}.docx`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-50 border border-sky-300 text-sky-800 hover:bg-sky-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> Word (.docx)
           </button>
           <button
             type="button"
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/pdf`, `SIP_Report_${activeBatch.batchYearRange}.pdf`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 hover:bg-rose-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> PDF (.pdf)
           </button>
           <button
             type="button"
             onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/csv`, `SIP_Report_${activeBatch.batchYearRange}.csv`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <Download className="w-4 h-4" /> CSV (.csv)
           </button>
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-800 hover:bg-indigo-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
             <FileText className="w-4 h-4" /> Printable Report
           </button>
@@ -186,79 +186,82 @@ Key Highlights:
         <div className={`p-4 rounded-xl flex items-center gap-3 border ${
           message.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
         }`}>
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium">{message.text}</span>
         </div>
       )}
 
-      {/* Template Chooser Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-sky-100 shadow-sm flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-700">Choose Report Template:</span>
-          <select
-            value={selectedTemplate}
-            onChange={(e) => handleTemplateChange(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-sky-200 text-xs font-semibold text-slate-800 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"
-          >
-            <option value="UGC_STANDARD">Standard UGC Deeksharambh Guidelines</option>
-            <option value="INSTITUTIONAL">Institutional Detailed Department Report</option>
-            <option value="EXECUTIVE">Executive Summary Format</option>
-          </select>
-        </div>
-        <span className="text-xs text-sky-700 font-medium">Selected Template: {templatesMap[selectedTemplate].label}</span>
-      </div>
-
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Narrative Paragraph Editor */}
-        <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-sky-100 pb-2">Narrative Document Text</h3>
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-2">Introduction and Overview Content</label>
-            <textarea
-              rows="10"
-              disabled={role === 'viewer'}
-              value={reportText}
-              onChange={(e) => setReportText(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-sky-200 bg-slate-50 text-xs leading-relaxed focus:ring-2 focus:ring-sky-500 focus:outline-none"
-              placeholder="Enter narrative report paragraphs..."
-            ></textarea>
+        <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-sm space-y-3">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Report Template Standard</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              { id: 'standard', name: 'Standard Academic SIP', desc: 'Detailed departmental overview with objectives and daily session breakdown.' },
+              { id: 'executive', name: 'Executive Summary SIP', desc: 'High-level synthesis focused on key achievements and student outcomes.' },
+              { id: 'comprehensive', name: 'Comprehensive Institutional SIP', desc: 'Full institutional report format with complete committee details.' }
+            ].map(t => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTemplateType(t.id)}
+                className={`p-4 rounded-xl text-left border transition-all ${
+                  templateType === t.id
+                    ? 'border-sky-500 bg-sky-50/80 shadow-sm'
+                    : 'border-slate-200 bg-white hover:border-sky-300'
+                }`}
+              >
+                <div className="text-xs font-bold text-slate-900">{t.name}</div>
+                <div className="text-[11px] text-slate-500 mt-1">{t.desc}</div>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Objectives Builder */}
-        <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-sky-100 pb-2">Program Objectives</h3>
-          
-          {role !== 'viewer' && (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newObjective}
-                onChange={(e) => setNewObjective(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-xl border border-sky-200 bg-slate-50 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                placeholder="e.g. Cultivate team collaboration skills"
-              />
+        <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-sm space-y-4">
+          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-sky-100 pb-2">
+            Narrative Introduction & Departmental Summary
+          </h3>
+          <textarea
+            rows="5"
+            value={reportText}
+            onChange={(e) => setReportText(e.target.value)}
+            className="w-full p-4 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-xs leading-relaxed font-sans"
+            placeholder="Describe the overall Student Induction Program goals, inauguration, participation, and key highlights..."
+          />
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-sm space-y-4">
+          <div className="flex justify-between items-center border-b border-sky-100 pb-2">
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Program Objectives & Core Highlights
+            </h3>
+            {role !== 'viewer' && (
               <button
                 type="button"
-                onClick={handleAddObjective}
-                className="px-4 py-2 rounded-xl bg-sky-600 text-white font-bold text-xs hover:bg-sky-700 transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                onClick={addObjective}
+                className="px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-300 text-sky-800 text-xs font-bold hover:bg-sky-100 flex items-center gap-1 shadow-sm"
               >
-                <Plus className="w-4 h-4" /> Add Objective
+                <Plus className="w-3.5 h-3.5" /> Add Objective
               </button>
-            </div>
-          )}
-
-          <div className="space-y-2 mt-4">
+            )}
+          </div>
+          <div className="space-y-2">
             {objectives.map((obj, idx) => (
-              <div key={idx} className="flex justify-between items-center px-4 py-2.5 bg-slate-50 border border-sky-100 rounded-xl text-xs font-medium text-slate-800 shadow-xs">
-                <span>• {obj}</span>
-                {role !== 'viewer' && (
+              <div key={idx} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={obj}
+                  onChange={(e) => updateObjective(idx, e.target.value)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-200 text-xs"
+                  placeholder={`Objective #${idx + 1}`}
+                />
+                {role !== 'viewer' && objectives.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => handleRemoveObjective(idx)}
-                    className="text-rose-500 hover:text-rose-700 p-1"
+                    onClick={() => removeObjective(idx)}
+                    className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -270,7 +273,7 @@ Key Highlights:
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-sky-100 border border-sky-300 text-sky-900 font-bold text-sm hover:bg-sky-200 transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
