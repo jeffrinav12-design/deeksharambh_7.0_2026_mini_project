@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://deeksharambh70antigravity.vercel.app/sitemap.xml
