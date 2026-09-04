@@ -26,7 +26,7 @@ export async function downloadFile(url, fallbackFilename, dataToExport = null) {
     console.warn("Server export API unreachable, generating client-side batch export:", err);
   }
   
-  // Client-Side Dynamic Batch Exporter for CSV, DOCX, and PDF
+  // Client-Side Dynamic Exporter for CSV, DOCX (Microsoft Word MHTML), and PDF
   generateClientSideDownload(url, fallbackFilename, dataToExport);
 }
 
@@ -53,7 +53,7 @@ function getBatchDataFromContext(url, filename, dataToExport) {
   if (dataToExport && Array.isArray(dataToExport) && dataToExport.length > 0) {
     return dataToExport.map((item, idx) => ({
       sNo: idx + 1,
-      registerNo: item.registerNo || item.rollNo || item.regNo || `241${idx + 1}`,
+      registerNo: item.registerNo || item.rollNo || item.regNo || `241${(idx + 1).toString().padStart(2, '0')}`,
       name: item.name || item.studentName || item.particulars || item.subjectName || 'STUDENT RECORD',
       dept: item.department || item.dept || 'CSDA',
       stream: item.mathsStream || item.stream || 'HSC',
@@ -81,12 +81,155 @@ function getBatchDataFromContext(url, filename, dataToExport) {
   }));
 }
 
+function buildWordMhtmlBlob(titleName, innerHtml) {
+  const boundary = "----=_NextPart_000_0000_01D99999.01D99999";
+  const mhtml = 
+`MIME-Version: 1.0
+Content-Type: multipart/related; boundary="${boundary}"
+
+--${boundary}
+Content-Location: file:///C:/document.htm
+Content-Type: text/html; charset="utf-8"
+
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:v="urn:schemas-microsoft-com:vml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${titleName}</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForCustomXSL/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page WordSection1 {
+    size: 8.5in 11.0in;
+    margin: 1.0in 1.0in 1.0in 1.0in;
+    mso-header-margin: 0.5in;
+    mso-footer-margin: 0.5in;
+    mso-paper-source: 0;
+  }
+  div.WordSection1 {
+    page: WordSection1;
+  }
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    font-size: 16pt;
+    color: #1e3a8a;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-top: 12pt;
+    margin-bottom: 12pt;
+  }
+  h2 {
+    font-size: 13pt;
+    color: #1e3a8a;
+    border-bottom: 2px solid #3AAFA9;
+    padding-bottom: 4pt;
+    margin-top: 14pt;
+    font-weight: bold;
+  }
+  h3 {
+    font-size: 12pt;
+    color: #1b625f;
+    margin-top: 10pt;
+    font-weight: bold;
+  }
+  p {
+    margin: 6pt 0;
+    text-align: justify;
+    line-height: 1.6;
+  }
+  ul, ol {
+    margin-top: 6pt;
+    margin-bottom: 6pt;
+    padding-left: 24pt;
+  }
+  li {
+    margin-bottom: 4pt;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12pt;
+    margin-bottom: 12pt;
+  }
+  th, td {
+    border: 1px solid #94a3b8;
+    padding: 6pt 8pt;
+    text-align: left;
+    font-size: 10pt;
+  }
+  th {
+    background-color: #f1f5f9;
+    font-weight: bold;
+    color: #0f172a;
+  }
+  .header-table {
+    border: none;
+    margin-bottom: 18pt;
+    width: 100%;
+    border-bottom: 2px solid #1e3a8a;
+    padding-bottom: 10pt;
+  }
+  .header-table td {
+    border: none;
+    text-align: center;
+  }
+  .sig-table {
+    border: none;
+    width: 100%;
+    margin-top: 40pt;
+  }
+  .sig-table td {
+    border: none;
+    font-weight: bold;
+    font-size: 11pt;
+    padding: 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: #e6f7f6;
+    color: #1b625f;
+    font-weight: bold;
+    font-size: 10pt;
+    border-radius: 12px;
+    border: 1px solid #3AAFA9;
+  }
+</style>
+</head>
+<body>
+<div class="WordSection1">
+${innerHtml}
+</div>
+</body>
+</html>
+
+--${boundary}--`;
+
+  return new Blob(['\ufeff', mhtml], { type: 'application/msword;charset=utf-8' });
+}
+
 function generateClientSideDownload(url, filename, dataToExport) {
   const ext = (filename || 'export.docx').split('.').pop().toLowerCase();
   const titleName = (filename || 'Deeksharambh_Export').replace(/\.[^/.]+$/, "").replace(/_/g, " ");
   const records = getBatchDataFromContext(url, filename, dataToExport);
   const combined = `${url} ${filename}`.toLowerCase();
   const batchLabel = combined.includes('2024') || combined.includes('5.0') ? 'Batch 5.0 (2024-2027)' : (combined.includes('2025') || combined.includes('6.0') ? 'Batch 6.0 (2025-2028)' : 'Batch 7.0 (2026-2029)');
+  const activeVersion = combined.includes('5.0') ? '5.0' : (combined.includes('6.0') ? '6.0' : '7.0');
 
   if (ext === 'csv') {
     let csvContent = `Academic Batch: ${batchLabel}\n`;
@@ -108,35 +251,186 @@ function generateClientSideDownload(url, filename, dataToExport) {
       </tr>
     `).join('');
 
-    const docxContent = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head>
-        <meta charset='utf-8'>
-        <title>${titleName}</title>
-        <style>
-          body { font-family: 'Times New Roman', serif; margin: 40px; }
-          h1 { color: #1e3a8a; text-align: center; text-transform: uppercase; font-size: 16pt; }
-          h2 { color: #0284c7; font-size: 13pt; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
-          p { font-size: 11pt; line-height: 1.5; }
-          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-          th, td { border: 1px solid #94a3b8; padding: 8px 10px; text-align: left; font-size: 10pt; }
-          th { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }
-          .header-table { border: none; margin-bottom: 20px; width: 100%; }
-          .header-table td { border: none; }
-        </style>
-      </head>
-      <body>
-        <table class="header-table">
+    const letterheadHtml = `
+      <table class="header-table">
+        <tr>
+          <td>
+            <h2 style="margin:0; color:#1e3a8a; font-size:14pt; font-weight:bold;">SANKARA COLLEGE OF SCIENCE AND COMMERCE (Autonomous)</h2>
+            <p style="margin:2pt 0; font-size:9pt; text-align:center; color:#475569;">Affiliated to Bharathiar University | Approved by AICTE | NAAC A+ Grade (Cycle II)</p>
+            <p style="margin:2pt 0; font-size:9pt; text-align:center; color:#475569;">Saravanampatty, Coimbatore - 641035 | Tamil Nadu</p>
+            <p style="margin:2pt 0; font-size:9.5pt; text-align:center; color:#1b625f; font-weight:bold;">DEPARTMENT OF COMPUTER SCIENCE & DIGITAL APPLICATIONS (CSDA)</p>
+          </td>
+        </tr>
+      </table>
+    `;
+
+    let innerContent = '';
+
+    if (combined.includes('circular')) {
+      innerContent = `
+        ${letterheadHtml}
+        <h1>OFFICIAL CIRCULAR</h1>
+        <p style="text-align:right;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <p style="text-align:right;"><strong>Ref:</strong> SCSC/CSDA/SIP/${activeVersion}</p>
+        <p><strong>SUBJECT: STUDENT INDUCTION PROGRAMME (DEEKSHARAMBH ${activeVersion})</strong></p>
+        <p>This is to inform all first-year students of the Department of Computer Science & Digital Applications (CSDA) that a <strong>SIX-DAY STUDENT INDUCTION PROGRAMME (DEEKSHARAMBH ${activeVersion})</strong> has been organized for <strong>${batchLabel}</strong>.</p>
+        <p>All students are strictly requested to attend all sessions of the induction programme without fail. Attendance is mandatory for orientation, bridge course modules, hands-on lab sessions, and evaluation assessments.</p>
+        <h3>Programme Highlights & Agenda:</h3>
+        <ul>
+          <li>Orientation on Autonomous Curriculum, CBCS Scheme, and Grading System</li>
+          <li>Bridge Course Modules: Mathematics & Problem Solving, Programming Fundamentals, Digital Literacy</li>
+          <li>Guest Lectures & Interactive Sessions by Eminent Academic & Industry Experts</li>
+          <li>Campus Tour, Library Orientation, and Soft Skills Development</li>
+        </ul>
+        <p style="margin-top: 15pt;"><strong>Venue:</strong> College Auditorium / CSDA Seminar Hall<br><strong>Timing:</strong> 09:30 AM – 04:00 PM Daily</p>
+        <table class="sig-table">
           <tr>
-            <td style="text-align: center;">
-              <h2 style="margin: 0; color: #1e3a8a;">SANKARA COLLEGE OF SCIENCE AND COMMERCE</h2>
-              <p style="margin: 4px 0;"><strong>Department of Computer Science & Digital Applications (CSDA)</strong><br>Deeksharambh Bridge Course Programme</p>
+            <td style="text-align:left;">
+              <br><br>
+              <strong>Head of the Department (CSDA)</strong><br>
+              Sankara College of Science & Commerce
+            </td>
+            <td style="text-align:right;">
+              <br><br>
+              <strong>Principal</strong><br>
+              Sankara College of Science & Commerce
             </td>
           </tr>
         </table>
-        <h1 style="margin-top: 10px;">${titleName}</h1>
+      `;
+    } else if (combined.includes('cover') || combined.includes('brochure')) {
+      innerContent = `
+        ${letterheadHtml}
+        <div style="text-align:center; margin-top:15pt; margin-bottom:15pt;">
+          <span class="badge">BROCHURE COVER & PROGRAMME INSIGHTS</span>
+          <h1 style="margin-top:15pt; color:#1e3a8a; font-size:20pt;">DEEKSHARAMBH ${activeVersion}</h1>
+          <p style="text-align:center; font-weight:bold; color:#1b625f; font-size:12pt;">Freshmen Induction & School to College Transition Programme</p>
+          <p style="text-align:center; color:#64748b; font-size:10pt;">Academic Batch: ${batchLabel}</p>
+        </div>
+        <hr style="border:1px solid #3AAFA9;">
+        <h2>Induction Programme Objectives & Insights</h2>
+        <ul>
+          <li>Understanding College Life, Academic Culture, and Autonomous Regulations</li>
+          <li>Strengthening Foundational Skills in Mathematics, Logic, and Computing</li>
+          <li>Introduction to Data Analytics, AI Tools, and Modern Tech Stacks</li>
+          <li>Personality Development, Communication Skills, and Goal Setting</li>
+          <li>Awareness of Co-Curricular, Extra-Curricular, and Placement Opportunities</li>
+        </ul>
+        <h2>Departmental Vision & Support Systems</h2>
+        <p>The Department of Computer Science & Digital Applications is committed to offering industry-aligned education, hands-on experiential learning, and personalized mentoring through the Tutor-Ward system to ensure seamless academic transition for every student.</p>
+        <table class="sig-table">
+          <tr>
+            <td style="text-align:left;">
+              <br><br>
+              <strong>Managing Trustee</strong><br>
+              Sankara Educational Institutions
+            </td>
+            <td style="text-align:right;">
+              <br><br>
+              <strong>Principal</strong><br>
+              Sankara College of Science & Commerce
+            </td>
+          </tr>
+        </table>
+      `;
+    } else if (combined.includes('invitation')) {
+      innerContent = `
+        ${letterheadHtml}
+        <div style="text-align:center; margin-top:15pt; margin-bottom:15pt;">
+          <span class="badge" style="font-size:12pt; padding:6px 18px;">CORDIAL INVITATION</span>
+          <p style="text-align:center; font-style:italic; margin-top:10pt; color:#334155;">
+            The Management, Principal & Faculty of the Department of CSDA cordially invite you to the Inaugural Function of
+          </p>
+          <h1 style="color:#1e3a8a; font-size:22pt; margin:10pt 0;">DEEKSHARAMBH ${activeVersion}</h1>
+          <p style="text-align:center; font-weight:bold; color:#1b625f; font-size:11pt;">STUDENT INDUCTION PROGRAMME (${batchLabel})</p>
+        </div>
+        <h2>Dignitaries of the Function</h2>
+        <table>
+          <tr>
+            <th style="width:30%;">Role</th>
+            <th style="width:70%;">Dignitary Name & Designation</th>
+          </tr>
+          <tr>
+            <td><strong>Presidential Address</strong></td>
+            <td><strong>Sri T.P. Ramachandran</strong> <span style="color:#64748b;">(Managing Trustee, Sankara Educational Institutions)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Felicitation Address</strong></td>
+            <td><strong>Dr. V. Radhika</strong> <span style="color:#64748b;">(Principal, Sankara College of Science & Commerce)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Welcome Address</strong></td>
+            <td><strong>Dr. S. Sundararajan / Dr. M. Lingaraj</strong> <span style="color:#64748b;">(Head of Department, CSDA)</span></td>
+          </tr>
+        </table>
+        <h2>Schedule & Venue Details</h2>
+        <p><strong>Date & Time:</strong> 10:00 AM | <strong>Venue:</strong> Main College Auditorium</p>
+        <p><strong>Audience:</strong> All First Year B.Sc. CSDA Students & Parents are cordially invited.</p>
+        <table class="sig-table">
+          <tr>
+            <td style="text-align:left;">
+              <br><br>
+              <strong>Faculty Co-ordinators</strong><br>
+              Department of CSDA
+            </td>
+            <td style="text-align:right;">
+              <br><br>
+              <strong>Head of the Department (CSDA)</strong><br>
+              Sankara College of Science & Commerce
+            </td>
+          </tr>
+        </table>
+      `;
+    } else if (combined.includes('sip') || combined.includes('report')) {
+      innerContent = `
+        ${letterheadHtml}
+        <h1>STUDENT INDUCTION PROGRAM (SIP) OFFICIAL REPORT</h1>
+        <p style="text-align:right;"><strong>Academic Batch:</strong> ${batchLabel} | <strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <h2>1. Executive Summary</h2>
+        <p>The Student Induction Programme (Deeksharambh ${activeVersion}) for the newly admitted first-year students of B.Sc. CSDA was conducted successfully. The programme was designed as per UGC guidelines to socialize new students, build bond with peers and faculty, and expose them to college ethos, academic structure, and digital learning tools.</p>
+        <h2>2. Key Objectives & Outcomes</h2>
+        <ul>
+          <li>Helped students transition smoothly from school environment to autonomous college culture.</li>
+          <li>Conducted diagnostic bridge course tests in Mathematics, Programming Logic, and General Aptitude.</li>
+          <li>Identified Advanced Learners and Slow Learners for targeted mentoring and remedial coaching.</li>
+          <li>Fostered teamwork, creative arts, ethics, and human values through interactive workshops.</li>
+        </ul>
+        <h2>3. Student Roster & Record Summary (${records.length} Students)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Register No</th>
+              <th>Student Name</th>
+              <th>Department & Stream</th>
+              <th>Performance / Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+        <table class="sig-table">
+          <tr>
+            <td style="text-align:left;">
+              <br><br>
+              <strong>SIP Co-ordinator</strong><br>
+              Department of CSDA
+            </td>
+            <td style="text-align:right;">
+              <br><br>
+              <strong>Head of the Department (CSDA)</strong><br>
+              Sankara College of Science & Commerce
+            </td>
+          </tr>
+        </table>
+      `;
+    } else {
+      innerContent = `
+        ${letterheadHtml}
+        <h1>${titleName}</h1>
         <p><strong>Academic Batch:</strong> ${batchLabel} | <strong>Export Date:</strong> ${new Date().toLocaleDateString()} | <strong>Portal:</strong> Deeksharambh System</p>
-        <hr>
+        <hr style="border:1px solid #3AAFA9;">
         <h2>Official Student Roster & Record List</h2>
         <p>Verified academic records and induction data for ${batchLabel}:</p>
         <table>
@@ -153,12 +447,24 @@ function generateClientSideDownload(url, filename, dataToExport) {
             ${tableRows}
           </tbody>
         </table>
-        <br><br>
-        <p style="text-align: right; margin-top: 40px;"><strong>Head of Department (CSDA)</strong><br>Sankara College of Science & Commerce</p>
-      </body>
-      </html>
-    `;
-    const blob = new Blob([docxContent], { type: 'application/vnd.ms-word;charset=utf-8;' });
+        <table class="sig-table">
+          <tr>
+            <td style="text-align:left;">
+              <br><br>
+              <strong>Head of Department (CSDA)</strong><br>
+              Sankara College of Science & Commerce
+            </td>
+            <td style="text-align:right;">
+              <br><br>
+              <strong>Principal</strong><br>
+              Sankara College of Science & Commerce
+            </td>
+          </tr>
+        </table>
+      `;
+    }
+
+    const blob = buildWordMhtmlBlob(titleName, innerContent);
     triggerBlobDownload(blob, filename);
   } else if (ext === 'pdf') {
     const tableRowsHtml = records.map(row => `
@@ -239,3 +545,4 @@ function generateClientSideDownload(url, filename, dataToExport) {
     triggerBlobDownload(blob, filename);
   }
 }
+

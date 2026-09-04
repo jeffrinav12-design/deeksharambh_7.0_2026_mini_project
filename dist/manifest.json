@@ -1,0 +1,18 @@
+{
+  "short_name": "Deeksharambh",
+  "name": "Deeksharambh | Bridge Course Management System",
+  "description": "Deeksharambh 7.0 Bridge Course Management System for Sankara College of Science and Commerce Department of Computer Science & Digital Applications (CSDA)",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#3AAFA9",
+  "display": "standalone",
+  "scope": "/"
+}
