@@ -162,6 +162,11 @@ const reportSchema = new mongoose.Schema({
   reportType: { type: String, required: true }, // e.g. SIP, ResultAnalysis
   reportText: { type: String },
   objectives: [{ type: String }],
+  customFileName: { type: String },
+  customFormatText: { type: String },
+  customContentsText: { type: String },
+  attachedFile: { type: String }, // Base64 uploaded format or report file
+  attachedFileName: { type: String },
   generatedDocUrl: { type: String },
   generatedAt: { type: Date, default: Date.now }
 });
@@ -214,4 +219,3 @@ export const Report = mongoose.model('Report', reportSchema);
 export const DocumentTemplate = mongoose.model('DocumentTemplate', documentTemplateSchema);
 export const GeneratedDocument = mongoose.model('GeneratedDocument', generatedDocumentSchema);
 export const ActivityLog = mongoose.model('ActivityLog', activityLogSchema);
-

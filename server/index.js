@@ -1563,18 +1563,35 @@ app.get('/api/batches/:batchId/export/results/csv', authenticateToken, async (re
 app.get('/api/batches/:batchId/sip-report', authenticateToken, async (req, res) => {
   try {
     const report = await Report.findOne({ batchId: req.params.batchId, reportType: "SIP" });
-    res.json(report || { reportText: "", objectives: [] });
+    res.json(report || { 
+      reportText: "", 
+      objectives: [],
+      customFileName: "",
+      customFormatText: "",
+      customContentsText: "",
+      attachedFile: null,
+      attachedFileName: ""
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-app.post('/api/batches/:batchId/sip-report', authenticateToken, requireRole(['admin']), async (req, res) => {
+app.post('/api/batches/:batchId/sip-report', authenticateToken, requireRole(['admin', 'faculty']), async (req, res) => {
   try {
-    const { reportText, objectives } = req.body;
+    const { reportText, objectives, customFileName, customFormatText, customContentsText, attachedFile, attachedFileName } = req.body;
     const report = await Report.findOneAndUpdate(
       { batchId: req.params.batchId, reportType: "SIP" },
-      { reportText, objectives },
+      { 
+        reportText, 
+        objectives,
+        customFileName,
+        customFormatText,
+        customContentsText,
+        attachedFile,
+        attachedFileName,
+        generatedAt: new Date()
+      },
       { upsert: true, new: true }
     );
     res.json(report);

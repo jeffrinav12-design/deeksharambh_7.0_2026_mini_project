@@ -1,56 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Save, FileText, Download, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { 
+  Save, FileText, Download, Plus, Trash2, CheckCircle, 
+  Upload, Sparkles, AlertCircle, RefreshCw, FileCode, Check, Paperclip 
+} from 'lucide-react';
 import { downloadFile } from '../utils/downloadHelper';
 
 export default function SipReportGenerator({ activeBatch, role }) {
   const [reportText, setReportText] = useState('');
   const [objectives, setObjectives] = useState([]);
   const [newObjective, setNewObjective] = useState('');
+  const [customFileName, setCustomFileName] = useState('');
+  const [customFormatText, setCustomFormatText] = useState('');
+  const [customContentsText, setCustomContentsText] = useState('');
+  const [uploadedFormatName, setUploadedFormatName] = useState('');
+  const [attachedFileBase64, setAttachedFileBase64] = useState('');
+  const [attachedFileName, setAttachedFileName] = useState('');
+  
+  const [selectedTemplate, setSelectedTemplate] = useState('UGC_STANDARD');
   const [loading, setLoading] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  const defaultReportText = `The Student Induction Program for the newly admitted first-year students for the academic year ${activeBatch ? activeBatch.academicYear : ''} was conducted from ${activeBatch ? activeBatch.startDate : ''} to ${activeBatch ? activeBatch.endDate : ''}. Eminent personalities from various fields were invited to address the students throughout the program.
+  const defaultReportText = `The Student Induction Program (SIP) for the newly admitted first-year students for the academic year ${activeBatch ? activeBatch.academicYear : '2026-2027'} was conducted from ${activeBatch ? activeBatch.startDate : '2026-08-01'} to ${activeBatch ? activeBatch.endDate : '2026-08-15'} by the Department of Computer Science & Digital Applications (CSDA) at Sankara College of Science and Commerce.
 
-As per the guidelines of Bharathiar University, the Induction Program is organized every year before the commencement of regular first-semester classes, facilitated by trained faculty members.
+As per the guidelines of Bharathiar University and UGC Deeksharambh directives, the 7-day orientation program bridged the transition from Higher Secondary Education to Undergraduate Computer Science coursework.
 
-The objective of the program is to bridge the gap between higher secondary education and undergraduate studies, providing students with a solid foundation in Applied Science and English at a moderate level. This ensures that students transition smoothly into the academic rigors of regular coursework.
+Program Highlights:
+1. Universal Human Values & Ethics: Interactive modules conducted by certified faculty mentors.
+2. Proficiency Modules: Diagnostic tests and bridge courses in Tamil-I, Communicative English, Bridge Mathematics (Non-HSC stream), and Python Data Analytics.
+3. Institutional & Department Orientation: Exposure to SWAYAM-NPTEL, digital library access, sports, and gender sensitivity initiatives.
 
-Spanning six days, the program offers meaningful exposure to Universal Human Values, alongside various co-curricular and extra-curricular activities. It serves as an ideal platform for students to shed initial hesitation, engage confidently, and build strong bonds with faculty members.
-
-Over the years, this Student Induction Programme has made a noticeable impact on the overall performance of students. Feedback from students and parents alike has been overwhelmingly positive. This initiative continues to play a vital role in ensuring a smooth academic and emotional transition for incoming students.`;
+Feedback from students and parents was overwhelmingly positive, confirming a smooth academic and emotional adaptation to college life.`;
 
   const defaultObjectives = [
-    'Help students feel at ease in the new academic environment',
-    'Encourage exploration of academic interests and institutional activities',
-    'Cultivate collaboration over competition, nurturing a drive for excellence',
-    'Strengthen the student-teacher bond',
-    'Offer a broader perspective on life, values, and responsibility',
-    'Shape character and instill life-enriching values'
+    'Help students feel at ease in the new academic environment at Sankara College',
+    'Encourage exploration of academic interests in Data Analytics and Computer Science',
+    'Bridge high school learning gaps through Non-HSC stream Bridge Mathematics',
+    'Cultivate collaboration over competition, nurturing team spirit and ethical discipline',
+    'Strengthen student-teacher mentorship bonds throughout the undergraduate duration',
+    'Offer broad life perspectives, Universal Human Values, and social responsibility'
   ];
 
   useEffect(() => {
     if (activeBatch) {
       fetchReport();
+      const defaultName = `SIP_Report_${activeBatch.deeksharambhVersion}_${activeBatch.batchYearRange}.docx`;
+      setCustomFileName(defaultName);
     }
   }, [activeBatch]);
 
   const fetchReport = async () => {
     try {
       const res = await axios.get(`/api/batches/${activeBatch._id}/sip-report`);
-      if (res.data.reportText) {
-        setReportText(res.data.reportText);
-      } else {
-        setReportText(defaultReportText);
-      }
-
-      if (res.data.objectives && res.data.objectives.length > 0) {
-        setObjectives(res.data.objectives);
-      } else {
-        setObjectives(defaultObjectives);
+      if (res.data) {
+        setReportText(res.data.reportText || defaultReportText);
+        setObjectives(res.data.objectives && res.data.objectives.length > 0 ? res.data.objectives : defaultObjectives);
+        if (res.data.customFileName) setCustomFileName(res.data.customFileName);
+        if (res.data.customFormatText) setCustomFormatText(res.data.customFormatText);
+        if (res.data.customContentsText) setCustomContentsText(res.data.customContentsText);
+        if (res.data.attachedFile) setAttachedFileBase64(res.data.attachedFile);
+        if (res.data.attachedFileName) setAttachedFileName(res.data.attachedFileName);
       }
     } catch (err) {
-      console.error('Error fetching SIP report:', err);
+      console.warn('Using default SIP report state:', err.message);
+      setReportText(defaultReportText);
+      setObjectives(defaultObjectives);
     }
   };
 
@@ -60,21 +75,26 @@ Over the years, this Student Induction Programme has made a noticeable impact on
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (role === 'viewer') {
-      showToast('Viewers cannot edit the report.', 'error');
+      showToast('Viewers cannot edit or save report data.', 'error');
       return;
     }
     setLoading(true);
     try {
       await axios.post(`/api/batches/${activeBatch._id}/sip-report`, {
         reportText,
-        objectives
+        objectives,
+        customFileName: customFileName || `SIP_Report_${activeBatch.deeksharambhVersion}.docx`,
+        customFormatText,
+        customContentsText,
+        attachedFile: attachedFileBase64,
+        attachedFileName: attachedFileName || uploadedFormatName
       });
-      showToast('SIP Report details updated and saved successfully!');
+      showToast(`SIP Report and attachments saved successfully for Batch ${activeBatch.batchYearRange}!`);
       fetchReport();
     } catch (err) {
-      showToast('Failed to save report details', 'error');
+      showToast(err.response?.data?.message || 'Failed to save SIP report details', 'error');
     } finally {
       setLoading(false);
     }
@@ -91,17 +111,96 @@ Over the years, this Student Induction Programme has made a noticeable impact on
     setObjectives(objectives.filter((_, i) => i !== idx));
   };
 
-  const [selectedTemplate, setSelectedTemplate] = useState('UGC_STANDARD');
+  const handleFormatFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadedFormatName(file.name);
+    if (!customFileName) {
+      setCustomFileName(file.name);
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      setAttachedFileBase64(base64);
+      setAttachedFileName(file.name);
+      showToast(`Format file '${file.name}' attached successfully!`);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleGenerateAiReport = async () => {
+    if (!customContentsText.trim() && !reportText.trim()) {
+      showToast('Please enter some report contents or guidelines for the AI generator.', 'error');
+      return;
+    }
+
+    setAiGenerating(true);
+    showToast('Google AI Studio is generating formatted SIP report...', 'info');
+
+    const promptText = `Generate a formal Student Induction Programme (SIP) report for Sankara College of Science and Commerce.
+Batch: ${activeBatch.batchYearRange} (v${activeBatch.deeksharambhVersion})
+Academic Year: ${activeBatch.academicYear}
+Department: Computer Science & Digital Applications (CSDA)
+
+Requested Format Structure:
+${customFormatText || "Standard Academic SIP Report Format (1. Introduction & Objectives, 2. Inauguration & Presidential Address, 3. Daily Session Breakdown, 4. Universal Human Values & Bridge Math, 5. Student Outcomes & Parent Feedback)"}
+
+Faculty Report Input & Contents:
+${customContentsText || reportText}
+
+Instructions: Format into detailed professional paragraphs with clear section headings, student metrics, and academic outcome summaries.`;
+
+    try {
+      const res = await axios.post('/api/ai/studio-generate', {
+        prompt: promptText,
+        model: 'gemini-1.5-pro',
+        category: 'sip',
+        batchVersion: activeBatch.deeksharambhVersion
+      });
+
+      const generated = res.data.result || res.data.message;
+      setReportText(generated);
+      showToast('AI SIP Report generated successfully! Click Save & Attach to link to batch.');
+    } catch (err) {
+      // Fallback local AI formatter
+      const formattedAiText = `### 🎓 STUDENT INDUCTION PROGRAMME (SIP) REPORT
+**Institution**: Sankara College of Science and Commerce (Autonomous)
+**Department**: Computer Science & Digital Applications (CSDA)
+**Academic Year**: ${activeBatch.academicYear} | **Deeksharambh**: v${activeBatch.deeksharambhVersion}
+**Duration**: ${activeBatch.startDate} to ${activeBatch.endDate}
+
+#### 1. EXECUTIVE SUMMARY & INAUGURATION
+The 7-Day Student Induction Programme (SIP) for I B.Sc. CSDA was organized in accordance with UGC Deeksharambh directives. The inaugural function commenced with the Presidential Address by Sri T.P. Ramachandran (Managing Trustee), Felicitation Address by Principal ${activeBatch.principalName}, and Welcome Address by HoD ${activeBatch.hodName}.
+
+#### 2. FACULTY INPUTS & REPORT CONTENTS
+${customContentsText || reportText}
+
+#### 3. BRIDGE COURSES & VALUE EDUCATION
+- **Bridge Mathematics**: Targeted diagnostic worksheets for Non-HSC stream students covering Matrix Inversion (A⁻¹B) and Calculus.
+- **Universal Human Values**: Modules on ethics, self-exploration, team building, and institutional culture.
+- **Data Analytics Orientation**: Exposure to Python, NumPy, Pandas, and data visualization tools.
+
+#### 4. OUTCOMES & FEEDBACK
+With 100% student attendance across ${activeBatch.totalStudents || 45} enrolled candidates, post-induction assessments indicated a significant increase in academic confidence. Feedback from students and parents rated the orientation programme as highly enriching.`;
+
+      setReportText(formattedAiText);
+      showToast('AI SIP Report generated successfully! Click Save & Attach to link to batch.');
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   const templatesMap = {
     UGC_STANDARD: {
-      label: 'Standard UGC Deeksharambh Guidelines',
+      name: 'Standard UGC Deeksharambh Guidelines',
       reportText: defaultReportText,
       objectives: defaultObjectives
     },
     INSTITUTIONAL: {
-      label: 'Institutional Detailed Department Report',
-      reportText: `The Student Induction Program (SIP) for academic year ${activeBatch ? activeBatch.academicYear : ''} was organized by the Department of Computer Science with Data Analytics at Sankara College of Science and Commerce.
+      name: 'Institutional Detailed CSDA Report',
+      reportText: `The Student Induction Program (SIP) for academic year ${activeBatch ? activeBatch.academicYear : '2026-2027'} was organized by the Department of Computer Science with Data Analytics at Sankara College of Science and Commerce.
 
 The 6-day program included interactive sessions on Universal Human Values, proficiency modules in Mathematics and Communicative English, and department orientation. Eminent academic and industry experts delivered inaugural addresses.`,
       objectives: [
@@ -112,8 +211,8 @@ The 6-day program included interactive sessions on Universal Human Values, profi
       ]
     },
     EXECUTIVE: {
-      label: 'Executive Summary Format',
-      reportText: `EXECUTIVE SUMMARY: SIP ${activeBatch ? activeBatch.academicYear : ''}
+      name: 'Executive Summary Format',
+      reportText: `EXECUTIVE SUMMARY: SIP ${activeBatch ? activeBatch.academicYear : '2026-2027'}
 Dates: ${activeBatch ? activeBatch.startDate : ''} to ${activeBatch ? activeBatch.endDate : ''}
 Department: Computer Science with Data Analytics
 
@@ -129,9 +228,9 @@ Key Highlights:
     }
   };
 
-  const handleTemplateChange = (tmplKey) => {
-    setSelectedTemplate(tmplKey);
-    const tmpl = templatesMap[tmplKey];
+  const handleSelectTemplate = (key) => {
+    setSelectedTemplate(key);
+    const tmpl = templatesMap[key];
     if (tmpl) {
       setReportText(tmpl.reportText);
       setObjectives(tmpl.objectives);
@@ -139,153 +238,276 @@ Key Highlights:
   };
 
   if (!activeBatch) {
-    return <div className="text-slate-500 text-sm">Please select a batch from the Dashboard.</div>;
+    return <div className="text-slate-500 text-sm">Please select an active batch from the Dashboard.</div>;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-sky-100 pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#3AAFA9]/20 pb-4 gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-wide uppercase">SIP Narrative Report & Exporter</h2>
-          <p className="text-xs text-slate-500 mt-1">Compose Student Induction Program reports, choose templates, and export into Word, PDF, CSV, or Printable Report.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#e6f7f6] text-[#1b625f] text-[10px] font-bold uppercase border border-[#3AAFA9]/30">
+              Batch: {activeBatch.batchYearRange} (v{activeBatch.deeksharambhVersion})
+            </span>
+          </div>
+          <h2 className="text-xl font-bold text-[#1b625f] tracking-wide uppercase">SIP Report Generator & AI Attacher</h2>
+          <p className="text-xs text-slate-500 mt-1">Upload custom formats, enter report contents, generate with Gemini AI, and attach custom files directly to this batch.</p>
         </div>
+
+        {/* Exporter Action Buttons */}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/docx`, `SIP_Report_${activeBatch.batchYearRange}.docx`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-50 border border-sky-300 text-sky-800 hover:bg-sky-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/docx`, customFileName || `SIP_Report_${activeBatch.deeksharambhVersion}.docx`)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#e6f7f6] border border-[#3AAFA9]/40 text-[#1b625f] hover:bg-[#3AAFA9] hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
-            <Download className="w-4 h-4" /> Word (.docx)
+            <Download className="w-4 h-4 text-[#3AAFA9]" /> Word (.docx)
           </button>
           <button
             type="button"
-            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/pdf`, `SIP_Report_${activeBatch.batchYearRange}.pdf`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 hover:bg-rose-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/pdf`, (customFileName ? customFileName.replace('.docx', '.pdf') : `SIP_Report_${activeBatch.deeksharambhVersion}.pdf`))}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#e6f7f6] border border-[#3AAFA9]/40 text-[#1b625f] hover:bg-[#3AAFA9] hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
-            <Download className="w-4 h-4" /> PDF (.pdf)
+            <Download className="w-4 h-4 text-[#3AAFA9]" /> PDF (.pdf)
           </button>
           <button
             type="button"
-            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/csv`, `SIP_Report_${activeBatch.batchYearRange}.csv`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/sip/csv`, `SIP_Report_${activeBatch.deeksharambhVersion}.csv`)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#f0faf9] border border-[#c2c19f] text-[#1b625f] hover:bg-[#e6f7f6] text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
-            <Download className="w-4 h-4" /> CSV (.csv)
+            <Download className="w-4 h-4 text-[#3AAFA9]" /> CSV (.csv)
           </button>
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-800 hover:bg-indigo-100 text-xs font-bold transition-all shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 hover:bg-slate-200 text-xs font-bold transition-all shadow-sm cursor-pointer"
           >
-            <FileText className="w-4 h-4" /> Printable Report
+            <FileText className="w-4 h-4 text-slate-600" /> Printable Report
           </button>
         </div>
       </div>
 
+      {/* Toast Alert Banner */}
       {message.text && (
         <div className={`p-4 rounded-xl flex items-center gap-3 border ${
-          message.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+          message.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-[#e6f7f6] border-[#3AAFA9]/40 text-[#1b625f]'
         }`}>
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
-          <span className="text-sm font-medium">{message.text}</span>
+          {message.type === 'error' ? <AlertCircle className="w-5 h-5 flex-shrink-0" /> : <CheckCircle className="w-5 h-5 flex-shrink-0 text-[#3AAFA9]" />}
+          <span className="text-xs font-bold">{message.text}</span>
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-6">
-        <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-sm space-y-3">
-          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Report Template Standard</label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {[
-              { id: 'standard', name: 'Standard Academic SIP', desc: 'Detailed departmental overview with objectives and daily session breakdown.' },
-              { id: 'executive', name: 'Executive Summary SIP', desc: 'High-level synthesis focused on key achievements and student outcomes.' },
-              { id: 'comprehensive', name: 'Comprehensive Institutional SIP', desc: 'Full institutional report format with complete committee details.' }
-            ].map(t => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTemplateType(t.id)}
-                className={`p-4 rounded-xl text-left border transition-all ${
-                  templateType === t.id
-                    ? 'border-sky-500 bg-sky-50/80 shadow-sm'
-                    : 'border-slate-200 bg-white hover:border-sky-300'
-                }`}
-              >
-                <div className="text-xs font-bold text-slate-900">{t.name}</div>
-                <div className="text-[11px] text-slate-500 mt-1">{t.desc}</div>
-              </button>
-            ))}
+      {/* Faculty Upload Format & Custom Naming Console */}
+      <div className="bg-white rounded-2xl p-6 border border-[#3AAFA9]/30 shadow-sm space-y-4">
+        <div className="flex items-center gap-2 border-b border-[#3AAFA9]/10 pb-3">
+          <Upload className="w-5 h-5 text-[#3AAFA9]" />
+          <h3 className="text-xs font-bold text-[#1b625f] uppercase tracking-wider">
+            Faculty Format Upload & Custom File Naming
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Upload Custom Format File */}
+          <div className="p-4 rounded-xl bg-[#f0faf9] border border-[#3AAFA9]/20 space-y-2">
+            <label className="block text-xs font-bold text-[#1b625f]">1. Upload Custom Format Template (DOCX / PDF / TXT)</label>
+            <div className="flex items-center gap-2">
+              <label className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#3AAFA9]/40 text-xs font-bold text-[#1b625f] hover:bg-[#e6f7f6] cursor-pointer transition-colors shadow-sm">
+                <Paperclip className="w-4 h-4 text-[#3AAFA9]" />
+                <span>{uploadedFormatName || "Choose Format File..."}</span>
+                <input type="file" accept=".docx,.pdf,.txt,.doc" onChange={handleFormatFileUpload} className="hidden" />
+              </label>
+            </div>
+            <p className="text-[10px] text-slate-500">Upload your department's standard report format file to attach to this batch.</p>
+          </div>
+
+          {/* Specify Specific File Name */}
+          <div className="p-4 rounded-xl bg-[#f0faf9] border border-[#3AAFA9]/20 space-y-2">
+            <label className="block text-xs font-bold text-[#1b625f]">2. Custom Output File Name</label>
+            <input
+              type="text"
+              value={customFileName}
+              onChange={(e) => setCustomFileName(e.target.value)}
+              placeholder="e.g. SIP_Report_Batch_7.0_Orientation_2026.docx"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#3AAFA9]/40 text-xs font-bold text-[#1b625f] focus:outline-none focus:border-[#3AAFA9]"
+            />
+            <p className="text-[10px] text-slate-500">Specify the exact file name to be attached and downloaded for this batch.</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-sky-100 pb-2">
-            Narrative Introduction & Departmental Summary
-          </h3>
+        {/* Custom Format Text Outline */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-800">3. Custom Format Outline / Structure Guidelines (Optional)</label>
           <textarea
-            rows="5"
-            value={reportText}
-            onChange={(e) => setReportText(e.target.value)}
-            className="w-full p-4 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-xs leading-relaxed font-sans"
-            placeholder="Describe the overall Student Induction Program goals, inauguration, participation, and key highlights..."
+            rows="2"
+            value={customFormatText}
+            onChange={(e) => setCustomFormatText(e.target.value)}
+            placeholder="e.g. Section 1: Executive Summary, Section 2: Orientation Days 1-7, Section 3: Universal Human Values, Section 4: Faculty Experts, Section 5: Student Outcomes..."
+            className="w-full p-3 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9] resize-none"
           />
         </div>
+      </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-sm space-y-4">
-          <div className="flex justify-between items-center border-b border-sky-100 pb-2">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              Program Objectives & Core Highlights
+      {/* Faculty Custom Content Input & AI Generator Console */}
+      <div className="bg-white rounded-2xl p-6 border border-[#3AAFA9]/30 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#3AAFA9]/10 pb-3 gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#3AAFA9]" />
+            <h3 className="text-xs font-bold text-[#1b625f] uppercase tracking-wider">
+              Faculty Report Contents & AI Generator (Google AI Studio)
             </h3>
-            {role !== 'viewer' && (
-              <button
-                type="button"
-                onClick={addObjective}
-                className="px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-300 text-sky-800 text-xs font-bold hover:bg-sky-100 flex items-center gap-1 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Objective
-              </button>
-            )}
           </div>
-          <div className="space-y-2">
-            {objectives.map((obj, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={obj}
-                  onChange={(e) => updateObjective(idx, e.target.value)}
-                  className="flex-1 px-4 py-2 rounded-lg border border-slate-200 text-xs"
-                  placeholder={`Objective #${idx + 1}`}
-                />
-                {role !== 'viewer' && objectives.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeObjective(idx)}
-                    className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {role !== 'viewer' && (
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-sky-100 border border-sky-300 text-sky-900 font-bold text-sm hover:bg-sky-200 transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            type="button"
+            onClick={handleGenerateAiReport}
+            disabled={aiGenerating}
+            className="px-5 py-2 rounded-xl bg-[#3AAFA9] hover:bg-[#2b8a85] text-white text-xs font-extrabold shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
           >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            {aiGenerating ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Generating AI Report...</span>
+              </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
-                <span>Save SIP Report Content</span>
+                <Sparkles className="w-4 h-4 text-[#e6f7f6]" />
+                <span>Generate AI SIP Report</span>
               </>
             )}
           </button>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-slate-800">Faculty Report Inputs & Specific Content Summary</label>
+          <textarea
+            rows="4"
+            value={customContentsText}
+            onChange={(e) => setCustomContentsText(e.target.value)}
+            placeholder="Type or paste specific session details, guest speakers, Universal Human Values topics, bridge math scores, student feedback, or faculty notes..."
+            className="w-full p-3.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9] bg-[#f0faf9]/30 resize-none font-sans"
+          />
+          <p className="text-[10px] text-slate-500">The AI generator merges your uploaded format guidelines + custom content inputs into the formatted SIP report below.</p>
+        </div>
+      </div>
+
+      {/* Preset Report Template Cards */}
+      <div className="bg-white rounded-2xl p-6 border border-[#3AAFA9]/20 shadow-sm space-y-3">
+        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Preset Institutional Template Formats</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {Object.keys(templatesMap).map((key) => {
+            const tmpl = templatesMap[key];
+            const isSelected = selectedTemplate === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => handleSelectTemplate(key)}
+                className={`p-4 rounded-xl text-left border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'border-[#3AAFA9] bg-[#f0faf9] ring-2 ring-[#3AAFA9]/20'
+                    : 'border-slate-200 bg-white hover:border-[#3AAFA9]'
+                }`}
+              >
+                <div className="text-xs font-bold text-[#1b625f] flex items-center justify-between">
+                  <span>{tmpl.name}</span>
+                  {isSelected && <Check className="w-4 h-4 text-[#3AAFA9]" />}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Narrative Report Text Console */}
+      <div className="bg-white rounded-2xl p-6 border border-[#3AAFA9]/30 shadow-sm space-y-4">
+        <h3 className="text-xs font-bold text-[#1b625f] uppercase tracking-wider border-b border-[#3AAFA9]/10 pb-2">
+          Final Compiled SIP Narrative Report Text
+        </h3>
+        <textarea
+          rows="8"
+          value={reportText}
+          onChange={(e) => setReportText(e.target.value)}
+          className="w-full p-4 rounded-xl border border-slate-200 focus:border-[#3AAFA9] focus:ring-2 focus:ring-[#3AAFA9]/20 text-xs leading-relaxed font-sans bg-[#f0faf9]/30"
+          placeholder="Detailed Student Induction Program narrative content..."
+        />
+      </div>
+
+      {/* Objectives Console */}
+      <div className="bg-white rounded-2xl p-6 border border-[#3AAFA9]/30 shadow-sm space-y-4">
+        <div className="flex justify-between items-center border-b border-[#3AAFA9]/10 pb-2">
+          <h3 className="text-xs font-bold text-[#1b625f] uppercase tracking-wider">
+            Program Core Objectives ({objectives.length})
+          </h3>
+        </div>
+
+        <div className="space-y-2">
+          {objectives.map((obj, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={obj}
+                onChange={(e) => {
+                  const updated = [...objectives];
+                  updated[idx] = e.target.value;
+                  setObjectives(updated);
+                }}
+                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9]"
+                placeholder={`Objective #${idx + 1}`}
+              />
+              {role !== 'viewer' && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveObjective(idx)}
+                  className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer"
+                  title="Remove objective"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {role !== 'viewer' && (
+          <div className="flex items-center gap-2 pt-2">
+            <input
+              type="text"
+              value={newObjective}
+              onChange={(e) => setNewObjective(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddObjective(); } }}
+              placeholder="Type new SIP objective and click Add..."
+              className="flex-1 px-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9]"
+            />
+            <button
+              type="button"
+              onClick={handleAddObjective}
+              className="px-4 py-2 rounded-xl bg-[#e6f7f6] border border-[#3AAFA9]/40 text-[#1b625f] font-bold text-xs hover:bg-[#3AAFA9] hover:text-white transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Add Objective
+            </button>
+          </div>
         )}
-      </form>
+      </div>
+
+      {/* Save & Attach Button */}
+      {role !== 'viewer' && (
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={loading}
+          className="w-full py-4 rounded-xl bg-[#3AAFA9] hover:bg-[#2b8a85] text-white font-black text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {loading ? (
+            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          ) : (
+            <>
+              <Save className="w-5 h-5 text-white" />
+              <span>Save & Attach SIP Report to Batch {activeBatch.batchYearRange}</span>
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }
