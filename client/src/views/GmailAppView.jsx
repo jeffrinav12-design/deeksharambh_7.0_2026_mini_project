@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Mail, Send, Inbox, Star, Send as SendIcon, Trash2, Archive, RefreshCw, Search, ExternalLink, ShieldCheck, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Send, Inbox, Star, Send as SendIcon, Trash2, Archive, RefreshCw, Search, ExternalLink, ShieldCheck, CheckCircle, Sparkles, UserCheck } from 'lucide-react';
 
 export default function GmailAppView({ role }) {
   const [activeTab, setActiveTab] = useState('inbox');
@@ -12,41 +12,42 @@ export default function GmailAppView({ role }) {
   const currentUserEmail = localStorage.getItem('userEmail') || 'jeffrinavcsda2024@sankara.ac.in';
   const currentUserName = localStorage.getItem('userName') || 'JEFFRINA V';
   const currentDepartment = localStorage.getItem('department') || 'Computer Science & Digital Applications';
+  const currentRegNo = localStorage.getItem('registerNo') || '24101';
 
   const getInitialMails = () => {
     const defaultMails = [
       {
-        id: 1,
-        senderName: "Google Security Alert",
+        id: 101,
+        senderName: "Google Account Security",
         senderEmail: "no-reply@accounts.google.com",
-        subject: `🔒 Security Alert: New Sign-in to Deeksharambh Portal from ${currentUserEmail}`,
-        snippet: `Your Google Account (${currentUserEmail}) was used to sign in to Deeksharambh 7.0...`,
+        subject: `🔒 Google Security Alert: Verified Sign-in to Deeksharambh 7.0 (${currentUserEmail})`,
+        snippet: `Your Google Account (${currentUserEmail}) signed in to Deeksharambh CSDA Portal...`,
         date: "Just Now",
         category: "inbox",
         starred: true,
-        body: `Hello ${currentUserName},\n\nYour Google Account (${currentUserEmail}) was used to sign in to the Deeksharambh 7.0 Bridge Course Management System at Sankara College of Science and Commerce.\n\nSign-in Details:\n- Role: ${role.toUpperCase()}\n- Account Email: ${currentUserEmail}\n- Department: ${currentDepartment}\n- Date & Time: ${new Date().toLocaleString()}\n\nIf this was you, no action is required. Security alert notification registered successfully.\n\nRegards,\nGoogle Security & Deeksharambh Auth`
+        body: `Hello ${currentUserName},\n\nYour original Google Account (${currentUserEmail}) was successfully verified and used to sign in to the Deeksharambh 7.0 Bridge Course Management System at Sankara College of Science and Commerce.\n\nVerified Credentials:\n- User Account Email: ${currentUserEmail}\n- Assigned Role: ${role.toUpperCase()}\n- Register Number: ${currentRegNo}\n- Department: ${currentDepartment}\n- Time: ${new Date().toLocaleString()}\n\nAll official emails, assessment updates, and induction schedules for this Gmail account will be synced directly into your Google Gmail App view.\n\nRegards,\nGoogle Security & Deeksharambh Auth System`
       },
       {
-        id: 2,
+        id: 102,
         senderName: "Sankara HOD CSDA",
         senderEmail: "hod.csda@sankara.ac.in",
-        subject: "Deeksharambh 7.0 Bridge Course Orientation Schedule & Guidelines",
-        snippet: "Dear Faculty & Student Team, Please find attached the updated 7-day orientation timetable and syllabus details...",
+        subject: "Deeksharambh 7.0 Orientation Programme & Academic Guidelines",
+        snippet: "Dear Student & Faculty, Welcome to the 7-day Deeksharambh Bridge Course orientation schedule...",
         date: "10:30 AM",
         category: "inbox",
         starred: true,
-        body: `Dear ${currentUserName},\n\nWelcome to the Deeksharambh 7.0 Bridge Course Programme at Sankara College of Science and Commerce.\n\nThe Department of Computer Science & Digital Applications (CSDA) has finalized the orientation schedule, student assessment portal, and syllabus modules for Tamil-I, Communicative English, Bridge Mathematics, and Data Analytics.\n\nKey Instructions:\n1. Student attendance is mandatory for all 7 orientation days.\n2. Assessment tests will be conducted on the 7th day via the online portal.\n3. SIP reports should be generated post-completion.\n\nRegards,\nHead of Department (CSDA)\nSankara College of Science and Commerce`
+        body: `Dear ${currentUserName},\n\nWelcome to the Deeksharambh 7.0 Bridge Course Programme for academic year 2026-2027 at Sankara College of Science and Commerce.\n\nThe Department of Computer Science & Digital Applications (CSDA) has structured your 7-day orientation timetable and core modules:\n1. Tamil-I & Communicative English\n2. Bridge Mathematics (Non-HSC Stream)\n3. Data Analytics & Computer Fundamentals\n4. SWAYAM-NPTEL & Gender Sensitivity Workshops\n\nPlease ensure your attendance is logged daily and complete the online assessment test on Day 7.\n\nBest regards,\nHead of Department (CSDA)\nSankara College of Science and Commerce`
       },
       {
-        id: 3,
-        senderName: "Bridge Maths Faculty",
+        id: 103,
+        senderName: "Bridge Mathematics Faculty",
         senderEmail: "maths.csda@sankara.ac.in",
-        subject: "Non-HSC Bridge Mathematics Study Materials & Problem Sheets",
-        snippet: "Reference worksheets on Matrix Inversion and Calculus fundamentals have been uploaded...",
-        date: "Aug 24",
+        subject: "Non-HSC Stream Bridge Mathematics Problem Worksheets",
+        snippet: "Reference worksheets on Matrix Inversion and Calculus fundamentals have been published...",
+        date: "Aug 28",
         category: "inbox",
-        starred: true,
-        body: `Dear Students and Staff,\n\nThe supplementary learning materials for Non-HSC stream students in Bridge Mathematics are now active in the Syllabus Manager.\n\nTopics Included:\n- Determinants and Matrices\n- Differential and Integral Calculus Basics\n- Statistical Data Summaries\n\nBest regards,\nDepartment of Mathematics`
+        starred: false,
+        body: `Dear ${currentUserName},\n\nThe supplementary study materials and matrix problem worksheets for Non-HSC stream students are available in your syllabus section.\n\nTopics Covered:\n- Determinants, Inverse Matrix (A⁻¹B)\n- Differential Calculus & Graphical Plotting\n- Statistical Summary Measures (Mean, SD)\n\nRegards,\nDepartment of Mathematics`
       }
     ];
 
@@ -54,7 +55,7 @@ export default function GmailAppView({ role }) {
     if (savedNotif) {
       try {
         const parsedNotif = JSON.parse(savedNotif);
-        return [parsedNotif, ...defaultMails];
+        return [{ ...parsedNotif, category: 'inbox', starred: true }, ...defaultMails];
       } catch (e) {}
     }
     return defaultMails;
@@ -86,7 +87,7 @@ export default function GmailAppView({ role }) {
     setMails(prev => [newMail, ...prev]);
     setShowCompose(false);
     setComposeData({ to: '', subject: '', body: '' });
-    showToast(`Email sent successfully from ${currentUserEmail}!`);
+    showToast(`Official Email sent successfully from ${currentUserEmail}!`);
   };
 
   const filteredMails = mails.filter(m => {
@@ -101,37 +102,39 @@ export default function GmailAppView({ role }) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+      {/* Header Banner - #3AAFA9 Teal & #c2c19f Sage */}
+      <div className="bg-gradient-to-r from-[#1b625f] via-[#2b8a85] to-[#3AAFA9] rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 transform skew-x-12"></div>
+
+        <div className="flex items-center gap-4 relative z-10">
           <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white font-black text-xl shadow-inner">
             <Mail className="w-6 h-6 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="px-2.5 py-0.5 bg-white/20 text-white rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" />
-                Google Workspace Verified
+              <span className="px-2.5 py-0.5 bg-[#c2c19f]/30 border border-[#c2c19f]/40 text-white rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-[#e6f7f6]" />
+                Google Workspace Verified Account
               </span>
             </div>
             <h1 className="text-xl font-black">Google Gmail Portal</h1>
-            <p className="text-xs text-red-100 mt-0.5">{currentUserEmail} • {currentDepartment}</p>
+            <p className="text-xs text-[#e6f7f6] mt-0.5">{currentUserEmail} • {currentDepartment}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative z-10">
           <button
             onClick={() => setShowCompose(true)}
-            className="px-5 py-2.5 rounded-2xl bg-white text-red-600 font-bold text-xs shadow-lg hover:bg-red-50 transition-all flex items-center gap-2 cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-[#e6f7f6] text-[#1b625f] hover:bg-white font-black text-xs shadow-lg transition-all flex items-center gap-2 cursor-pointer"
           >
-            <SendIcon className="w-4 h-4" />
+            <SendIcon className="w-4 h-4 text-[#3AAFA9]" />
             <span>Compose Mail</span>
           </button>
           <a
             href="https://mail.google.com"
             target="_blank"
             rel="noreferrer"
-            className="px-4 py-2.5 rounded-2xl bg-red-800/40 border border-white/20 text-white font-bold text-xs hover:bg-red-800/60 transition-all flex items-center gap-1.5"
+            className="px-4 py-2.5 rounded-2xl bg-[#1b625f]/60 border border-white/20 text-white font-bold text-xs hover:bg-[#1b625f]/80 transition-all flex items-center gap-1.5"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Open Gmail Web</span>
@@ -141,29 +144,29 @@ export default function GmailAppView({ role }) {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="p-3 bg-emerald-600 text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 animate-bounce">
+        <div className="p-3 bg-[#3AAFA9] text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 animate-bounce">
           <CheckCircle className="w-4 h-4" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Gmail Application Container */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[550px]">
+      <div className="bg-white rounded-3xl border border-[#3AAFA9]/20 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[550px]">
         
         {/* Left Sidebar Navigation */}
-        <div className="md:col-span-3 border-r border-slate-100 p-4 space-y-4 bg-slate-50/50">
+        <div className="md:col-span-3 border-r border-[#3AAFA9]/10 p-4 space-y-4 bg-[#f0faf9]/40">
           <div className="space-y-1">
             <button
               onClick={() => { setActiveTab('inbox'); setSelectedMail(null); }}
               className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'inbox' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'
+                activeTab === 'inbox' ? 'bg-[#3AAFA9] text-white shadow-sm font-extrabold' : 'text-slate-700 hover:bg-[#e6f7f6]'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <Inbox className="w-4 h-4" />
                 <span>Inbox</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'inbox' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'inbox' ? 'bg-white/20 text-white' : 'bg-[#e6f7f6] text-[#1b625f]'}`}>
                 {mails.filter(m => m.category === 'inbox').length}
               </span>
             </button>
@@ -171,14 +174,14 @@ export default function GmailAppView({ role }) {
             <button
               onClick={() => { setActiveTab('starred'); setSelectedMail(null); }}
               className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'starred' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'
+                activeTab === 'starred' ? 'bg-[#3AAFA9] text-white shadow-sm font-extrabold' : 'text-slate-700 hover:bg-[#e6f7f6]'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <Star className="w-4 h-4" />
                 <span>Starred</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'starred' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'starred' ? 'bg-white/20 text-white' : 'bg-[#e6f7f6] text-[#1b625f]'}`}>
                 {mails.filter(m => m.starred).length}
               </span>
             </button>
@@ -186,22 +189,27 @@ export default function GmailAppView({ role }) {
             <button
               onClick={() => { setActiveTab('sent'); setSelectedMail(null); }}
               className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'sent' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'
+                activeTab === 'sent' ? 'bg-[#3AAFA9] text-white shadow-sm font-extrabold' : 'text-slate-700 hover:bg-[#e6f7f6]'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <Send className="w-4 h-4" />
                 <span>Sent Mails</span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'sent' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'sent' ? 'bg-white/20 text-white' : 'bg-[#e6f7f6] text-[#1b625f]'}`}>
                 {mails.filter(m => m.category === 'sent').length}
               </span>
             </button>
           </div>
 
-          <div className="pt-4 border-t border-slate-200/60 text-[11px] text-slate-500 space-y-2">
-            <div className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Google Account</div>
-            <div className="truncate font-mono text-[10px] bg-slate-100 p-2 rounded-lg border border-slate-200">{currentUserEmail}</div>
+          <div className="pt-4 border-t border-[#3AAFA9]/20 text-[11px] text-slate-500 space-y-2">
+            <div className="font-bold text-[#1b625f] uppercase tracking-wider text-[10px] flex items-center gap-1">
+              <UserCheck className="w-3 h-3 text-[#3AAFA9]" />
+              Active Gmail Account
+            </div>
+            <div className="truncate font-mono text-[10px] bg-[#f0faf9] p-2 rounded-lg border border-[#3AAFA9]/30 text-[#1b625f] font-bold">
+              {currentUserEmail}
+            </div>
           </div>
         </div>
 
@@ -209,7 +217,7 @@ export default function GmailAppView({ role }) {
         <div className="md:col-span-9 flex flex-col">
           
           {/* Top Search & Filter Bar */}
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-4 bg-white">
+          <div className="p-4 border-b border-[#3AAFA9]/10 flex items-center justify-between gap-4 bg-white">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
@@ -217,13 +225,13 @@ export default function GmailAppView({ role }) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search mail by subject, sender or email..."
-                className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs focus:outline-none focus:border-red-500"
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#f0faf9] border border-[#3AAFA9]/20 text-xs focus:outline-none focus:border-[#3AAFA9]"
               />
             </div>
 
             <button
               onClick={() => setSelectedMail(null)}
-              className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-500 hover:bg-[#e6f7f6] hover:text-[#1b625f] transition-colors cursor-pointer"
               title="Refresh Inbox"
             >
               <RefreshCw className="w-4 h-4" />
@@ -233,11 +241,11 @@ export default function GmailAppView({ role }) {
           {/* Mail Content View */}
           {selectedMail ? (
             <div className="p-6 space-y-6 flex-1 bg-white overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center justify-between border-b border-[#3AAFA9]/10 pb-4">
                 <div>
                   <button
                     onClick={() => setSelectedMail(null)}
-                    className="text-xs font-bold text-red-600 hover:underline mb-2 block"
+                    className="text-xs font-bold text-[#3AAFA9] hover:underline mb-2 block"
                   >
                     ← Back to {activeTab}
                   </button>
@@ -247,7 +255,7 @@ export default function GmailAppView({ role }) {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-100 text-red-700 font-black text-sm flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-[#e6f7f6] text-[#1b625f] font-black text-sm flex items-center justify-center border border-[#3AAFA9]/30">
                   {selectedMail.senderName.charAt(0)}
                 </div>
                 <div>
@@ -256,7 +264,7 @@ export default function GmailAppView({ role }) {
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-xs text-slate-800 whitespace-pre-line leading-relaxed font-sans">
+              <div className="bg-[#f0faf9] p-6 rounded-2xl border border-[#3AAFA9]/20 text-xs text-slate-800 whitespace-pre-line leading-relaxed font-sans">
                 {selectedMail.body}
               </div>
             </div>
@@ -271,7 +279,7 @@ export default function GmailAppView({ role }) {
                   <div
                     key={m.id}
                     onClick={() => setSelectedMail(m)}
-                    className="p-4 hover:bg-slate-50/80 transition-colors cursor-pointer flex items-center justify-between gap-4 group"
+                    className="p-4 hover:bg-[#f0faf9]/80 transition-colors cursor-pointer flex items-center justify-between gap-4 group"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <button
@@ -306,15 +314,15 @@ export default function GmailAppView({ role }) {
       {/* Compose Email Modal */}
       {showCompose && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 border border-[#3AAFA9]/30">
+            <div className="flex items-center justify-between border-b border-[#3AAFA9]/10 pb-3">
               <div className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-red-600" />
+                <Mail className="w-5 h-5 text-[#3AAFA9]" />
                 <h3 className="text-sm font-bold text-slate-900">New Message (Google Gmail)</h3>
               </div>
               <button
                 onClick={() => setShowCompose(false)}
-                className="text-slate-400 hover:text-slate-600 text-sm font-bold"
+                className="text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -329,7 +337,7 @@ export default function GmailAppView({ role }) {
                   value={composeData.to}
                   onChange={(e) => setComposeData(prev => ({ ...prev, to: e.target.value }))}
                   placeholder="e.g. principal@sankara.ac.in or hod.csda@sankara.ac.in"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9]"
                 />
               </div>
 
@@ -341,7 +349,7 @@ export default function GmailAppView({ role }) {
                   value={composeData.subject}
                   onChange={(e) => setComposeData(prev => ({ ...prev, subject: e.target.value }))}
                   placeholder="Email subject line..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9]"
                 />
               </div>
 
@@ -353,7 +361,7 @@ export default function GmailAppView({ role }) {
                   value={composeData.body}
                   onChange={(e) => setComposeData(prev => ({ ...prev, body: e.target.value }))}
                   placeholder="Type your official email content here..."
-                  className="w-full p-3.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-500 resize-none"
+                  className="w-full p-3.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#3AAFA9] resize-none"
                 />
               </div>
 
@@ -361,13 +369,13 @@ export default function GmailAppView({ role }) {
                 <button
                   type="button"
                   onClick={() => setShowCompose(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
                 >
                   Discard
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-sm flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl bg-[#3AAFA9] hover:bg-[#2b8a85] text-white text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
                   <SendIcon className="w-3.5 h-3.5" />
                   <span>Send Email</span>

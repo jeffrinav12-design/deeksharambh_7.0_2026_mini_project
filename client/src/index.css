@@ -3,6 +3,19 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+:root {
+  --color-teal-primary: #3AAFA9;
+  --color-teal-dark: #2b8a85;
+  --color-teal-deep: #1b625f;
+  --color-teal-light: #e6f7f6;
+  --color-teal-surface: #f0faf9;
+
+  --color-sage-accent: #c2c19f;
+  --color-sage-dark: #9a9978;
+  --color-sage-light: #f9f8f3;
+  --color-sage-border: #d8d7bc;
+}
+
 body {
   margin: 0;
   font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,42 +23,45 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #e0f2fe 0%, #ffffff 50%, #dbeafe 100%) no-repeat center center fixed; /* Sky Blue & Pure White */
+  background: linear-gradient(135deg, #f0faf9 0%, #ffffff 50%, #f9f8f3 100%) no-repeat center center fixed;
   background-size: cover;
-  color: #1e293b; /* Dark slate text */
+  color: #1b625f;
   overflow-x: hidden;
 }
 
-/* Global utility overrides to switch from dark mode to mild light theme */
+/* Custom Palette Utility Classes */
+.bg-teal-primary { background-color: #3AAFA9 !important; }
+.bg-teal-dark { background-color: #2b8a85 !important; }
+.bg-teal-light { background-color: #e6f7f6 !important; }
+.bg-teal-surface { background-color: #f0faf9 !important; }
+
+.text-teal-primary { color: #3AAFA9 !important; }
+.text-teal-dark { color: #2b8a85 !important; }
+.text-teal-deep { color: #1b625f !important; }
+
+.border-teal-primary { border-color: #3AAFA9 !important; }
+.border-teal-light { border-color: rgba(58, 175, 169, 0.3) !important; }
+
+.bg-sage-accent { background-color: #c2c19f !important; }
+.bg-sage-light { background-color: #f9f8f3 !important; }
+.text-sage-dark { color: #7a795b !important; }
+.border-sage-accent { border-color: #c2c19f !important; }
+.border-sage-light { border-color: #d8d7bc !important; }
+
+/* Global overrides for mild theme */
 .bg-navy-deep {
-  background: linear-gradient(135deg, #e0f2fe 0%, #ffffff 50%, #dbeafe 100%) !important;
+  background: linear-gradient(135deg, #f0faf9 0%, #ffffff 50%, #f9f8f3 100%) !important;
 }
 
 .bg-navy-dark {
   background-color: #ffffff !important;
 }
 
-.text-white {
-  color: #1e293b !important;
-}
-
-.text-gray-400 {
-  color: #64748b !important;
-}
-
-.text-gray-300 {
-  color: #475569 !important;
-}
-
-.text-gray-200 {
-  color: #334155 !important;
-}
-
 .border-white\/5, .border-white\/10 {
-  border-color: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(27, 98, 95, 0.1) !important;
 }
 
-/* Maintain contrast for text inside dark navy containers */
+/* Maintain contrast for text inside dark containers */
 .from-navy h1, .from-navy h2, .from-navy h3, .from-navy h4, .from-navy h5, .from-navy h6,
 .from-navy p, .from-navy span, .from-navy div,
 .bg-navy h1, .bg-navy h2, .bg-navy h3, .bg-navy h4, .bg-navy.text-white {
@@ -53,145 +69,133 @@ body {
 }
 
 .from-navy p, .from-navy .text-gray-300, .from-navy .text-gray-400 {
-  color: #cbd5e1 !important; /* Light gray subtext */
+  color: #e6f7f6 !important;
 }
 
-/* Specific styling for the glass box inside the dark banner */
 .from-navy .glass-card {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
 .from-navy .glass-card h3 {
-  color: #60a5fa !important; /* Bright royal blue accent inside dark banner box */
+  color: #3AAFA9 !important;
 }
 .from-navy .glass-card p {
-  color: #cbd5e1 !important;
+  color: #e6f7f6 !important;
 }
 
-/* Sidebar navigation adjustments */
+/* Sidebar navigation active style */
 nav .active {
-  background-color: rgba(37, 99, 235, 0.1) !important;
-  color: #1d4ed8 !important;
-  border-left: 4px solid #2563eb !important;
+  background-color: #e6f7f6 !important;
+  color: #1b625f !important;
+  border-left: 4px solid #3AAFA9 !important;
+  font-weight: 800 !important;
 }
 
 nav a:not(.active) {
-  color: #64748b !important;
+  color: #5c7573 !important;
 }
 
 nav a:not(.active):hover {
-  background-color: rgba(37, 99, 235, 0.05) !important;
-  color: #1d4ed8 !important;
+  background-color: #f0faf9 !important;
+  color: #2b8a85 !important;
 }
 
-/* Header college title styling */
+/* Header styling */
 header h2 {
-  color: #1e40af !important;
+  color: #1b625f !important;
 }
 
 header h4 {
-  color: #1e293b !important;
+  color: #2b8a85 !important;
 }
 
-/* Glassmorphism card utility - Light Theme */
+/* Glassmorphism card utility - Teal & Sage Theme */
 .glass-card {
-  background: rgba(255, 255, 255, 0.88) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(37, 99, 235, 0.12) !important;
-  box-shadow: 0 8px 32px 0 rgba(37, 99, 235, 0.04) !important;
+  border: 1px solid rgba(58, 175, 169, 0.2) !important;
+  box-shadow: 0 8px 32px 0 rgba(58, 175, 169, 0.05) !important;
 }
 
 .glass-card-hover:hover {
   background: rgba(255, 255, 255, 0.98) !important;
-  border-color: rgba(37, 99, 235, 0.25) !important;
-  box-shadow: 0 10px 40px 0 rgba(37, 99, 235, 0.1) !important;
+  border-color: rgba(58, 175, 169, 0.4) !important;
+  box-shadow: 0 10px 40px 0 rgba(58, 175, 169, 0.12) !important;
   transform: translateY(-2px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Glass inputs - Light Theme */
+/* Glass inputs */
 .glass-input {
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(37, 99, 235, 0.2) !important;
-  color: #1e293b !important;
+  border: 1px solid rgba(58, 175, 169, 0.3) !important;
+  color: #1b625f !important;
   transition: all 0.2s ease-in-out;
 }
 
 .glass-input:focus {
   outline: none;
-  border-color: #2563eb !important;
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.2) !important;
+  border-color: #3AAFA9 !important;
+  box-shadow: 0 0 10px rgba(58, 175, 169, 0.25) !important;
   background: #ffffff !important;
 }
 
-/* Custom Scrollbar - Light Theme */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f0faf9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #93c5fd;
+  background: #c2c19f;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #3AAFA9;
 }
 
-/* Table styling - Light Theme */
+/* Table styling */
 .styled-table th {
-  background-color: #eff6ff !important;
-  color: #1e40af !important;
-  font-weight: 600;
+  background-color: #f0faf9 !important;
+  color: #1b625f !important;
+  font-weight: 700;
 }
 
 .styled-table td {
-  border-bottom: 1px solid rgba(37, 99, 235, 0.08) !important;
+  border-bottom: 1px solid rgba(58, 175, 169, 0.1) !important;
 }
 
-/* Micro-animations */
-@keyframes pulse-blue {
+/* Pulse animation */
+@keyframes pulse-teal {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 5px rgba(58, 175, 169, 0.2);
   }
   50% {
-    box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 0 15px rgba(58, 175, 169, 0.4);
   }
 }
 
-.animate-pulse-blue {
-  animation: pulse-blue 2s infinite;
+.animate-pulse-teal {
+  animation: pulse-teal 2s infinite;
 }
 
-/* Royal Blue & White overrides for legacy gold classes */
+/* Theme overrides */
 .text-gold {
-  color: #2563eb !important;
-}
-
-.from-navy .text-gold, .bg-navy .text-gold, .from-navy-dark .text-gold {
-  color: #60a5fa !important;
+  color: #3AAFA9 !important;
 }
 
 .bg-gold {
-  background-color: #2563eb !important;
+  background-color: #3AAFA9 !important;
   color: #ffffff !important;
 }
 
-.bg-gold:hover, .hover\:bg-gold-light:hover {
-  background-color: #1d4ed8 !important;
+.bg-gold:hover {
+  background-color: #2b8a85 !important;
 }
 
 .border-gold {
-  border-color: #3b82f6 !important;
-}
-
-.border-gold\/20, .border-gold\/25, .border-gold\/30, .border-gold\/40, .border-gold\/50 {
-  border-color: rgba(59, 130, 246, 0.3) !important;
-}
-
-.bg-gold\/5, .bg-gold\/10, .bg-gold\/20 {
-  background-color: rgba(37, 99, 235, 0.08) !important;
+  border-color: #c2c19f !important;
 }

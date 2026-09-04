@@ -10,7 +10,7 @@ export default function Sidebar({ role, onLogout }) {
   const allLinks = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/gmail", label: "Google Gmail App", icon: Mail, roles: ['admin', 'faculty', 'student', 'viewer'] },
-    { to: "/ai-studio", label: "Google AI Studio", icon: Sparkles, roles: ['admin', 'faculty', 'student', 'viewer'] },
+    { to: "/ai-studio", label: "Google AI Studio", icon: Sparkles, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/archive", label: "Batch Archive Viewer", icon: Archive, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/setup", label: "New Batch Setup", icon: PlusCircle, roles: ['admin', 'faculty'] },
     { to: "/templates", label: "Document & Templates", icon: FileText, roles: ['admin', 'faculty', 'viewer'] },
@@ -27,16 +27,16 @@ export default function Sidebar({ role, onLogout }) {
   const visibleLinks = allLinks.filter(link => link.roles.includes(role));
 
   return (
-    <aside className="w-64 glass-card border-r border-white/10 flex flex-col justify-between h-screen fixed left-0 top-0 z-40 overflow-y-auto">
+    <aside className="w-64 glass-card border-r border-[#3AAFA9]/20 flex flex-col justify-between h-screen fixed left-0 top-0 z-40 overflow-y-auto">
       <div className="flex-1 py-6 flex flex-col">
         {/* Branding header */}
-        <div className="px-6 pb-6 border-b border-blue-100 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-black text-white text-lg shadow-md animate-pulse-blue">
+        <div className="px-6 pb-6 border-b border-[#3AAFA9]/20 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3AAFA9] to-[#2b8a85] flex items-center justify-center font-black text-white text-lg shadow-md animate-pulse-teal">
             D
           </div>
           <div>
-            <h1 className="text-sm font-black text-blue-950 tracking-wider uppercase">Deeksharambh</h1>
-            <p className="text-[10px] text-blue-600 font-semibold">CSDA Portal v7.0</p>
+            <h1 className="text-sm font-black text-[#1b625f] tracking-wider uppercase">Deeksharambh</h1>
+            <p className="text-[10px] text-[#2b8a85] font-bold">CSDA Portal v7.0</p>
           </div>
         </div>
 
@@ -49,12 +49,12 @@ export default function Sidebar({ role, onLogout }) {
               className={({ isActive }) => 
                 `flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
                   isActive 
-                    ? 'bg-sky-100 text-sky-900 border border-sky-300 shadow-sm font-extrabold' 
-                    : 'text-gray-600 hover:bg-sky-50 hover:text-sky-800 font-medium'
+                    ? 'bg-[#e6f7f6] text-[#1b625f] border border-[#3AAFA9]/40 shadow-sm font-extrabold' 
+                    : 'text-slate-600 hover:bg-[#f0faf9] hover:text-[#2b8a85] font-medium'
                 }`
               }
             >
-              <link.icon className="w-4 h-4 text-sky-600" />
+              <link.icon className="w-4 h-4 text-[#3AAFA9]" />
               <span>{link.label}</span>
             </NavLink>
           ))}
@@ -62,12 +62,12 @@ export default function Sidebar({ role, onLogout }) {
       </div>
 
       {/* Logout button */}
-      <div className="p-4 border-t border-blue-100">
+      <div className="p-4 border-t border-[#3AAFA9]/20">
         <button 
           onClick={onLogout}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold text-rose-800 bg-rose-100 hover:bg-rose-200 border border-rose-300 transition-all duration-200 cursor-pointer shadow-sm"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all duration-200 cursor-pointer shadow-sm"
         >
-          <LogOut className="w-4 h-4 text-rose-700" />
+          <LogOut className="w-4 h-4 text-rose-600" />
           <span>Logout</span>
         </button>
       </div>

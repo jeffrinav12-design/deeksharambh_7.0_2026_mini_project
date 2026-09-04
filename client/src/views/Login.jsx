@@ -100,12 +100,12 @@ export default function Login({ onLoginSuccess }) {
       const nameToSave = emailToSave.split('@')[0].toUpperCase();
       const notif = {
         id: Date.now(),
-        subject: `🔒 Security Alert: New Sign-in to Deeksharambh Portal from ${emailToSave}`,
+        subject: `🔒 Security Alert: Verified Sign-in to Deeksharambh Portal from ${emailToSave}`,
         senderName: "Google Security & Deeksharambh Auth",
         senderEmail: "no-reply@accounts.google.com",
         recipientEmail: emailToSave,
         date: "Just Now",
-        body: `Hello ${nameToSave},\n\nYour Google Account (${emailToSave}) was used to sign in to the Deeksharambh 7.0 Bridge Course Management System.\n\nDetails:\n- Role: ${roleSelection.toUpperCase()}\n- Time: ${new Date().toLocaleString()}\n\nIf this was you, no further action is required.`
+        body: `Hello ${nameToSave},\n\nYour Google Account (${emailToSave}) was verified and used to sign in to the Deeksharambh 7.0 Bridge Course Management System.\n\nDetails:\n- Role: ${roleSelection.toUpperCase()}\n- Time: ${new Date().toLocaleString()}\n\nIf this was you, no further action is required.`
       };
       localStorage.setItem('lastLoginNotification', JSON.stringify(notif));
       onLoginSuccess('token_' + Date.now(), roleSelection, nameToSave, emailToSave, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
@@ -133,25 +133,25 @@ export default function Login({ onLoginSuccess }) {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center relative px-6 overflow-hidden">
       {/* Background glowing decorations */}
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-sky-200/40 blur-[120px] top-[-10%] left-[-10%]"></div>
-      <div className="absolute w-[400px] h-[400px] rounded-full bg-blue-200/40 blur-[100px] bottom-[-10%] right-[-10%]"></div>
+      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#3AAFA9]/20 blur-[120px] top-[-10%] left-[-10%]"></div>
+      <div className="absolute w-[400px] h-[400px] rounded-full bg-[#c2c19f]/30 blur-[100px] bottom-[-10%] right-[-10%]"></div>
 
-      <div className="w-full max-w-md bg-white rounded-2xl p-8 relative z-10 border border-sky-100 shadow-xl">
+      <div className="w-full max-w-md bg-white rounded-2xl p-8 relative z-10 border border-[#3AAFA9]/20 shadow-xl">
         
         {/* Branding header */}
         <div className="flex flex-col items-center mb-6 text-center">
-          <svg className="w-12 h-12 text-sky-600 animate-pulse mb-3" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="w-12 h-12 text-[#3AAFA9] animate-pulse mb-3" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M50 25 L80 40 L50 55 L20 40 Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="3"/>
             <path d="M50 55 L50 95" stroke="currentColor" strokeWidth="4"/>
           </svg>
           <h1 className="text-xl font-bold text-slate-900 tracking-wide uppercase">Deeksharambh</h1>
           <p className="text-xs text-slate-500 mt-1">Bridge Course Management System</p>
-          <p className="text-[10px] text-sky-600 font-semibold tracking-widest uppercase mt-0.5">Sankara College of Science and Commerce</p>
+          <p className="text-[10px] text-[#3AAFA9] font-bold tracking-widest uppercase mt-0.5">Sankara College of Science and Commerce</p>
         </div>
 
         {/* Role Selection Tabs (Only Faculty & Student) */}
-        <div className="grid grid-cols-2 gap-2 mb-6 p-1.5 rounded-xl bg-sky-50 border border-sky-200">
+        <div className="grid grid-cols-2 gap-2 mb-6 p-1.5 rounded-xl bg-[#f0faf9] border border-[#3AAFA9]/30">
           {['faculty', 'student'].map((r) => (
             <button
               key={r}
@@ -159,8 +159,8 @@ export default function Login({ onLoginSuccess }) {
               onClick={() => handleRoleChange(r)}
               className={`py-2 text-xs font-bold rounded-lg capitalize transition-all duration-150 cursor-pointer ${
                 roleSelection === r 
-                  ? 'bg-sky-500 text-white shadow-sm font-extrabold' 
-                  : 'text-slate-600 hover:text-sky-700 font-medium'
+                  ? 'bg-[#3AAFA9] text-white shadow-sm font-extrabold' 
+                  : 'text-slate-600 hover:text-[#1b625f] font-medium'
               }`}
             >
               {r} Account
@@ -181,7 +181,7 @@ export default function Login({ onLoginSuccess }) {
             type="button"
             onClick={() => setOauthModal({ open: true, provider: 'google' })}
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-xl bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-900 font-extrabold text-xs transition-all duration-150 shadow-sm flex items-center justify-center gap-3 cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-xl bg-[#e6f7f6] border border-[#3AAFA9]/40 hover:bg-[#3AAFA9] hover:text-white text-[#1b625f] font-extrabold text-xs transition-all duration-150 shadow-sm flex items-center justify-center gap-3 cursor-pointer group"
           >
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -204,7 +204,7 @@ export default function Login({ onLoginSuccess }) {
           <div>
             <label className="block text-xs font-bold text-slate-800 mb-1.5">Email Address / Username</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-sky-600 absolute left-3 top-3" />
+              <Mail className="w-4 h-4 text-[#3AAFA9] absolute left-3 top-3" />
               <input
                 type="text"
                 required
@@ -219,7 +219,7 @@ export default function Login({ onLoginSuccess }) {
           <div>
             <label className="block text-xs font-bold text-slate-800 mb-1.5">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-sky-600 absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-[#3AAFA9] absolute left-3 top-3" />
               <input
                 type="password"
                 required
@@ -234,13 +234,13 @@ export default function Login({ onLoginSuccess }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-sky-100 border border-sky-300 hover:bg-sky-200 text-sky-900 font-extrabold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-[#e6f7f6] border border-[#3AAFA9]/40 hover:bg-[#3AAFA9] hover:text-white text-[#1b625f] font-extrabold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
-              <span className="w-4 h-4 border-2 border-sky-800 border-t-transparent rounded-full animate-spin"></span>
+              <span className="w-4 h-4 border-2 border-[#1b625f] border-t-transparent rounded-full animate-spin"></span>
             ) : (
               <>
-                <Shield className="w-4 h-4 text-sky-800" />
+                <Shield className="w-4 h-4 text-[#3AAFA9]" />
                 <span>Secure Log In</span>
               </>
             )}
@@ -251,24 +251,24 @@ export default function Login({ onLoginSuccess }) {
       {/* OAuth Sign-In Verification Modal */}
       {oauthModal.open && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-[#3AAFA9]/30">
             <h3 className="text-base font-bold text-slate-900">
-              Verify {oauthModal.provider === 'github' ? 'GitHub' : 'Google'} Account Credentials
+              Verify Google Account Credentials
             </h3>
             <p className="text-xs text-slate-500">
-              Verify your original {oauthModal.provider === 'github' ? 'GitHub' : 'Google'} account username/email and password to authenticate as <span className="font-bold capitalize text-sky-600">{roleSelection}</span>.
+              Verify your original Google account email and password to authenticate as <span className="font-bold capitalize text-[#3AAFA9]">{roleSelection}</span>.
             </p>
             <div className="space-y-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  {oauthModal.provider === 'github' ? 'GitHub Username / Email' : 'Google Gmail Account'}
+                  Google Gmail Account
                 </label>
                 <input
                   type="text"
                   value={oauthInput}
                   onChange={(e) => setOauthInput(e.target.value)}
-                  placeholder={oauthModal.provider === 'github' ? 'e.g. username' : 'e.g. user@gmail.com'}
-                  className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs"
+                  placeholder="e.g. user@gmail.com"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#3AAFA9]"
                 />
               </div>
               {roleSelection === 'student' && (
@@ -280,7 +280,7 @@ export default function Login({ onLoginSuccess }) {
                       value={registerNoInput}
                       onChange={(e) => setRegisterNoInput(e.target.value)}
                       placeholder="e.g. 24101"
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#3AAFA9]"
                     />
                   </div>
                   <div>
@@ -290,7 +290,7 @@ export default function Login({ onLoginSuccess }) {
                       value={departmentInput}
                       onChange={(e) => setDepartmentInput(e.target.value)}
                       placeholder="e.g. CSDA"
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#3AAFA9]"
                     />
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function Login({ onLoginSuccess }) {
                   value={oauthPasswordInput}
                   onChange={(e) => setOauthPasswordInput(e.target.value)}
                   placeholder="Enter account password"
-                  className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#3AAFA9]"
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function Login({ onLoginSuccess }) {
               <button
                 type="button"
                 onClick={() => handleOauthSignIn(oauthModal.provider, oauthInput, oauthPasswordInput)}
-                className="px-4 py-2 rounded-xl bg-sky-100 border border-sky-300 text-sky-900 text-xs font-extrabold hover:bg-sky-200 cursor-pointer shadow-sm"
+                className="px-4 py-2 rounded-xl bg-[#3AAFA9] text-white text-xs font-extrabold hover:bg-[#2b8a85] cursor-pointer shadow-sm"
               >
                 Verify & Sign In
               </button>
