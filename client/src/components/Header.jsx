@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Shield, ChevronDown, Check, Plus, Calendar } from 'lucide-react';
+import { User, Shield, ChevronDown, Check, Plus, Calendar, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Header({ userName, role, activeBatch, batches = [], onSelectBatch }) {
+export default function Header({ userName, role, activeBatch, batches = [], onSelectBatch, onToggleMobileSidebar }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -19,36 +19,50 @@ export default function Header({ userName, role, activeBatch, batches = [], onSe
   }, []);
 
   return (
-    <header className="h-20 border-b border-[#3AAFA9]/20 glass-card fixed top-0 right-0 left-64 z-30 px-8 flex items-center justify-between shadow-sm">
-      {/* College Title and Logo */}
-      <div className="flex items-center gap-4">
+    <header className="h-20 border-b border-[#3AAFA9]/20 glass-card fixed top-0 right-0 left-0 lg:left-64 z-30 px-3 sm:px-6 lg:px-8 flex items-center justify-between shadow-sm bg-white">
+      {/* Left side: Hamburger for mobile + College Title and Logo */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Mobile Hamburger Toggle Button */}
+        <button
+          onClick={onToggleMobileSidebar}
+          className="lg:hidden p-2 rounded-xl text-[#1b625f] hover:bg-[#e6f7f6] border border-[#3AAFA9]/30 transition-all cursor-pointer shadow-xs"
+          aria-label="Toggle Navigation Menu"
+        >
+          <Menu className="w-5 h-5 text-[#3AAFA9]" />
+        </button>
+
         {/* Sankara College Logo Outline SVG */}
-        <svg className="w-10 h-10 text-[#3AAFA9] animate-pulse" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-8 h-8 sm:w-10 sm:h-10 text-[#3AAFA9] animate-pulse shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M50 25 L80 40 L50 55 L20 40 Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="3"/>
           <path d="M50 55 L50 95" stroke="currentColor" strokeWidth="4"/>
           <circle cx="50" cy="5" r="3" fill="currentColor"/>
         </svg>
+
         <div>
-          <h2 className="text-sm font-black text-[#1b625f] tracking-wide uppercase">Sankara College of Science and Commerce (Autonomous)</h2>
-          <p className="text-xs text-[#2b8a85] font-bold">Department of Computer Science with Data Analytics (CSDA)</p>
+          <h2 className="text-xs sm:text-sm font-black text-[#1b625f] tracking-wide uppercase line-clamp-1">
+            Sankara College of Science and Commerce <span className="hidden sm:inline">(Autonomous)</span>
+          </h2>
+          <p className="text-[10px] sm:text-xs text-[#2b8a85] font-bold line-clamp-1">
+            Department of CSDA
+          </p>
         </div>
       </div>
 
-      {/* User information & Batch Selector */}
-      <div className="flex items-center gap-6">
+      {/* Right side: User information & Batch Selector */}
+      <div className="flex items-center gap-2 sm:gap-6">
         {/* Interactive Batch Selector Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#f0faf9] hover:bg-[#e6f7f6] border border-[#3AAFA9]/30 text-xs font-bold text-[#1b625f] shadow-sm transition-all cursor-pointer group"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#f0faf9] hover:bg-[#e6f7f6] border border-[#3AAFA9]/30 text-[10px] sm:text-xs font-bold text-[#1b625f] shadow-sm transition-all cursor-pointer group"
           >
-            <span className="w-2 h-2 rounded-full bg-[#3AAFA9] animate-ping"></span>
-            <span>
-              Active Batch: {activeBatch ? `${activeBatch.batchYearRange} (v${activeBatch.deeksharambhVersion})` : 'Select Batch'}
+            <span className="w-2 h-2 rounded-full bg-[#3AAFA9] animate-ping shrink-0"></span>
+            <span className="truncate max-w-[100px] sm:max-w-none">
+              {activeBatch ? `Batch ${activeBatch.deeksharambhVersion || activeBatch.batchYearRange}` : 'Select Batch'}
             </span>
-            <ChevronDown className={`w-3.5 h-3.5 text-[#3AAFA9] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-[#3AAFA9] shrink-0 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Dropdown Menu */}
@@ -121,19 +135,19 @@ export default function Header({ userName, role, activeBatch, batches = [], onSe
           const registerNo = localStorage.getItem('registerNo') || '24101';
           const department = localStorage.getItem('department') || 'CSDA';
           return (
-            <div className="flex items-center gap-3 pl-6 border-l border-[#3AAFA9]/20">
-              <div className="text-right">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-6 border-l border-[#3AAFA9]/20">
+              <div className="text-right hidden sm:block">
                 <h4 className="text-xs font-bold text-[#1b625f] flex items-center gap-1.5 justify-end">
                   <span>{userName || "JEFFRINA V"}</span>
                   <span className="text-[9px] bg-[#e6f7f6] text-[#1b625f] px-1.5 py-0.5 rounded font-mono font-semibold">Reg: {registerNo}</span>
                 </h4>
-                <p className="text-[10px] text-slate-500 font-medium">{userEmail}</p>
+                <p className="text-[10px] text-slate-500 font-medium truncate max-w-[140px]">{userEmail}</p>
                 <span className="text-[10px] text-[#2b8a85] font-semibold capitalize flex items-center gap-1 justify-end mt-0.5">
                   <Shield className="w-3 h-3 text-[#3AAFA9]" />
                   {role} • {department}
                 </span>
               </div>
-              <div className="w-9 h-9 rounded-full bg-[#f0faf9] border border-[#3AAFA9]/30 flex items-center justify-center text-[#3AAFA9] shadow-sm">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#f0faf9] border border-[#3AAFA9]/30 flex items-center justify-center text-[#3AAFA9] shadow-sm shrink-0">
                 <User className="w-4 h-4 text-[#3AAFA9]" />
               </div>
             </div>
@@ -143,3 +157,4 @@ export default function Header({ userName, role, activeBatch, batches = [], onSe
     </header>
   );
 }
+

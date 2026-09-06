@@ -333,14 +333,14 @@ export default function StudentAssessmentPortal({ activeBatch, batches = [], onS
       )}
 
       {/* Filter Tabs */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-sky-100 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-600 mr-2">Filter Subject:</span>
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-sky-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 max-w-full">
+          <span className="text-xs font-semibold text-slate-600 shrink-0">Filter Subject:</span>
           {['All', 'Core', 'Mathematics', 'English', 'Tamil'].map(sub => (
             <button
               key={sub}
               onClick={() => setSelectedSubject(sub)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all shrink-0 ${
                 selectedSubject === sub
                   ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
                   : 'bg-white text-slate-700 border-sky-200 hover:bg-sky-50'
@@ -350,7 +350,7 @@ export default function StudentAssessmentPortal({ activeBatch, batches = [], onS
             </button>
           ))}
         </div>
-        <span className="text-xs font-medium text-slate-500">
+        <span className="text-xs font-medium text-slate-500 shrink-0">
           Showing {filteredQuestions.length} Questions
         </span>
       </div>

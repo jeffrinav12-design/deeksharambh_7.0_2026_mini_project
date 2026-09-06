@@ -73,6 +73,7 @@ export default function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
   const [batches, setBatches] = useState(defaultFallbackBatches);
   const [activeBatch, setActiveBatch] = useState(defaultFallbackBatches[0]);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Configure Axios defaults
   useEffect(() => {
@@ -164,12 +165,24 @@ export default function App() {
             !token ? (
               <Navigate to="/login" />
             ) : (
-              <div className="min-h-screen bg-white text-slate-900">
-                <Sidebar role={role} onLogout={handleLogout} />
-                <Header userName={userName} role={role} activeBatch={activeBatch} batches={batches} onSelectBatch={handleSelectBatch} />
+              <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
+                <Sidebar 
+                  role={role} 
+                  onLogout={handleLogout} 
+                  isOpen={mobileSidebarOpen} 
+                  onClose={() => setMobileSidebarOpen(false)} 
+                />
+                <Header 
+                  userName={userName} 
+                  role={role} 
+                  activeBatch={activeBatch} 
+                  batches={batches} 
+                  onSelectBatch={handleSelectBatch} 
+                  onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
+                />
                 
-                {/* Content main area, matching sidebar spacing */}
-                <main className="pl-64 pt-20 p-8 min-h-screen bg-white">
+                {/* Responsive Content main area */}
+                <main className="pl-0 lg:pl-64 pt-20 p-3 sm:p-6 lg:p-8 min-h-screen bg-white max-w-full overflow-x-hidden">
                   <Routes>
                     <Route 
                       path="/dashboard" 
@@ -257,3 +270,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
