@@ -24,6 +24,7 @@ import GmailAppView from './views/GmailAppView.jsx';
 // Components
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
+import ScrollObserver from './components/ScrollObserver.jsx';
 
 const defaultFallbackBatches = [
   {
@@ -165,7 +166,8 @@ export default function App() {
             !token ? (
               <Navigate to="/login" />
             ) : (
-              <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
+              <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden relative">
+                <ScrollObserver activeBatch={activeBatch} batches={batches} onSelectBatch={handleSelectBatch} />
                 <Sidebar 
                   role={role} 
                   onLogout={handleLogout} 

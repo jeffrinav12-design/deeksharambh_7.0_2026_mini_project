@@ -191,7 +191,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
   return (
     <div className="space-y-8 bg-white">
       {/* Upper banner card - #3AAFA9 Teal & #c2c19f Sage Theme */}
-      <div className="rounded-2xl bg-gradient-to-r from-[#1b625f] via-[#2b8a85] to-[#3AAFA9] p-8 border border-[#3AAFA9]/30 relative overflow-hidden shadow-xl text-white">
+      <div className="scroll-reveal-left rounded-2xl bg-gradient-to-r from-[#1b625f] via-[#2b8a85] to-[#3AAFA9] p-8 border border-[#3AAFA9]/30 relative overflow-hidden shadow-xl text-white">
         <div className="absolute w-80 h-80 rounded-full bg-white/10 blur-[70px] right-[-10%] top-[-20%]"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -213,7 +213,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
       {/* Automatic Active Batch Inaugural Invitation Hero Display */}
       {activeBatch && (
-        <div className="glass-card p-6 md:p-8 rounded-2xl border-2 border-[#3AAFA9]/30 bg-white space-y-6 shadow-xl relative overflow-hidden">
+        <div className="scroll-reveal-scale glass-card p-6 md:p-8 rounded-2xl border-2 border-[#3AAFA9]/30 bg-white space-y-6 shadow-xl relative overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3AAFA9]/20 pb-4">
             <div className="flex items-center gap-2">
               <Mail className="w-5 h-5 text-[#3AAFA9]" />
@@ -336,7 +336,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <button
               onClick={handleExportCircular}
-              className="flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
+              className="scroll-reveal-pop delay-1 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
             >
               <div>
                 <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Circular</h4>
@@ -349,7 +349,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
             <button
               onClick={handleExportCover}
-              className="flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
+              className="scroll-reveal-pop delay-2 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
             >
               <div>
                 <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Cover Brochure</h4>
@@ -362,7 +362,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
             <button
               onClick={handleExportInvitationPdf}
-              className="flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
+              className="scroll-reveal-pop delay-3 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
             >
               <div>
                 <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Invitation (PDF)</h4>
@@ -375,7 +375,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
             <NavLink
               to="/archive"
-              className="flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group"
+              className="scroll-reveal-pop delay-4 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group"
             >
               <div>
                 <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">View Batch Archive</h4>
@@ -387,7 +387,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
           {/* Statistics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            <div className="glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
+            <div className="scroll-reveal-scale delay-1 glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-bold text-slate-500 uppercase">Total Students</span>
                 <Users className="w-5 h-5 text-[#3AAFA9]" />
@@ -395,7 +395,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <h2 className="text-2xl font-black text-[#1b625f] mt-4">{stats.totalStudents}</h2>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
+            <div className="scroll-reveal-scale delay-2 glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-bold text-slate-500 uppercase">Attendance %</span>
                 <CheckSquare className="w-5 h-5 text-emerald-600" />
@@ -403,7 +403,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <h2 className="text-2xl font-black text-[#1b625f] mt-4">{stats.attendancePercentage}%</h2>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
+            <div className="scroll-reveal-scale delay-3 glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-bold text-slate-500 uppercase">Exams Taken</span>
                 <FileQuestion className="w-5 h-5 text-[#3AAFA9]" />
@@ -411,7 +411,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <h2 className="text-2xl font-black text-[#1b625f] mt-4">{stats.assessmentsSubmitted}</h2>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
+            <div className="scroll-reveal-scale delay-4 glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-bold text-slate-500 uppercase">Advanced Learners</span>
                 <Award className="w-5 h-5 text-[#3AAFA9]" />
@@ -419,7 +419,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <h2 className="text-2xl font-black text-[#1b625f] mt-4">{stats.advancedLearners}</h2>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
+            <div className="scroll-reveal-scale delay-5 glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-bold text-slate-500 uppercase">Slow Learners</span>
                 <AlertTriangle className="w-5 h-5 text-amber-500" />
@@ -431,7 +431,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
       )}
 
       {/* Academic Batches Selection & Controls */}
-      <div className="space-y-4">
+      <div className="scroll-reveal space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold text-[#1b625f] tracking-wide">Select Academic Batch</h3>
           <span className="text-xs text-slate-500">Click any batch card to switch active invitation and records</span>
