@@ -305,7 +305,9 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                   <span className="font-bold text-slate-700">Welcome Address: </span>
-                  <span className="text-[#3AAFA9] font-bold sm:text-right">{activeBatch.hodName || (activeBatch.deeksharambhVersion === '5.0' ? 'Dr. M. Lingaraj' : 'Dr. R. Sasikala')} <span className="text-slate-500 text-[10px] font-normal">(HOD, CSDA)</span></span>
+                  <span className="text-[#3AAFA9] font-bold sm:text-right">
+                    {activeBatch.deeksharambhVersion === '5.0' || activeBatch.batchYearRange?.includes('2024') ? 'Dr. M. Lingaraj (HOD)' : 'Dr. R. Sasikala (HOD)'} <span className="text-slate-500 text-[10px] font-normal">(CSDA)</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -474,7 +476,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <h4 className="font-bold text-[#1b625f] text-base mt-4">{b.batchYearRange}</h4>
               <p className="text-xs text-slate-500 mt-1">Academic Year: {b.academicYear}</p>
               <div className="mt-4 flex items-center justify-between border-t border-[#3AAFA9]/20 pt-3 text-xs text-slate-600">
-                <span>HoD: {b.hodName}</span>
+                <span>HoD: {b.deeksharambhVersion === '5.0' || b.batchYearRange?.includes('2024') ? 'Dr. M. Lingaraj' : 'Dr. R. Sasikala'}</span>
                 <span className="font-bold text-[#1b625f]">{b.totalStudents} Students</span>
               </div>
             </div>
