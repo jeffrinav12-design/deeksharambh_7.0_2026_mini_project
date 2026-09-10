@@ -34,7 +34,7 @@ const defaultFallbackBatches = [
     departmentName: 'Computer Science & Digital Applications',
     startDate: '2026-08-01',
     endDate: '2026-08-15',
-    hodName: 'Dr. S. Sundararajan',
+    hodName: 'Dr. R. Sasikala',
     principalName: 'Dr. V. Radhika',
     className: 'I B.Sc. CSDA',
     totalStudents: 50

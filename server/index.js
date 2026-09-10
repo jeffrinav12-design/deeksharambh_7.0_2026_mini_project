@@ -329,7 +329,7 @@ app.get('/api/batches', authenticateToken, async (req, res) => {
           departmentName: 'Computer Science & Digital Applications',
           startDate: '2026-08-01',
           endDate: '2026-08-15',
-          hodName: 'Dr. S. Sundararajan',
+          hodName: 'Dr. R. Sasikala',
           principalName: 'Dr. V. Radhika',
           className: 'I B.Sc. CSDA',
           totalStudents: 50
@@ -1016,7 +1016,7 @@ app.get('/api/batches/:batchId/syllabi', authenticateToken, async (req, res) => 
           ],
           referenceBooks: ['Python for Data Analysis - Wes McKinney'],
           staffIncharge: 'Dr. S. Sundararajan',
-          hodName: 'Dr. S. Sundararajan'
+          hodName: 'Dr. R. Sasikala'
         },
         {
           _id: 'syl_4',
@@ -1031,7 +1031,7 @@ app.get('/api/batches/:batchId/syllabi', authenticateToken, async (req, res) => 
           ],
           referenceBooks: ['Higher Engineering Mathematics - B.S. Grewal'],
           staffIncharge: 'Prof. R. Vijay',
-          hodName: 'Dr. S. Sundararajan'
+          hodName: 'Dr. R. Sasikala'
         }
       ];
     }

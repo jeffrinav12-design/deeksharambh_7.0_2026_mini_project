@@ -25,7 +25,7 @@ export default function GmailAppView({ role }) {
         date: "Just Now",
         category: "inbox",
         starred: true,
-        body: `Hello ${currentUserName},\n\nYour original Google Account (${currentUserEmail}) was successfully verified and used to sign in to the Deeksharambh 7.0 Bridge Course Management System at Sankara College of Science and Commerce.\n\nVerified Credentials:\n- User Account Email: ${currentUserEmail}\n- Assigned Role: ${role.toUpperCase()}\n- Register Number: ${currentRegNo}\n- Department: ${currentDepartment}\n- Time: ${new Date().toLocaleString()}\n\nAll official emails, assessment updates, and induction schedules for this Gmail account will be synced directly into your Google Gmail App view.\n\nRegards,\nGoogle Security & Deeksharambh Auth System`
+        body: `Hello ${currentUserName},\n\nYour original Google Account (${currentUserEmail}) was successfully verified and used to sign in to the Deeksharambh 7.0 Bridge Course Management System at SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS).\n\nVerified Credentials:\n- User Account Email: ${currentUserEmail}\n- Assigned Role: ${role.toUpperCase()}\n- Register Number: ${currentRegNo}\n- Department: ${currentDepartment}\n- Time: ${new Date().toLocaleString()}\n\nAll official emails, assessment updates, and induction schedules for this Gmail account will be synced directly into your Google Gmail App view.\n\nRegards,\nGoogle Security & Deeksharambh Auth System`
       },
       {
         id: 102,
@@ -36,7 +36,7 @@ export default function GmailAppView({ role }) {
         date: "10:30 AM",
         category: "inbox",
         starred: true,
-        body: `Dear ${currentUserName},\n\nWelcome to the Deeksharambh 7.0 Bridge Course Programme for academic year 2026-2027 at Sankara College of Science and Commerce.\n\nThe Department of Computer Science & Digital Applications (CSDA) has structured your 7-day orientation timetable and core modules:\n1. Tamil-I & Communicative English\n2. Bridge Mathematics (Non-HSC Stream)\n3. Data Analytics & Computer Fundamentals\n4. SWAYAM-NPTEL & Gender Sensitivity Workshops\n\nPlease ensure your attendance is logged daily and complete the online assessment test on Day 7.\n\nBest regards,\nHead of Department (CSDA)\nSankara College of Science and Commerce`
+        body: `Dear ${currentUserName},\n\nWelcome to the Deeksharambh 7.0 Bridge Course Programme for academic year 2026-2027 at SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS).\n\nThe Department of Computer Science & Digital Applications (CSDA) has structured your 7-day orientation timetable and core modules:\n1. Tamil-I & Communicative English\n2. Bridge Mathematics (Non-HSC Stream)\n3. Data Analytics & Computer Fundamentals\n4. SWAYAM-NPTEL & Gender Sensitivity Workshops\n\nPlease ensure your attendance is logged daily and complete the online assessment test on Day 7.\n\nBest regards,\nHead of Department (CSDA)\nSANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)`
       },
       {
         id: 103,

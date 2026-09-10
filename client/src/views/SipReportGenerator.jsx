@@ -22,7 +22,7 @@ export default function SipReportGenerator({ activeBatch, role }) {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  const defaultReportText = `The Student Induction Program (SIP) for the newly admitted first-year students for the academic year ${activeBatch ? activeBatch.academicYear : '2026-2027'} was conducted from ${activeBatch ? activeBatch.startDate : '2026-08-01'} to ${activeBatch ? activeBatch.endDate : '2026-08-15'} by the Department of Computer Science & Digital Applications (CSDA) at Sankara College of Science and Commerce.
+  const defaultReportText = `The Student Induction Program (SIP) for the newly admitted first-year students for the academic year ${activeBatch ? activeBatch.academicYear : '2026-2027'} was conducted from ${activeBatch ? activeBatch.startDate : '2026-08-01'} to ${activeBatch ? activeBatch.endDate : '2026-08-15'} by the Department of Computer Science & Digital Applications (CSDA) at SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS).
 
 As per the guidelines of Bharathiar University and UGC Deeksharambh directives, the 7-day orientation program bridged the transition from Higher Secondary Education to Undergraduate Computer Science coursework.
 
@@ -139,7 +139,7 @@ Feedback from students and parents was overwhelmingly positive, confirming a smo
     setAiGenerating(true);
     showToast('Google AI Studio is generating formatted SIP report...', 'info');
 
-    const promptText = `Generate a formal Student Induction Programme (SIP) report for Sankara College of Science and Commerce.
+    const promptText = `Generate a formal Student Induction Programme (SIP) report for SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS).
 Batch: ${activeBatch.batchYearRange} (v${activeBatch.deeksharambhVersion})
 Academic Year: ${activeBatch.academicYear}
 Department: Computer Science & Digital Applications (CSDA)
@@ -166,7 +166,7 @@ Instructions: Format into detailed professional paragraphs with clear section he
     } catch (err) {
       // Fallback local AI formatter
       const formattedAiText = `### 🎓 STUDENT INDUCTION PROGRAMME (SIP) REPORT
-**Institution**: Sankara College of Science and Commerce (Autonomous)
+**Institution**: SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)
 **Department**: Computer Science & Digital Applications (CSDA)
 **Academic Year**: ${activeBatch.academicYear} | **Deeksharambh**: v${activeBatch.deeksharambhVersion}
 **Duration**: ${activeBatch.startDate} to ${activeBatch.endDate}
@@ -200,7 +200,7 @@ With 100% student attendance across ${activeBatch.totalStudents || 45} enrolled 
     },
     INSTITUTIONAL: {
       name: 'Institutional Detailed CSDA Report',
-      reportText: `The Student Induction Program (SIP) for academic year ${activeBatch ? activeBatch.academicYear : '2026-2027'} was organized by the Department of Computer Science with Data Analytics at Sankara College of Science and Commerce.
+      reportText: `The Student Induction Program (SIP) for academic year ${activeBatch ? activeBatch.academicYear : '2026-2027'} was organized by the Department of Computer Science with Data Analytics at SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS).
 
 The 6-day program included interactive sessions on Universal Human Values, proficiency modules in Mathematics and Communicative English, and department orientation. Eminent academic and industry experts delivered inaugural addresses.`,
       objectives: [

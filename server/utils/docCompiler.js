@@ -3,7 +3,7 @@ import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Width
 
 // Helper for letterhead in PDF
 function drawLetterhead(doc) {
-  doc.font('Times-Bold').fontSize(14).text("SANKARA COLLEGE OF SCIENCE AND COMMERCE (Autonomous)", { align: 'center' });
+  doc.font('Times-Bold').fontSize(14).text("SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)", { align: 'center' });
   doc.font('Times-Roman').fontSize(9)
      .text("Affiliated to Bharathiar University, Coimbatore | Approved by AICTE, New Delhi", { align: 'center' })
      .text("Re-Accredited by NAAC with A+ Grade (Cycle II) | An ISO 9001:2015 Certified Institution", { align: 'center' })
@@ -235,7 +235,7 @@ export function compileDocx(templateName, fieldValues) {
             alignment: AlignmentType.CENTER,
             children: [
               new TextRun({ text: "SANKARA COLLEGE OF SCIENCE AND COMMERCE", bold: true, size: 28, color: "1a237e" }),
-              new TextRun({ text: "\n(Autonomous)", bold: true, size: 20, color: "1a237e" })
+              new TextRun({ text: "\n(AUTONOMOUS)", bold: true, size: 20, color: "1a237e" })
             ]
           }),
           new Paragraph({
@@ -355,7 +355,7 @@ export function compileDocx(templateName, fieldValues) {
                   alignment: AlignmentType.CENTER,
                   children: [
                     new TextRun({ text: "SANKARA COLLEGE OF SCIENCE AND COMMERCE", bold: true, size: 28, color: "1a237e" }),
-                    new TextRun({ text: "\n(Autonomous)", bold: true, size: 20, color: "1a237e" })
+                    new TextRun({ text: "\n(AUTONOMOUS)", bold: true, size: 20, color: "1a237e" })
                   ]
                 }),
                 new Paragraph({

@@ -41,7 +41,7 @@ export default function Header({ userName, role, activeBatch, batches = [], onSe
 
         <div>
           <h2 className="text-xs sm:text-sm font-black text-[#1b625f] tracking-wide uppercase line-clamp-1">
-            Sankara College of Science and Commerce <span className="hidden sm:inline">(Autonomous)</span>
+            SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)
           </h2>
           <p className="text-[10px] sm:text-xs text-[#2b8a85] font-bold line-clamp-1">
             Department of CSDA

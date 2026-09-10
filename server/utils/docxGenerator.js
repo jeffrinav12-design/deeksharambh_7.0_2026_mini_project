@@ -7,7 +7,7 @@ function createLetterhead() {
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
-          text: "SANKARA COLLEGE OF SCIENCE AND COMMERCE (Autonomous)",
+          text: "SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)",
           bold: true,
           font: "Times New Roman",
           size: 28, // 14pt

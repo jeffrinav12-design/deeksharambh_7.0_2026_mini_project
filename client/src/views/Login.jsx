@@ -147,7 +147,7 @@ export default function Login({ onLoginSuccess }) {
           </svg>
           <h1 className="text-xl font-bold text-slate-900 tracking-wide uppercase">Deeksharambh</h1>
           <p className="text-xs text-slate-500 mt-1">Bridge Course Management System</p>
-          <p className="text-[10px] text-[#3AAFA9] font-bold tracking-widest uppercase mt-0.5">Sankara College of Science and Commerce</p>
+          <p className="text-[10px] text-[#3AAFA9] font-bold tracking-widest uppercase mt-0.5">SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</p>
         </div>
 
         {/* Role Selection Tabs (Only Faculty & Student) */}

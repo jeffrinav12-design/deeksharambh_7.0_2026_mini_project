@@ -64,7 +64,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
       departmentName: 'Computer Science & Digital Applications',
       startDate: '2026-08-01',
       endDate: '2026-08-15',
-      hodName: 'Dr. S. Sundararajan',
+      hodName: 'Dr. R. Sasikala',
       principalName: 'Dr. V. Radhika',
       className: 'I B.Sc. CSDA',
       totalStudents: 50
@@ -251,74 +251,77 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
             </div>
           </div>
 
-          {/* Interactive Invitation Card Body */}
-          <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-xl border-2 border-[#3AAFA9]/30 bg-white text-center space-y-5 shadow-md relative">
-            <div className="space-y-1">
-              <h4 className="font-extrabold text-[#1b625f] text-base tracking-wide uppercase">Sankara College of Science and Commerce</h4>
-              <p className="text-[11px] text-slate-500 font-medium">Affiliated to Bharathiar University | Approved by AICTE | NAAC A+ Grade</p>
-              <p className="text-[11px] text-slate-500 font-medium">Saravanampatty, Coimbatore - 641035</p>
-              <div className="w-24 h-[2px] bg-[#3AAFA9] mx-auto mt-2"></div>
+          {/* Interactive Invitation Card Body - Mild Light Pastel Background Theme */}
+          <div className="max-w-2xl mx-auto p-5 sm:p-8 md:p-10 rounded-2xl border-2 border-[#3AAFA9]/40 bg-gradient-to-br from-[#f0faf9] via-[#e6f7f6] to-[#f9f8f3] text-center space-y-5 shadow-lg relative overflow-hidden">
+            {/* Background Ornamental Ring Accents */}
+            <div className="absolute -right-16 -top-16 w-36 h-36 rounded-full bg-[#3AAFA9]/10 blur-xl pointer-events-none"></div>
+            <div className="absolute -left-16 -bottom-16 w-36 h-36 rounded-full bg-[#c2c19f]/20 blur-xl pointer-events-none"></div>
+
+            <div className="space-y-1 relative z-10">
+              <h4 className="font-extrabold text-[#1b625f] text-sm sm:text-base tracking-wider uppercase font-serif">
+                SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)
+              </h4>
+              <p className="text-[10px] sm:text-[11px] text-slate-600 font-medium">Affiliated to Bharathiar University | Approved by AICTE | NAAC A+ Grade</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-600 font-medium">Saravanampatty, Coimbatore - 641035</p>
+              <div className="w-28 h-[2px] bg-gradient-to-r from-[#3AAFA9] via-[#c2c19f] to-[#3AAFA9] mx-auto mt-2"></div>
             </div>
 
-            <div>
-              <span className="px-4 py-1 rounded-full bg-[#e6f7f6] text-[#1b625f] text-xs font-extrabold tracking-widest uppercase border border-[#3AAFA9]/30">
+            <div className="relative z-10">
+              <span className="px-4 py-1.5 rounded-full bg-white text-[#1b625f] text-xs font-black tracking-widest uppercase border-2 border-[#3AAFA9]/40 shadow-xs inline-block">
                 CORDIAL INVITATION
               </span>
             </div>
 
-            <p className="text-slate-600 text-xs font-serif italic max-w-md mx-auto leading-relaxed">
+            <p className="text-slate-700 text-xs sm:text-sm font-serif italic max-w-md mx-auto leading-relaxed relative z-10">
               The Management, Principal & Faculty of the Department of Computer Science with Data Analytics cordially invite you to the Inaugural Function of the Student Induction Programme
             </p>
 
-            <div className="space-y-1 bg-[#f0faf9] p-3 rounded-lg border border-[#3AAFA9]/20">
-              <h2 className="text-xl font-black text-[#1b625f] tracking-wider uppercase font-serif">
+            <div className="space-y-1 bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-[#3AAFA9]/30 shadow-xs relative z-10">
+              <h2 className="text-xl sm:text-2xl font-black text-[#1b625f] tracking-wider uppercase font-serif">
                 Deeksharambh {activeBatch.deeksharambhVersion}
               </h2>
-              <p className="text-xs text-[#2b8a85] font-bold tracking-wide">
+              <p className="text-xs sm:text-sm text-[#2b8a85] font-bold tracking-wide">
                 Academic Year {activeBatch.academicYear} ({activeBatch.className})
               </p>
             </div>
 
-            <div className="p-4 rounded-lg bg-white border border-[#3AAFA9]/20 space-y-2 text-left max-w-md mx-auto">
-              <h5 className="text-[11px] font-bold text-[#1b625f] uppercase tracking-wider text-center border-b border-slate-200 pb-1">
+            <div className="p-4 rounded-xl bg-white/90 backdrop-blur-sm border border-[#3AAFA9]/30 space-y-2.5 text-left max-w-md mx-auto shadow-xs relative z-10">
+              <h5 className="text-[11px] font-extrabold text-[#1b625f] uppercase tracking-wider text-center border-b border-slate-200 pb-1.5">
                 Dignitaries of the Function
               </h5>
-              <div className="text-xs space-y-1.5">
-                <div>
+              <div className="text-xs space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                   <span className="font-bold text-slate-700">Presidential Address: </span>
-                  <span className="text-[#3AAFA9] font-bold">{activeBatch.managingTrusteeName || "Sri T.P. Ramachandran"}</span>
-                  <span className="text-slate-500 text-[10px]"> (Managing Trustee)</span>
+                  <span className="text-[#3AAFA9] font-bold sm:text-right">{activeBatch.managingTrusteeName || "Sri T.P. Ramachandran"} <span className="text-slate-500 text-[10px] font-normal">(Managing Trustee)</span></span>
                 </div>
-                <div>
+                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                   <span className="font-bold text-slate-700">Felicitation Address: </span>
-                  <span className="text-[#3AAFA9] font-bold">{activeBatch.principalName}</span>
-                  <span className="text-slate-500 text-[10px]"> (Principal)</span>
+                  <span className="text-[#3AAFA9] font-bold sm:text-right">{activeBatch.principalName || "Dr. V. Radhika"} <span className="text-slate-500 text-[10px] font-normal">(Principal)</span></span>
                 </div>
-                <div>
+                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                   <span className="font-bold text-slate-700">Welcome Address: </span>
-                  <span className="text-[#3AAFA9] font-bold">{activeBatch.hodName}</span>
-                  <span className="text-slate-500 text-[10px]"> (HOD, CSDA)</span>
+                  <span className="text-[#3AAFA9] font-bold sm:text-right">{activeBatch.hodName || (activeBatch.deeksharambhVersion === '5.0' ? 'Dr. M. Lingaraj' : 'Dr. R. Sasikala')} <span className="text-slate-500 text-[10px] font-normal">(HOD, CSDA)</span></span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border-t border-b border-slate-200 py-2.5 text-xs max-w-md mx-auto font-medium text-slate-700">
+            <div className="grid grid-cols-3 gap-2 border-t border-b border-[#3AAFA9]/20 py-3 text-xs max-w-md mx-auto font-medium text-slate-700 relative z-10">
               <div>
-                <p className="text-[10px] text-slate-500 uppercase font-bold">Start Date</p>
+                <p className="text-[10px] text-[#2b8a85] uppercase font-bold">Start Date</p>
                 <p className="mt-0.5 font-bold text-[#1b625f]">{activeBatch.startDate}</p>
               </div>
-              <div className="border-l border-r border-slate-200">
-                <p className="text-[10px] text-slate-500 uppercase font-bold">Time</p>
+              <div className="border-l border-r border-[#3AAFA9]/20">
+                <p className="text-[10px] text-[#2b8a85] uppercase font-bold">Time</p>
                 <p className="mt-0.5 font-bold text-[#1b625f]">10:00 AM</p>
               </div>
               <div>
-                <p className="text-[10px] text-slate-500 uppercase font-bold">Venue</p>
+                <p className="text-[10px] text-[#2b8a85] uppercase font-bold">Venue</p>
                 <p className="mt-0.5 font-bold text-[#1b625f]">Auditorium</p>
               </div>
             </div>
 
             {activeBatch.invitationFileName && (
-              <p className="text-xs text-emerald-600 font-semibold flex items-center justify-center gap-1">
+              <p className="text-xs text-emerald-600 font-semibold flex items-center justify-center gap-1 relative z-10">
                 <FileText className="w-3.5 h-3.5" />
                 Custom Invitation Active: {activeBatch.invitationFileName}
               </p>

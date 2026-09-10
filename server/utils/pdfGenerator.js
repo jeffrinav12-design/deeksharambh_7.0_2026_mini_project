@@ -2,7 +2,7 @@ import PDFDocument from 'pdfkit';
 
 // Helper for letterhead
 function drawLetterhead(doc) {
-  doc.font('Times-Bold').fontSize(14).text("SANKARA COLLEGE OF SCIENCE AND COMMERCE (Autonomous)", { align: 'center' });
+  doc.font('Times-Bold').fontSize(14).text("SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)", { align: 'center' });
   doc.font('Times-Roman').fontSize(9)
      .text("Affiliated to Bharathiar University, Coimbatore | Approved by AICTE, New Delhi", { align: 'center' })
      .text("Re-Accredited by NAAC with A+ Grade (Cycle II) | An ISO 9001:2015 Certified Institution", { align: 'center' })
