@@ -140,14 +140,14 @@ export default function Login({ onLoginSuccess }) {
         
         {/* Branding header */}
         <div className="flex flex-col items-center mb-6 text-center">
-          <svg className="w-12 h-12 text-[#3AAFA9] animate-pulse mb-3" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M50 25 L80 40 L50 55 L20 40 Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="3"/>
-            <path d="M50 55 L50 95" stroke="currentColor" strokeWidth="4"/>
-          </svg>
-          <h1 className="text-xl font-bold text-slate-900 tracking-wide uppercase">Deeksharambh</h1>
-          <p className="text-xs text-slate-500 mt-1">Bridge Course Management System</p>
-          <p className="text-[10px] text-[#3AAFA9] font-bold tracking-widest uppercase mt-0.5">SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</p>
+          <img 
+            src="/logo.jpg" 
+            alt="Sankara Deeksharambh Official Emblem" 
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-[#3AAFA9]/40 shadow-xl object-cover mb-3 animate-pulse-glow"
+          />
+          <h1 className="text-xl font-extrabold text-[#1b625f] tracking-wide uppercase font-serif">Sankara Deeksharambh</h1>
+          <p className="text-xs text-slate-500 font-bold mt-1">Bridge Course Management System</p>
+          <p className="text-[10px] text-[#3AAFA9] font-black tracking-widest uppercase mt-0.5">SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</p>
         </div>
 
         {/* Role Selection Tabs (Only Faculty & Student) */}

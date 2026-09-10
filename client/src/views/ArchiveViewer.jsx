@@ -604,6 +604,11 @@ export default function ArchiveViewer({ activeBatch }) {
                 
                 {/* Header */}
                 <div className="space-y-1">
+                  <img 
+                    src="/logo.jpg" 
+                    alt="Sankara Deeksharambh Logo" 
+                    className="w-16 h-16 rounded-xl border border-white/20 shadow-md mx-auto mb-2 object-cover" 
+                  />
                   <h4 className="font-bold text-white text-base tracking-wide uppercase">SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</h4>
                   <p className="text-[10px] text-gray-400 font-medium">Affiliated to Bharathiar University | Approved by AICTE</p>
                   <p className="text-[10px] text-gray-400 font-medium">Accredited with A+ Grade by NAAC | Coimbatore - 641035</p>

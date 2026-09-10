@@ -46,9 +46,11 @@ export default function Sidebar({ role, onLogout, isOpen, onClose }) {
           {/* Branding header */}
           <div className="px-5 pb-5 border-b border-[#3AAFA9]/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3AAFA9] to-[#2b8a85] flex items-center justify-center font-black text-white text-lg shadow-md animate-pulse-teal">
-                D
-              </div>
+              <img 
+                src="/logo.jpg" 
+                alt="Sankara Deeksharambh Logo" 
+                className="w-10 h-10 rounded-xl border-2 border-[#3AAFA9]/40 shadow-sm object-cover shrink-0" 
+              />
               <div>
                 <h1 className="text-sm font-black text-[#1b625f] tracking-wider uppercase">Deeksharambh</h1>
                 <p className="text-[10px] text-[#2b8a85] font-bold">CSDA Portal v7.0</p>

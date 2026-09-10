@@ -258,6 +258,11 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
             <div className="absolute -left-16 -bottom-16 w-36 h-36 rounded-full bg-[#c2c19f]/20 blur-xl pointer-events-none"></div>
 
             <div className="space-y-1 relative z-10">
+              <img 
+                src="/logo.jpg" 
+                alt="Official Sankara Deeksharambh Emblem" 
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-[#3AAFA9]/40 shadow-md mx-auto mb-3 object-cover animate-pulse-glow"
+              />
               <h4 className="font-extrabold text-[#1b625f] text-sm sm:text-base tracking-wider uppercase font-serif">
                 SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)
               </h4>

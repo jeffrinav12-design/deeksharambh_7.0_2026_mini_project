@@ -31,13 +31,12 @@ export default function Header({ userName, role, activeBatch, batches = [], onSe
           <Menu className="w-5 h-5 text-[#3AAFA9]" />
         </button>
 
-        {/* Sankara College Logo Outline SVG */}
-        <svg className="w-8 h-8 sm:w-10 sm:h-10 text-[#3AAFA9] animate-pulse shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M50 25 L80 40 L50 55 L20 40 Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="3"/>
-          <path d="M50 55 L50 95" stroke="currentColor" strokeWidth="4"/>
-          <circle cx="50" cy="5" r="3" fill="currentColor"/>
-        </svg>
+        {/* Official Sankara Deeksharambh Emblem Logo */}
+        <img 
+          src="/logo.jpg" 
+          alt="Sankara Deeksharambh College Emblem" 
+          className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border-2 border-[#3AAFA9]/40 shadow-sm object-cover shrink-0 animate-pulse-glow"
+        />
 
         <div>
           <h2 className="text-xs sm:text-sm font-black text-[#1b625f] tracking-wide uppercase line-clamp-1">
