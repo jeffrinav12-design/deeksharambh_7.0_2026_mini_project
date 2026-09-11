@@ -13,14 +13,13 @@ export default function Sidebar({ role, onLogout, isOpen, onClose }) {
     { to: "/ai-studio", label: "Google AI Studio", icon: Sparkles, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/archive", label: "Batch Archive Viewer", icon: Archive, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/setup", label: "New Batch Setup", icon: PlusCircle, roles: ['admin', 'faculty'] },
-    { to: "/templates", label: "Document & Templates", icon: FileText, roles: ['admin', 'faculty', 'viewer'] },
+    { to: "/templates", label: "Unified Document & SIP Portal", icon: FileText, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/syllabus", label: "Syllabus Manager", icon: BookOpen, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/schedule", label: "Schedule Manager", icon: Calendar, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/students", label: "Student Master", icon: Users, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/attendance", label: "Attendance Module", icon: CheckSquare, roles: ['admin', 'faculty'] },
     { to: "/assessment", label: "Assessment & Exam Portal", icon: FileQuestion, roles: ['admin', 'faculty', 'student', 'viewer'] },
     { to: "/results", label: "Result Analysis", icon: BarChart3, roles: ['admin', 'faculty', 'viewer'] },
-    { to: "/sip-report", label: "SIP Report Generator", icon: FileText, roles: ['admin', 'faculty', 'viewer'] },
     { to: "/photos", label: "Photo Gallery", icon: ImageIcon, roles: ['admin', 'faculty'] }
   ];
 

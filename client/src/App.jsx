@@ -248,7 +248,7 @@ export default function App() {
                     />
                     <Route 
                       path="/sip-report" 
-                      element={<SipReportGenerator activeBatch={activeBatch} role={role} />} 
+                      element={<Navigate to="/templates" replace />} 
                     />
                     <Route 
                       path="/photos" 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 import { 
   Users, CheckSquare, FileText, Award, AlertTriangle, 
-  Calendar, FileQuestion, ArrowRight, HelpCircle, Download, Upload, Trash2, Mail 
+  Calendar, FileQuestion, ArrowRight, HelpCircle, Download, Upload, Trash2, Mail, Sparkles, ChevronRight
 } from 'lucide-react';
 
 import { downloadFile } from '../utils/downloadHelper';
@@ -17,6 +17,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
     advancedLearners: 0,
     slowLearners: 0
   });
+  const [slowLearnersList, setSlowLearnersList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,24 +25,25 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
   }, []);
 
   useEffect(() => {
-    if (activeBatch) {
+    if (activeBatch?._id) {
       fetchStats(activeBatch._id);
+      fetchSlowLearners(activeBatch._id);
     }
   }, [activeBatch]);
 
   const defaultFallbackBatches = [
     {
-      _id: 'batch_5.0_2024',
-      batchYearRange: '2024-2027',
-      academicYear: '2024-2025',
-      deeksharambhVersion: '5.0',
+      _id: 'batch_7.0_2026',
+      batchYearRange: '2026-2029',
+      academicYear: '2026-2027',
+      deeksharambhVersion: '7.0',
       departmentName: 'Computer Science & Digital Applications',
-      startDate: '2024-07-02',
-      endDate: '2024-07-09',
-      hodName: 'Dr. M. Lingaraj',
+      startDate: '2026-08-01',
+      endDate: '2026-08-15',
+      hodName: 'Dr. R. Sasikala',
       principalName: 'Dr. V. Radhika',
       className: 'I B.Sc. CSDA',
-      totalStudents: 47
+      totalStudents: 50
     },
     {
       _id: 'batch_6.0_2025',
@@ -57,17 +59,17 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
       totalStudents: 43
     },
     {
-      _id: 'batch_7.0_2026',
-      batchYearRange: '2026-2029',
-      academicYear: '2026-2027',
-      deeksharambhVersion: '7.0',
+      _id: 'batch_5.0_2024',
+      batchYearRange: '2024-2027',
+      academicYear: '2024-2025',
+      deeksharambhVersion: '5.0',
       departmentName: 'Computer Science & Digital Applications',
-      startDate: '2026-08-01',
-      endDate: '2026-08-15',
-      hodName: 'Dr. R. Sasikala',
+      startDate: '2024-07-02',
+      endDate: '2024-07-09',
+      hodName: 'Dr. M. Lingaraj',
       principalName: 'Dr. V. Radhika',
       className: 'I B.Sc. CSDA',
-      totalStudents: 50
+      totalStudents: 47
     }
   ];
 
@@ -92,24 +94,33 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
     setLoading(true);
     try {
       const res = await axios.get(`/api/batches/${batchId}/stats`);
-      setStats(res.data || {
-        totalStudents: 120,
-        attendancePercentage: 92.5,
-        assessmentsSubmitted: 450,
-        advancedLearners: 42,
-        slowLearners: 18
+      setStats({
+        totalStudents: res.data?.totalStudents || 0,
+        attendancePercentage: res.data?.attendancePercentage || 0,
+        assessmentsSubmitted: res.data?.assessmentsSubmitted || 0,
+        advancedLearners: res.data?.advancedLearners || 0,
+        slowLearners: res.data?.slowLearners || 0
       });
     } catch (err) {
-      console.warn("Using default stats fallback in Dashboard:", err.message);
+      console.warn("Error fetching stats:", err.message);
       setStats({
-        totalStudents: 120,
-        attendancePercentage: 92.5,
-        assessmentsSubmitted: 450,
-        advancedLearners: 42,
-        slowLearners: 18
+        totalStudents: activeBatch?.totalStudents || 0,
+        attendancePercentage: 0,
+        assessmentsSubmitted: 0,
+        advancedLearners: 0,
+        slowLearners: 0
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSlowLearners = async (batchId) => {
+    try {
+      const res = await axios.get(`/api/batches/${batchId}/slow-learners`);
+      setSlowLearnersList(res.data || []);
+    } catch (err) {
+      setSlowLearnersList([]);
     }
   };
 
@@ -190,7 +201,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
   return (
     <div className="space-y-8 bg-white">
-      {/* Upper banner card - #3AAFA9 Teal & #c2c19f Sage Theme */}
+      {/* Upper banner card */}
       <div className="scroll-reveal-left rounded-2xl bg-gradient-to-r from-[#1b625f] via-[#2b8a85] to-[#3AAFA9] p-8 border border-[#3AAFA9]/30 relative overflow-hidden shadow-xl text-white">
         <div className="absolute w-80 h-80 rounded-full bg-white/10 blur-[70px] right-[-10%] top-[-20%]"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -208,6 +219,35 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <p className="text-xs text-[#e6f7f6] font-semibold">Deeksharambh v{activeBatch.deeksharambhVersion}</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Single Clean Google AI Studio Feature Option */}
+      <div className="scroll-reveal bg-gradient-to-r from-[#1b625f]/10 via-[#3AAFA9]/10 to-[#f0faf9] border border-[#3AAFA9]/30 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#3AAFA9] text-white flex items-center justify-center shrink-0 shadow-md">
+              <Sparkles className="w-6 h-6 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-black text-[#1b625f]">Google AI Studio</h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#3AAFA9]/20 text-[#1b625f] text-[10px] font-bold uppercase border border-[#3AAFA9]/30">
+                  Gemini Powered
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 mt-1 max-w-xl">
+                Access AI creation capabilities: generate Bloom's taxonomy questions, course unit syllabi, student induction summaries, and orientation timetables.
+              </p>
+            </div>
+          </div>
+          <NavLink
+            to="/ai-studio"
+            className="px-5 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2b8a85] text-white font-extrabold text-xs shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0"
+          >
+            <span>Open Google AI Studio Workspace</span>
+            <ChevronRight className="w-4 h-4" />
+          </NavLink>
         </div>
       </div>
 
@@ -251,17 +291,13 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
             </div>
           </div>
 
-          {/* Interactive Invitation Card Body - Mild Light Pastel Background Theme */}
+          {/* Interactive Invitation Card Body - Professional Mild Light Pastel Theme */}
           <div className="max-w-2xl mx-auto p-5 sm:p-8 md:p-10 rounded-2xl border-2 border-[#3AAFA9]/40 bg-gradient-to-br from-[#f0faf9] via-[#e6f7f6] to-[#f9f8f3] text-center space-y-5 shadow-lg relative overflow-hidden">
-            {/* Background Ornamental Ring Accents */}
-            <div className="absolute -right-16 -top-16 w-36 h-36 rounded-full bg-[#3AAFA9]/10 blur-xl pointer-events-none"></div>
-            <div className="absolute -left-16 -bottom-16 w-36 h-36 rounded-full bg-[#c2c19f]/20 blur-xl pointer-events-none"></div>
-
             <div className="space-y-1 relative z-10">
               <img 
                 src="/logo.jpg" 
                 alt="Official Sankara Deeksharambh Emblem" 
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-[#3AAFA9]/40 shadow-md mx-auto mb-3 object-cover animate-pulse-glow"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-[#3AAFA9]/40 shadow-md mx-auto mb-3 object-cover"
               />
               <h4 className="font-extrabold text-[#1b625f] text-sm sm:text-base tracking-wider uppercase font-serif">
                 SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)
@@ -339,43 +375,37 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
 
       {activeBatch && (
         <>
-          {/* Quick Actions */}
+          {/* Reorganized Clean Quick Actions */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <button
-              onClick={handleExportCircular}
+              onClick={handleExportInvitationPdf}
               className="scroll-reveal-pop delay-1 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
             >
               <div>
-                <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Circular</h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  {activeBatch.circularFileName ? `Uploaded: ${activeBatch.circularFileName}` : 'Export official circular Word file'}
-                </p>
+                <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Invitation (PDF)</h4>
+                <p className="text-xs text-slate-500 mt-1">Export formatted invitation card PDF</p>
               </div>
               <Download className="w-5 h-5 text-[#3AAFA9] group-hover:scale-110 transition-transform" />
             </button>
 
             <button
-              onClick={handleExportCover}
+              onClick={handleExportInvitationDocx}
               className="scroll-reveal-pop delay-2 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
             >
               <div>
-                <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Cover Brochure</h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  {activeBatch.brochureFileName ? `Uploaded: ${activeBatch.brochureFileName}` : 'Export brochure cover Word file'}
-                </p>
+                <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Invitation (Word)</h4>
+                <p className="text-xs text-slate-500 mt-1">Export formatted invitation DOCX</p>
               </div>
               <Download className="w-5 h-5 text-[#3AAFA9] group-hover:scale-110 transition-transform" />
             </button>
 
             <button
-              onClick={handleExportInvitationPdf}
+              onClick={handleExportCircular}
               className="scroll-reveal-pop delay-3 flex items-center justify-between p-5 rounded-xl bg-white border border-[#3AAFA9]/20 text-left hover:border-[#3AAFA9] hover:shadow-md transition-all group cursor-pointer"
             >
               <div>
-                <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Invitation (PDF)</h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  {activeBatch.invitationFileName ? `Uploaded: ${activeBatch.invitationFileName}` : 'Export invitation card PDF file'}
-                </p>
+                <h4 className="font-bold text-[#1b625f] group-hover:text-[#3AAFA9] text-sm">Download Circular</h4>
+                <p className="text-xs text-slate-500 mt-1">Export official department circular</p>
               </div>
               <Download className="w-5 h-5 text-[#3AAFA9] group-hover:scale-110 transition-transform" />
             </button>
@@ -392,7 +422,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
             </NavLink>
           </div>
 
-          {/* Statistics Grid */}
+          {/* Dynamic Statistics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="scroll-reveal-scale delay-1 glass-card p-5 rounded-xl border border-[#3AAFA9]/20 flex flex-col justify-between min-h-[110px]">
               <div className="flex justify-between items-start">
@@ -434,6 +464,62 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               <h2 className="text-2xl font-black text-[#1b625f] mt-4">{stats.slowLearners}</h2>
             </div>
           </div>
+
+          {/* Batch-Specific Slow Learners Roster Section */}
+          <div className="scroll-reveal bg-white rounded-2xl p-6 border border-[#3AAFA9]/20 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <h3 className="text-base font-bold text-[#1b625f]">
+                  Slow Learners List — Batch {activeBatch.batchYearRange} (v{activeBatch.deeksharambhVersion})
+                </h3>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">
+                {slowLearnersList.length} Identified
+              </span>
+            </div>
+
+            {slowLearnersList.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full styled-table text-xs text-left">
+                  <thead>
+                    <tr className="bg-[#f0faf9] text-[#1b625f]">
+                      <th className="p-3">Student Name</th>
+                      <th className="p-3">Roll / Reg. No</th>
+                      <th className="p-3">Stream</th>
+                      <th className="p-3">Score %</th>
+                      <th className="p-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {slowLearnersList.map((st, i) => (
+                      <tr key={st._id || i} className="border-b border-slate-100 hover:bg-[#f0faf9]/50">
+                        <td className="p-3 font-bold text-slate-800">{st.name}</td>
+                        <td className="p-3 font-mono text-slate-600">{st.rollNo}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            st.mathsStream === 'M' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {st.mathsStream === 'M' ? 'Maths' : 'Non-Maths'}
+                          </span>
+                        </td>
+                        <td className="p-3 font-bold text-amber-700">{st.percentage}%</td>
+                        <td className="p-3">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                            Remedial Support Required
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-6 text-center bg-amber-50/50 border border-amber-200/60 rounded-xl text-amber-800 text-xs font-bold">
+                No slow learners identified for this batch.
+              </div>
+            )}
+          </div>
         </>
       )}
 
@@ -441,7 +527,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
       <div className="scroll-reveal space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold text-[#1b625f] tracking-wide">Select Academic Batch</h3>
-          <span className="text-xs text-slate-500">Click any batch card to switch active invitation and records</span>
+          <span className="text-xs text-slate-500">Click any batch card to switch active records and statistics</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {batches.map(b => (
@@ -450,6 +536,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               onClick={() => {
                 setActiveBatch(b);
                 fetchStats(b._id);
+                fetchSlowLearners(b._id);
               }}
               className={`p-6 rounded-xl border text-left transition-all glass-card glass-card-hover cursor-pointer relative group ${
                 activeBatch && activeBatch._id === b._id 

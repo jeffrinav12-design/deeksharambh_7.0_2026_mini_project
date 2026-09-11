@@ -712,21 +712,35 @@ app.get('/api/batches/:batchId/results', authenticateToken, async (req, res) => 
   }
 });
 
-// Stats Summary
+// Dynamic Stats Summary
 app.get('/api/batches/:batchId/stats', authenticateToken, async (req, res) => {
   try {
-    const students = await Student.find({ batchId: req.params.batchId });
-    const results = await Result.find({ batchId: req.params.batchId });
-    const submittedCount = await Response.countDocuments({ batchId: req.params.batchId });
+    const { batchId } = req.params;
+    const students = await Student.find({ batchId });
+    const batchDoc = await Batch.findById(batchId);
+    
+    const totalStudents = students.length > 0 ? students.length : (batchDoc?.totalStudents || 0);
 
-    const totalStudents = students.length || 45;
-    const advancedLearners = results.filter(r => !r.isAbsent && Number(r.percentage) >= 70).length;
-    const slowLearners = totalStudents - advancedLearners;
+    const results = await Result.find({ batchId }).populate('studentId');
+    const activeResults = results.filter(r => !r.isAbsent);
+
+    const advancedLearners = activeResults.filter(r => Number(r.percentage || 0) >= 70).length;
+    const slowLearners = activeResults.filter(r => Number(r.percentage || 0) < 70).length;
+
+    const attendanceRecords = await Attendance.find({ batchId });
+    const presents = attendanceRecords.filter(r => r.status === 'P').length;
+    const totalRecords = attendanceRecords.length;
+    const attendancePercentage = totalRecords > 0 
+      ? Number(((presents / totalRecords) * 100).toFixed(1)) 
+      : 100;
+
+    const responsesCount = await Response.countDocuments({ batchId });
+    const assessmentsSubmitted = responsesCount || activeResults.length;
 
     res.json({
       totalStudents,
-      attendancePercentage: 92.5,
-      assessmentsSubmitted: submittedCount || results.length || totalStudents,
+      attendancePercentage,
+      assessmentsSubmitted,
       advancedLearners,
       slowLearners
     });
@@ -734,6 +748,36 @@ app.get('/api/batches/:batchId/stats', authenticateToken, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Dynamic Slow Learners API for specific Batch
+app.get('/api/batches/:batchId/slow-learners', authenticateToken, async (req, res) => {
+  try {
+    const { batchId } = req.params;
+    const results = await Result.find({ batchId }).populate('studentId');
+    
+    // Filter slow learners (percentage < 70 or total < 50)
+    const slowLearnerRecords = results.filter(r => !r.isAbsent && Number(r.percentage || 0) < 70);
+    
+    const list = slowLearnerRecords.map(r => ({
+      _id: r._id,
+      studentId: r.studentId?._id || r.studentId,
+      name: r.studentId?.name || 'STUDENT',
+      rollNo: r.studentId?.rollNo || r.studentId?.registerNo || '-',
+      mathsStream: r.studentId?.mathsStream || 'M',
+      percentage: r.percentage,
+      total: r.total,
+      tamil: r.tamil,
+      english: r.english,
+      maths: r.maths,
+      core: r.core
+    }));
+
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 // Document Generation (Circular and Cover Page)
 app.get('/api/batches/:id/export/circular', authenticateToken, async (req, res) => {
@@ -1689,36 +1733,6 @@ app.get('/api/batches/:batchId/export/photos', authenticateToken, async (req, re
     const photos = await Photo.find({ batchId: req.params.batchId });
     const buffer = await generatePhotoPage(batch, photos);
     sendBuffer(res, buffer, `PhotoGallery_${batch.batchYearRange}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Active batch metrics/dashboard statistics
-app.get('/api/batches/:batchId/stats', authenticateToken, async (req, res) => {
-  try {
-    const students = await Student.find({ batchId: req.params.batchId });
-    const total = students.length;
-
-    const results = await Result.find({ batchId: req.params.batchId });
-    const active = results.filter(r => !r.isAbsent);
-
-    const advCount = active.filter(r => r.percentage >= 70).length;
-    const slowCount = active.filter(r => r.percentage < 70).length;
-
-    // Compute average attendance
-    const attendanceRecords = await Attendance.find({ batchId: req.params.batchId });
-    const presents = attendanceRecords.filter(r => r.status === 'P').length;
-    const totalRecords = attendanceRecords.length;
-    const attPercentage = totalRecords > 0 ? Number(((presents / totalRecords) * 100).toFixed(1)) : 100;
-
-    res.json({
-      totalStudents: total,
-      attendancePercentage: attPercentage,
-      assessmentsSubmitted: active.length,
-      advancedLearners: advCount,
-      slowLearners: slowCount
-    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

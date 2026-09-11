@@ -235,7 +235,7 @@ export default function StudentMaster({ activeBatch, role }) {
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-lg glass-input text-sm uppercase"
-                    placeholder="e.g. ANGELIN GIFTY.I"
+                    placeholder="e.g. Jeffrina"
                   />
                 </div>
                 <div>
