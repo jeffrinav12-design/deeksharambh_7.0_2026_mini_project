@@ -200,19 +200,23 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
   };
 
   return (
-    <div className="space-y-8 bg-white">
-      {/* Upper banner card */}
-      <div className="scroll-reveal-left rounded-2xl bg-gradient-to-r from-[#1b625f] via-[#2b8a85] to-[#3AAFA9] p-8 border border-[#3AAFA9]/30 relative overflow-hidden shadow-xl text-white">
-        <div className="absolute w-80 h-80 rounded-full bg-white/10 blur-[70px] right-[-10%] top-[-20%]"></div>
+    <div className="space-y-8 bg-white max-w-full">
+      {/* Upper banner card - Full Width & Fully Visible */}
+      <div className="scroll-reveal-left rounded-2xl bg-gradient-to-r from-[#1b625f] via-[#2b8a85] to-[#3AAFA9] p-6 sm:p-8 border border-[#3AAFA9]/30 relative shadow-xl text-white w-full">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-black text-white tracking-wide">Deeksharambh Management Portal</h1>
-            <p className="text-[#e6f7f6] text-sm max-w-xl font-medium">
-              Manage student induction schedules, syllabi, class rosters, attendance validation, automated exams, and result analytics reports.
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-white/20 border border-white/30 rounded-full text-xs font-black uppercase text-white">
+                Sankara Deeksharambh 7.0
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wide">Deeksharambh Management Portal</h1>
+            <p className="text-[#e6f7f6] text-xs sm:text-sm max-w-2xl font-medium leading-relaxed">
+              Department of Computer Science & Digital Applications (CSDA). Manage student induction schedules, syllabi, class rosters, attendance validation, automated exams, and result analytics reports.
             </p>
           </div>
           {activeBatch && (
-            <div className="bg-white/15 backdrop-blur-md px-6 py-4 rounded-xl border border-white/30 text-right min-w-[220px] shadow-sm">
+            <div className="bg-white/15 backdrop-blur-md px-6 py-4 rounded-xl border border-white/30 text-right min-w-[220px] shadow-sm shrink-0">
               <span className="text-xs text-[#c2c19f] font-bold uppercase tracking-wider">Active Batch</span>
               <h3 className="text-white font-black text-xl">{activeBatch.batchYearRange}</h3>
               <p className="text-xs text-[#e6f7f6] mt-1">AY: {activeBatch.academicYear}</p>
@@ -223,7 +227,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
       </div>
 
       {/* Single Clean Google AI Studio Feature Option */}
-      <div className="scroll-reveal bg-gradient-to-r from-[#1b625f]/10 via-[#3AAFA9]/10 to-[#f0faf9] border border-[#3AAFA9]/30 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+      <div className="scroll-reveal bg-gradient-to-r from-[#1b625f]/10 via-[#3AAFA9]/10 to-[#f0faf9] border border-[#3AAFA9]/30 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[#3AAFA9] text-white flex items-center justify-center shrink-0 shadow-md">
@@ -251,9 +255,9 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
         </div>
       </div>
 
-      {/* Automatic Active Batch Inaugural Invitation Hero Display */}
+      {/* Automatic Active Batch Inaugural Invitation Hero Display - 100% Fully Visible */}
       {activeBatch && (
-        <div className="scroll-reveal-scale glass-card p-6 md:p-8 rounded-2xl border-2 border-[#3AAFA9]/30 bg-white space-y-6 shadow-xl relative overflow-hidden">
+        <div className="scroll-reveal-scale glass-card p-6 md:p-8 rounded-2xl border-2 border-[#3AAFA9]/30 bg-white space-y-6 shadow-xl relative w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3AAFA9]/20 pb-4">
             <div className="flex items-center gap-2">
               <Mail className="w-5 h-5 text-[#3AAFA9]" />
@@ -291,33 +295,33 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
             </div>
           </div>
 
-          {/* Interactive Invitation Card Body - Professional Mild Light Pastel Theme */}
-          <div className="max-w-2xl mx-auto p-5 sm:p-8 md:p-10 rounded-2xl border-2 border-[#3AAFA9]/40 bg-gradient-to-br from-[#f0faf9] via-[#e6f7f6] to-[#f9f8f3] text-center space-y-5 shadow-lg relative overflow-hidden">
+          {/* Interactive Invitation Card Body - 100% Fully Visible Unclipped Layout */}
+          <div className="w-full max-w-4xl mx-auto p-6 sm:p-8 md:p-10 rounded-2xl border-2 border-[#3AAFA9]/40 bg-gradient-to-br from-[#f0faf9] via-[#e6f7f6] to-[#f9f8f3] text-center space-y-6 shadow-lg relative">
             <div className="space-y-1 relative z-10">
               <img 
                 src="/logo.jpg" 
                 alt="Official Sankara Deeksharambh Emblem" 
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-[#3AAFA9]/40 shadow-md mx-auto mb-3 object-cover"
               />
-              <h4 className="font-extrabold text-[#1b625f] text-sm sm:text-base tracking-wider uppercase font-serif">
+              <h4 className="font-extrabold text-[#1b625f] text-sm sm:text-base md:text-lg tracking-wider uppercase font-serif">
                 SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)
               </h4>
               <p className="text-[10px] sm:text-[11px] text-slate-600 font-medium">Affiliated to Bharathiar University | Approved by AICTE | NAAC A+ Grade</p>
               <p className="text-[10px] sm:text-[11px] text-slate-600 font-medium">Saravanampatty, Coimbatore - 641035</p>
-              <div className="w-28 h-[2px] bg-gradient-to-r from-[#3AAFA9] via-[#c2c19f] to-[#3AAFA9] mx-auto mt-2"></div>
+              <div className="w-32 h-[2px] bg-gradient-to-r from-[#3AAFA9] via-[#c2c19f] to-[#3AAFA9] mx-auto mt-2"></div>
             </div>
 
             <div className="relative z-10">
-              <span className="px-4 py-1.5 rounded-full bg-white text-[#1b625f] text-xs font-black tracking-widest uppercase border-2 border-[#3AAFA9]/40 shadow-xs inline-block">
+              <span className="px-5 py-1.5 rounded-full bg-white text-[#1b625f] text-xs font-black tracking-widest uppercase border-2 border-[#3AAFA9]/40 shadow-xs inline-block">
                 CORDIAL INVITATION
               </span>
             </div>
 
-            <p className="text-slate-700 text-xs sm:text-sm font-serif italic max-w-md mx-auto leading-relaxed relative z-10">
+            <p className="text-slate-700 text-xs sm:text-sm font-serif italic max-w-xl mx-auto leading-relaxed relative z-10">
               The Management, Principal & Faculty of the Department of Computer Science with Data Analytics cordially invite you to the Inaugural Function of the Student Induction Programme
             </p>
 
-            <div className="space-y-1 bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-[#3AAFA9]/30 shadow-xs relative z-10">
+            <div className="space-y-1 bg-white/90 backdrop-blur-sm p-4 sm:p-5 rounded-xl border border-[#3AAFA9]/30 shadow-xs relative z-10 max-w-lg mx-auto">
               <h2 className="text-xl sm:text-2xl font-black text-[#1b625f] tracking-wider uppercase font-serif">
                 Deeksharambh {activeBatch.deeksharambhVersion}
               </h2>
@@ -326,11 +330,11 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-white/90 backdrop-blur-sm border border-[#3AAFA9]/30 space-y-2.5 text-left max-w-md mx-auto shadow-xs relative z-10">
-              <h5 className="text-[11px] font-extrabold text-[#1b625f] uppercase tracking-wider text-center border-b border-slate-200 pb-1.5">
+            <div className="p-4 sm:p-5 rounded-xl bg-white/95 backdrop-blur-sm border border-[#3AAFA9]/30 space-y-3 text-left max-w-lg mx-auto shadow-xs relative z-10">
+              <h5 className="text-[11px] sm:text-xs font-extrabold text-[#1b625f] uppercase tracking-wider text-center border-b border-slate-200 pb-2">
                 Dignitaries of the Function
               </h5>
-              <div className="text-xs space-y-2">
+              <div className="text-xs sm:text-sm space-y-2.5">
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                   <span className="font-bold text-slate-700">Presidential Address: </span>
                   <span className="text-[#3AAFA9] font-bold sm:text-right">{activeBatch.managingTrusteeName || "Sri T.P. Ramachandran"} <span className="text-slate-500 text-[10px] font-normal">(Managing Trustee)</span></span>
@@ -348,7 +352,7 @@ export default function Dashboard({ activeBatch, setActiveBatch }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border-t border-b border-[#3AAFA9]/20 py-3 text-xs max-w-md mx-auto font-medium text-slate-700 relative z-10">
+            <div className="grid grid-cols-3 gap-2 border-t border-b border-[#3AAFA9]/20 py-3.5 text-xs sm:text-sm max-w-lg mx-auto font-medium text-slate-700 relative z-10">
               <div>
                 <p className="text-[10px] text-[#2b8a85] uppercase font-bold">Start Date</p>
                 <p className="mt-0.5 font-bold text-[#1b625f]">{activeBatch.startDate}</p>
