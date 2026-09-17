@@ -152,12 +152,14 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Google Real-Time OAuth / Sign-In Authentication & Security Notice
+// Google Real-Time OAuth / Sign-In Authentication & Security Notice with MongoDB Profile Sync
 app.post('/api/auth/google', async (req, res) => {
   try {
     const { credential, googleEmail, googlePassword, googleName, registerNo, department, requestedRole } = req.body;
     let email = googleEmail ? googleEmail.trim().toLowerCase() : '';
     let name = googleName || '';
+    let googleSubId = '';
+    let pictureUrl = '';
 
     if (credential) {
       try {
@@ -167,6 +169,8 @@ app.post('/api/auth/google', async (req, res) => {
           const googlePayload = JSON.parse(payloadJson);
           if (googlePayload.email) email = googlePayload.email.trim().toLowerCase();
           if (googlePayload.name) name = googlePayload.name;
+          if (googlePayload.sub) googleSubId = googlePayload.sub;
+          if (googlePayload.picture) pictureUrl = googlePayload.picture;
         }
       } catch (e) {
         console.error("Error parsing Google credential payload:", e);
@@ -174,7 +178,7 @@ app.post('/api/auth/google', async (req, res) => {
     }
 
     const userRole = requestedRole || 'faculty';
-    const targetEmail = email || 'jeffrinavcsda2024@sankara.ac.in';
+    const targetEmail = email || 'user@gmail.com';
     
     // Format Name nicely from email or google payload
     let targetName = name;
@@ -186,7 +190,44 @@ app.post('/api/auth/google', async (req, res) => {
     const targetRegisterNo = userRole === 'student' ? (registerNo || '24101') : '';
     const targetDepartment = userRole === 'student' ? (department || 'Computer Science & Digital Applications') : 'Faculty of CSDA';
 
-    const token = jwt.sign({ id: new mongoose.Types.ObjectId(), role: userRole, name: targetName }, JWT_SECRET, { expiresIn: '24h' });
+    // MongoDB Storage & Sync: Find or create user document in MongoDB collection
+    let mongoUser = null;
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const queryConditions = [{ email: targetEmail }];
+        if (googleSubId) queryConditions.push({ googleId: googleSubId });
+
+        mongoUser = await User.findOne({ $or: queryConditions });
+
+        if (!mongoUser) {
+          mongoUser = new User({
+            googleId: googleSubId || `google_${Date.now()}`,
+            email: targetEmail,
+            name: targetName,
+            picture: pictureUrl,
+            role: userRole,
+            registerNo: targetRegisterNo,
+            department: targetDepartment
+          });
+          await mongoUser.save();
+          console.log(`New Google authenticated user registered in MongoDB: ${targetEmail}`);
+        } else {
+          mongoUser.googleId = googleSubId || mongoUser.googleId;
+          mongoUser.name = targetName || mongoUser.name;
+          mongoUser.picture = pictureUrl || mongoUser.picture;
+          mongoUser.role = userRole || mongoUser.role;
+          if (targetRegisterNo) mongoUser.registerNo = targetRegisterNo;
+          if (targetDepartment) mongoUser.department = targetDepartment;
+          await mongoUser.save();
+          console.log(`Existing Google user synchronized in MongoDB: ${targetEmail}`);
+        }
+      } catch (dbErr) {
+        console.warn("MongoDB user sync notice:", dbErr.message);
+      }
+    }
+
+    const userId = mongoUser ? mongoUser._id : new mongoose.Types.ObjectId();
+    const token = jwt.sign({ id: userId, role: userRole, name: targetName, email: targetEmail }, JWT_SECRET, { expiresIn: '24h' });
 
     // Security Alert Login Confirmation Notice
     const loginNotification = {
@@ -206,13 +247,15 @@ app.post('/api/auth/google', async (req, res) => {
       email: targetEmail, 
       registerNo: targetRegisterNo, 
       department: targetDepartment,
+      picture: pictureUrl,
+      mongoUserId: userId,
       loginNotification 
     });
   } catch (err) {
     const fallbackRole = req.body.requestedRole || 'faculty';
-    const fallbackEmail = req.body.googleEmail || 'jeffrinavcsda2024@sankara.ac.in';
+    const fallbackEmail = req.body.googleEmail || 'user@gmail.com';
     const fallbackName = fallbackEmail.split('@')[0].toUpperCase();
-    const token = jwt.sign({ id: 'google_fallback', role: fallbackRole, name: fallbackName }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: 'google_fallback', role: fallbackRole, name: fallbackName, email: fallbackEmail }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ 
       token, 
       role: fallbackRole, 
