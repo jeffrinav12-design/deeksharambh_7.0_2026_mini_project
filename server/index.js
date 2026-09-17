@@ -143,12 +143,13 @@ app.post('/api/auth/login', async (req, res) => {
     const assignedName = user ? user.name : targetName;
     const userId = user ? user._id : new mongoose.Types.ObjectId();
 
-    const token = jwt.sign({ id: userId, role: assignedRole, name: assignedName }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, role: assignedRole, name: assignedName });
+    const token = jwt.sign({ id: userId, role: assignedRole, name: assignedName, email: targetEmail }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ token, role: assignedRole, name: assignedName, email: targetEmail });
   } catch (err) {
     const fallbackRole = requestedRole || 'faculty';
-    const token = jwt.sign({ id: 'user_fallback', role: fallbackRole, name: 'FACULTY STAFF' }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, role: fallbackRole, name: 'FACULTY STAFF' });
+    const fallbackEmail = email || `${fallbackRole}@sankara.ac.in`;
+    const token = jwt.sign({ id: 'user_fallback', role: fallbackRole, name: 'FACULTY STAFF', email: fallbackEmail }, JWT_SECRET, { expiresIn: '24h' });
+    res.json({ token, role: fallbackRole, name: 'FACULTY STAFF', email: fallbackEmail });
   }
 });
 

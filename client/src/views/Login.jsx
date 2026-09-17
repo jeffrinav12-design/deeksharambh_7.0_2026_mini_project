@@ -78,10 +78,9 @@ export default function Login({ onLoginSuccess }) {
       onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email, res.data.registerNo, res.data.department);
     } catch (err) {
       console.warn("Firebase Google login popup notice:", err.message);
-      // Fallback to Google Account Verification Modal
-      if (email && email.includes('@')) {
-        setOauthInput(email);
-      }
+      // Open Google Account Verification Modal directly
+      const defaultEmail = email && email.includes('@') ? email : (roleSelection === 'student' ? 'student@gmail.com' : 'faculty@sankara.ac.in');
+      setOauthInput(defaultEmail);
       setOauthModal({ open: true, provider: 'google' });
     } finally {
       setLoading(false);
@@ -93,24 +92,14 @@ export default function Login({ onLoginSuccess }) {
   };
 
   const openGoogleModal = () => {
-    handleFirebaseGoogleSignIn();
+    const defaultEmail = email && email.includes('@') ? email : (roleSelection === 'student' ? 'student@gmail.com' : 'faculty@sankara.ac.in');
+    setOauthInput(defaultEmail);
+    setOauthModal({ open: true, provider: 'google' });
   };
 
   const handleOauthSignIn = async (provider, emailToUse, passwordToUse) => {
-    const targetEmail = (emailToUse || oauthInput || email || '').trim();
-    const targetPassword = (passwordToUse || oauthPasswordInput || password).trim();
-
-    if (!targetEmail) {
-      setError('Please enter your Google / Gmail account address.');
-      setOauthModal({ open: true, provider: 'google' });
-      return;
-    }
-
-    if (!targetEmail.includes('@')) {
-      setError('Please enter a valid Gmail or Institutional email address (e.g. user@gmail.com).');
-      setOauthModal({ open: true, provider: 'google' });
-      return;
-    }
+    const targetEmail = (emailToUse || oauthInput || email || (roleSelection === 'student' ? 'student@gmail.com' : 'faculty@sankara.ac.in')).trim();
+    const targetPassword = (passwordToUse || oauthPasswordInput || password || 'password123').trim();
 
     setLoading(true);
     setError('');
@@ -119,8 +108,8 @@ export default function Login({ onLoginSuccess }) {
         googleEmail: targetEmail,
         googlePassword: targetPassword,
         googleName: targetEmail.split('@')[0].replace(/[\._]/g, ' ').toUpperCase(),
-        registerNo: registerNoInput,
-        department: departmentInput,
+        registerNo: registerNoInput || '24101',
+        department: departmentInput || 'Computer Science & Digital Applications',
         requestedRole: roleSelection
       };
 
@@ -129,20 +118,10 @@ export default function Login({ onLoginSuccess }) {
       if (res.data.loginNotification) {
         localStorage.setItem('lastLoginNotification', JSON.stringify(res.data.loginNotification));
       }
-      onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email, res.data.registerNo, res.data.department);
+      onLoginSuccess(res.data.token, res.data.role || roleSelection, res.data.name, res.data.email || targetEmail, res.data.registerNo || '24101', res.data.department || 'Computer Science & Digital Applications');
     } catch (err) {
       const emailToSave = targetEmail;
       const nameToSave = emailToSave.split('@')[0].toUpperCase();
-      const notif = {
-        id: Date.now(),
-        subject: `🔒 Security Alert: Verified Sign-in to Deeksharambh Portal from ${emailToSave}`,
-        senderName: "Google Security & Deeksharambh Auth",
-        senderEmail: "no-reply@accounts.google.com",
-        recipientEmail: emailToSave,
-        date: "Just Now",
-        body: `Hello ${nameToSave},\n\nYour Google Account (${emailToSave}) was verified and used to sign in to the Deeksharambh 7.0 Bridge Course Management System.\n\nDetails:\n- Role: ${roleSelection.toUpperCase()}\n- Time: ${new Date().toLocaleString()}\n\nIf this was you, no further action is required.`
-      };
-      localStorage.setItem('lastLoginNotification', JSON.stringify(notif));
       onLoginSuccess('token_' + Date.now(), roleSelection, nameToSave, emailToSave, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
     } finally {
       setLoading(false);
@@ -150,20 +129,18 @@ export default function Login({ onLoginSuccess }) {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    if (!email.trim()) {
-      setError('Please enter a valid Gmail address or username.');
-      return;
-    }
+    if (e) e.preventDefault();
+    const targetEmail = (email || (roleSelection === 'student' ? 'student@gmail.com' : 'faculty@sankara.ac.in')).trim();
+    const targetPassword = (password || 'password123').trim();
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post('/api/auth/login', { email, password, requestedRole: roleSelection });
-      onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email || email, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
+      const res = await axios.post('/api/auth/login', { email: targetEmail, password: targetPassword, requestedRole: roleSelection });
+      onLoginSuccess(res.data.token, res.data.role || roleSelection, res.data.name, res.data.email || targetEmail, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
     } catch (err) {
-      const userEmail = email.trim();
+      const userEmail = targetEmail;
       const userName = userEmail.split('@')[0].toUpperCase();
-      onLoginSuccess('token_' + Date.now(), roleSelection, userName, userEmail, roleSelection === 'student' ? '24101' : '', roleSelection === 'student' ? 'Computer Science & Digital Applications' : 'Faculty of CSDA');
+      onLoginSuccess('token_' + Date.now(), roleSelection, userName, userEmail, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
     } finally {
       setLoading(false);
     }
@@ -247,7 +224,6 @@ export default function Login({ onLoginSuccess }) {
               <Mail className="w-4 h-4 text-[#3AAFA9] absolute left-3 top-3" />
               <input
                 type="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg glass-input text-sm"
@@ -257,16 +233,15 @@ export default function Login({ onLoginSuccess }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-1.5">Password</label>
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">Password (Optional)</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-[#3AAFA9] absolute left-3 top-3" />
               <input
                 type="password"
-                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg glass-input text-sm"
-                placeholder="Enter your password"
+                placeholder="Enter your password (or click Log In directly)"
               />
             </div>
           </div>
