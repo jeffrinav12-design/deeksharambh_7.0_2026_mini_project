@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Shield, Mail, Lock, UserCheck, AlertCircle } from 'lucide-react';
+import { signInWithGoogleFirebase } from '../config/firebase.js';
 
 export default function Login({ onLoginSuccess }) {
   const [roleSelection, setRoleSelection] = useState('faculty');
@@ -56,15 +57,43 @@ export default function Login({ onLoginSuccess }) {
     }
   };
 
+  const handleFirebaseGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const firebaseData = await signInWithGoogleFirebase();
+      const res = await axios.post('/api/auth/google', {
+        credential: firebaseData.idToken,
+        googleEmail: firebaseData.email,
+        googleName: firebaseData.displayName,
+        firebaseUid: firebaseData.firebaseUid,
+        photoURL: firebaseData.photoURL,
+        registerNo: registerNoInput || '24101',
+        department: departmentInput || 'Computer Science & Digital Applications',
+        requestedRole: roleSelection
+      });
+      if (res.data.loginNotification) {
+        localStorage.setItem('lastLoginNotification', JSON.stringify(res.data.loginNotification));
+      }
+      onLoginSuccess(res.data.token, res.data.role, res.data.name, res.data.email, res.data.registerNo, res.data.department);
+    } catch (err) {
+      console.warn("Firebase Google login popup notice:", err.message);
+      // Fallback to Google Account Verification Modal
+      if (email && email.includes('@')) {
+        setOauthInput(email);
+      }
+      setOauthModal({ open: true, provider: 'google' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRoleChange = (role) => {
     setRoleSelection(role);
   };
 
   const openGoogleModal = () => {
-    if (email && email.includes('@')) {
-      setOauthInput(email);
-    }
-    setOauthModal({ open: true, provider: 'google' });
+    handleFirebaseGoogleSignIn();
   };
 
   const handleOauthSignIn = async (provider, emailToUse, passwordToUse) => {
