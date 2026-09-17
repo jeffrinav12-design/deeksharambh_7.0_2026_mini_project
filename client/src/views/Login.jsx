@@ -98,8 +98,13 @@ export default function Login({ onLoginSuccess }) {
   };
 
   const handleOauthSignIn = async (provider, emailToUse, passwordToUse) => {
-    const targetEmail = (emailToUse || oauthInput || email || (roleSelection === 'student' ? 'student@gmail.com' : 'faculty@sankara.ac.in')).trim();
-    const targetPassword = (passwordToUse || oauthPasswordInput || password || 'password123').trim();
+    const targetEmail = (emailToUse || oauthInput || email || '').trim();
+    const targetPassword = (passwordToUse || oauthPasswordInput || password || '').trim();
+
+    if (!targetEmail || !targetEmail.includes('@')) {
+      setError('Please enter a valid Google / Gmail account address (e.g. user@gmail.com).');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -120,9 +125,7 @@ export default function Login({ onLoginSuccess }) {
       }
       onLoginSuccess(res.data.token, res.data.role || roleSelection, res.data.name, res.data.email || targetEmail, res.data.registerNo || '24101', res.data.department || 'Computer Science & Digital Applications');
     } catch (err) {
-      const emailToSave = targetEmail;
-      const nameToSave = emailToSave.split('@')[0].toUpperCase();
-      onLoginSuccess('token_' + Date.now(), roleSelection, nameToSave, emailToSave, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
+      setError(err.response?.data?.message || 'Google authentication failed. Please verify your account email.');
     } finally {
       setLoading(false);
     }
@@ -130,20 +133,34 @@ export default function Login({ onLoginSuccess }) {
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
-    const targetEmail = (email || (roleSelection === 'student' ? 'student@gmail.com' : 'faculty@sankara.ac.in')).trim();
-    const targetPassword = (password || 'password123').trim();
+    if (!email || !email.trim()) {
+      setError('Please enter your registered Gmail or Account Email Address.');
+      return;
+    }
+    if (!password || !password.trim()) {
+      setError('Please enter your account password.');
+      return;
+    }
+
+    const targetEmail = email.trim();
+    const targetPassword = password.trim();
     setLoading(true);
     setError('');
     try {
       const res = await axios.post('/api/auth/login', { email: targetEmail, password: targetPassword, requestedRole: roleSelection });
       onLoginSuccess(res.data.token, res.data.role || roleSelection, res.data.name, res.data.email || targetEmail, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
     } catch (err) {
-      const userEmail = targetEmail;
-      const userName = userEmail.split('@')[0].toUpperCase();
-      onLoginSuccess('token_' + Date.now(), roleSelection, userName, userEmail, roleSelection === 'student' ? (registerNoInput || '24101') : '', roleSelection === 'student' ? (departmentInput || 'Computer Science & Digital Applications') : 'Faculty of CSDA');
+      setError(err.response?.data?.message || 'Authentication failed. Invalid email or password.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const fillQuickCredentials = (demoEmail, demoPass, demoRole) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setRoleSelection(demoRole);
+    setError('');
   };
 
   return (
@@ -166,7 +183,7 @@ export default function Login({ onLoginSuccess }) {
           <p className="text-[10px] text-[#3AAFA9] font-black tracking-widest uppercase mt-0.5">SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</p>
         </div>
 
-        {/* Role Selection Tabs (Only Faculty & Student) */}
+        {/* Role Selection Tabs */}
         <div className="grid grid-cols-2 gap-2 mb-6 p-1.5 rounded-xl bg-[#f0faf9] border border-[#3AAFA9]/30">
           {['faculty', 'student'].map((r) => (
             <button
@@ -186,7 +203,7 @@ export default function Login({ onLoginSuccess }) {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-medium flex items-center gap-2">
+          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2 animate-shake">
             <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -219,29 +236,31 @@ export default function Login({ onLoginSuccess }) {
         {/* Email & Password Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-1.5">Gmail / Account Email Address</label>
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">Gmail / Account Email Address *</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[#3AAFA9] absolute left-3 top-3" />
               <input
                 type="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg glass-input text-sm"
-                placeholder="Enter any Gmail address (e.g. yourname@gmail.com)"
+                placeholder="Enter your email (e.g. faculty@sankara.ac.in)"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-1.5">Password (Optional)</label>
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">Password *</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-[#3AAFA9] absolute left-3 top-3" />
               <input
                 type="password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg glass-input text-sm"
-                placeholder="Enter your password (or click Log In directly)"
+                placeholder="Enter your account password"
               />
             </div>
           </div>
@@ -261,6 +280,34 @@ export default function Login({ onLoginSuccess }) {
             )}
           </button>
         </form>
+
+        {/* Quick Demo Credentials Helper */}
+        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col items-center">
+          <p className="text-[11px] font-bold text-slate-500 mb-2">Authorized Demo Account Presets:</p>
+          <div className="flex flex-wrap justify-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => fillQuickCredentials('faculty@sankara.ac.in', 'faculty123', 'faculty')}
+              className="px-2.5 py-1 bg-slate-100 hover:bg-[#3AAFA9]/20 hover:text-[#1b625f] text-slate-700 text-[10px] font-bold rounded-md transition-colors cursor-pointer"
+            >
+              Faculty
+            </button>
+            <button
+              type="button"
+              onClick={() => fillQuickCredentials('student@sankara.ac.in', 'student123', 'student')}
+              className="px-2.5 py-1 bg-slate-100 hover:bg-[#3AAFA9]/20 hover:text-[#1b625f] text-slate-700 text-[10px] font-bold rounded-md transition-colors cursor-pointer"
+            >
+              Student
+            </button>
+            <button
+              type="button"
+              onClick={() => fillQuickCredentials('admin@sankara.ac.in', 'admin123', 'admin')}
+              className="px-2.5 py-1 bg-slate-100 hover:bg-[#3AAFA9]/20 hover:text-[#1b625f] text-slate-700 text-[10px] font-bold rounded-md transition-colors cursor-pointer"
+            >
+              Admin
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* OAuth Sign-In Verification Modal */}
