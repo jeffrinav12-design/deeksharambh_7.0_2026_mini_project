@@ -37,8 +37,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'sankara_secret_key';
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// MongoDB Connection
-const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/deeksharambh';
+// MongoDB Connection - Support SRV and Direct ReplicaSet URI for Atlas Cluster0
+const primaryUri = process.env.MONGODB_URI || 'mongodb+srv://deeksharambh:deeksharambh123@cluster0.2z8zfxy.mongodb.net/deeksharambh?appName=Cluster0';
+const directUri = process.env.MONGODB_DIRECT_URI || 'mongodb://deeksharambh:deeksharambh123@ac-bajpclc-shard-00-00.2z8zfxy.mongodb.net:27017/deeksharambh?ssl=true&authSource=admin&appName=Cluster0';
 
 let isConnecting = false;
 async function connectDB() {
@@ -46,29 +47,49 @@ async function connectDB() {
   if (isConnecting) return;
   isConnecting = true;
 
+  // 1. Attempt connection via Primary URI (Atlas SRV)
   try {
-    console.log("Connecting to MongoDB at " + mongoUri + "...");
-    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 2000 });
-    console.log("Connected to MongoDB successfully!");
-  } catch (err) {
+    const maskedUri = primaryUri.replace(/:([^@]+)@/, ':****@');
+    console.log(`[MongoDB Atlas] Connecting to Cluster0 via SRV: ${maskedUri}...`);
+    await mongoose.connect(primaryUri, { serverSelectionTimeoutMS: 5000 });
+    console.log(" Connected successfully to MongoDB Atlas Cluster0 (SRV)!");
+    isConnecting = false;
+    return;
+  } catch (srvErr) {
+    console.warn(`[MongoDB Atlas] SRV connection notice: ${srvErr.message}. Falling back to Direct ReplicaSet URI...`);
+  }
+
+  // 2. Attempt connection via Direct ReplicaSet URI (bypasses Windows querySrv DNS issue)
+  try {
+    console.log("[MongoDB Atlas] Connecting via Direct ReplicaSet cluster nodes...");
+    await mongoose.connect(directUri, { serverSelectionTimeoutMS: 5000 });
+    console.log(" Connected successfully to MongoDB Atlas Cluster0 (Direct ReplicaSet)!");
+    isConnecting = false;
+    return;
+  } catch (directErr) {
+    console.warn(`[MongoDB Atlas] Direct connection notice: ${directErr.message}`);
+  }
+
+  // 3. Resilient fallback for offline mode
+  try {
     console.warn("\n[MongoDB Connection Notice: Using resilient memory fallback]");
     if (!process.env.VERCEL) {
-      try {
-        const { MongoMemoryServer } = await import('mongodb-memory-server');
-        const mongod = await MongoMemoryServer.create();
-        const inMemoryUri = mongod.getUri();
-        await mongoose.connect(inMemoryUri);
-        await seedDatabase();
-      } catch (memErr) {
-        console.error("In-memory MongoDB notice:", memErr.message);
-      }
+      const { MongoMemoryServer } = await import('mongodb-memory-server');
+      const mongod = await MongoMemoryServer.create();
+      const inMemoryUri = mongod.getUri();
+      await mongoose.connect(inMemoryUri);
+      await seedDatabase();
+      console.log("[MongoDB] Connected to in-memory database fallback.");
     }
+  } catch (memErr) {
+    console.error("[MongoDB Memory Fallback Error]:", memErr.message);
   } finally {
     isConnecting = false;
   }
 }
 
 connectDB();
+
 
 // Middleware to ensure DB connection attempt on Vercel
 app.use(async (req, res, next) => {
