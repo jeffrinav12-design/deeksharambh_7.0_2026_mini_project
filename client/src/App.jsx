@@ -183,8 +183,8 @@ export default function App() {
                   onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
                 />
                 
-                {/* Responsive Content main area */}
-                <main className="pl-0 lg:pl-64 pt-20 p-3 sm:p-6 lg:p-8 min-h-screen bg-white max-w-full overflow-x-hidden">
+                {/* Responsive Content main area - Increased top padding to render hero box 100% visible */}
+                <main className="pl-0 lg:pl-64 pt-28 sm:pt-32 lg:pt-32 p-3 sm:p-6 lg:p-8 min-h-screen bg-white max-w-full overflow-x-hidden">
                   <Routes>
                     <Route 
                       path="/dashboard" 
