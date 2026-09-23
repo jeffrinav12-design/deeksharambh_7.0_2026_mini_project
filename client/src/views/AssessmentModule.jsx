@@ -261,12 +261,29 @@ export default function AssessmentModule({ activeBatch, role }) {
           <h2 className="text-xl font-bold text-slate-900 tracking-wide uppercase">Assessment Module</h2>
           <p className="text-xs text-slate-500 mt-1">Manage MCQ exams, build subject-wise question papers using Bloom's Taxonomy AI, and run student online test sessions.</p>
         </div>
-        <button
-          onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/questions/csv`, `QuestionBank_${activeBatch.batchYearRange}.csv`)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-        >
-          <Download className="w-4 h-4" /> Export Questions (CSV)
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/questions/csv`, `QuestionBank_${activeBatch.batchYearRange}.csv`, questions)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            title="Export Question Bank to Excel / CSV"
+          >
+            <Download className="w-4 h-4" /> Export CSV
+          </button>
+          <button
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/questions/docx`, `QuestionBank_${activeBatch.batchYearRange}.docx`, questions)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            title="Export Official Word Question Paper"
+          >
+            <Download className="w-4 h-4" /> Export DOCX
+          </button>
+          <button
+            onClick={() => downloadFile(`/api/batches/${activeBatch._id}/export/questions/pdf`, `QuestionBank_${activeBatch.batchYearRange}.pdf`, questions)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+            title="Export Printable PDF Question Paper"
+          >
+            <Download className="w-4 h-4" /> Export PDF
+          </button>
+        </div>
       </div>
 
       {message.text && (

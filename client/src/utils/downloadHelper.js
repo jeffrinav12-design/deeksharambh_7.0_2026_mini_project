@@ -49,8 +49,34 @@ function triggerBlobDownload(blob, fallbackFilename, contentDisposition) {
   setTimeout(() => window.URL.revokeObjectURL(blobUrl), 2000);
 }
 
+function getQuestionDataFromContext(dataToExport) {
+  if (dataToExport && Array.isArray(dataToExport) && dataToExport.length > 0 && (dataToExport[0].questionText || dataToExport[0].optionA)) {
+    return dataToExport.map((q, idx) => ({
+      sNo: idx + 1,
+      subject: q.subject || 'Core',
+      mathsStream: q.mathsStream || 'ALL',
+      questionText: q.questionText || '',
+      optionA: q.optionA || '',
+      optionB: q.optionB || '',
+      optionC: q.optionC || '',
+      optionD: q.optionD || '',
+      correctAnswer: q.correctAnswer || 'A'
+    }));
+  }
+
+  // Default Fallback Questions per subject
+  return [
+    { sNo: 1, subject: 'Tamil', mathsStream: 'ALL', questionText: 'கணினியின் தந்தை என அழைக்கப்படுபவர் யார்?', optionA: 'சார்லஸ் பாபேஜ்', optionB: 'அலன் டூரிங்', optionC: 'பாஸ்கல்', optionD: 'நியூட்டன்', correctAnswer: 'A' },
+    { sNo: 2, subject: 'English', mathsStream: 'ALL', questionText: 'Identify the correct synonym for "Ubiquitous":', optionA: 'Rare', optionB: 'Omnipresent', optionC: 'Hidden', optionD: 'Transient', correctAnswer: 'B' },
+    { sNo: 3, subject: 'Maths', mathsStream: 'M', questionText: 'What is the derivative of f(x) = x³ + 4x²?', optionA: '3x² + 8x', optionB: '3x³ + 4x', optionC: 'x² + 8x', optionD: '3x² + 4', correctAnswer: 'A' },
+    { sNo: 4, subject: 'Maths', mathsStream: 'NM', questionText: 'Evaluate 15% of 80:', optionA: '10', optionB: '12', optionC: '14', optionD: '16', correctAnswer: 'B' },
+    { sNo: 5, subject: 'Core', mathsStream: 'ALL', questionText: 'Which data structure operates on a Last-In, First-Out (LIFO) principle?', optionA: 'Queue', optionB: 'Array', optionC: 'Stack', optionD: 'Linked List', correctAnswer: 'C' },
+    { sNo: 6, subject: 'Core', mathsStream: 'ALL', questionText: 'What does HTML stand for in web technologies?', optionA: 'HyperText Markup Language', optionB: 'HighText Machine Language', optionC: 'HyperTransfer Mark Language', optionD: 'HyperTech Main Language', correctAnswer: 'A' }
+  ];
+}
+
 function getBatchDataFromContext(url, filename, dataToExport) {
-  if (dataToExport && Array.isArray(dataToExport) && dataToExport.length > 0) {
+  if (dataToExport && Array.isArray(dataToExport) && dataToExport.length > 0 && !dataToExport[0].questionText) {
     return dataToExport.map((item, idx) => ({
       sNo: idx + 1,
       registerNo: item.registerNo || item.rollNo || item.regNo || `241${(idx + 1).toString().padStart(2, '0')}`,
@@ -226,8 +252,8 @@ ${innerHtml}
 function generateClientSideDownload(url, filename, dataToExport) {
   const ext = (filename || 'export.docx').split('.').pop().toLowerCase();
   const titleName = (filename || 'Deeksharambh_Export').replace(/\.[^/.]+$/, "").replace(/_/g, " ");
-  const records = getBatchDataFromContext(url, filename, dataToExport);
   const combined = `${url} ${filename}`.toLowerCase();
+  const isQuestionExport = combined.includes('question') || combined.includes('assessment') || (Array.isArray(dataToExport) && dataToExport.length > 0 && (dataToExport[0].questionText || dataToExport[0].optionA));
   const batchLabel = combined.includes('2024') || combined.includes('5.0') ? 'Batch 5.0 (2024-2027)' : (combined.includes('2025') || combined.includes('6.0') ? 'Batch 6.0 (2025-2028)' : 'Batch 7.0 (2026-2029)');
   const activeVersion = combined.includes('5.0') ? '5.0' : (combined.includes('6.0') ? '6.0' : '7.0');
   const startDate = combined.includes('5.0') || combined.includes('2024') ? '02/07/2024' : (combined.includes('6.0') || combined.includes('2025') ? '26/06/2025' : '01/08/2026');
@@ -237,6 +263,79 @@ function generateClientSideDownload(url, filename, dataToExport) {
   // Batch 2025-2028 (6.0) & Batch 2026-2029 (7.0): Dr. R. Sasikala (HOD)
   const hodName = combined.includes('2024') || combined.includes('5.0') ? 'Dr. M. Lingaraj (HOD)' : 'Dr. R. Sasikala (HOD)';
 
+  if (isQuestionExport) {
+    const qRecords = getQuestionDataFromContext(dataToExport);
+    if (ext === 'csv') {
+      let csvContent = `Academic Batch: ${batchLabel}\n`;
+      csvContent += "S.No,Subject,Maths Stream,Question Text,Option A,Option B,Option C,Option D,Correct Answer\n";
+      qRecords.forEach(q => {
+        csvContent += `${q.sNo},"${q.subject}","${q.mathsStream}","${q.questionText.replace(/"/g, '""')}","${q.optionA.replace(/"/g, '""')}","${q.optionB.replace(/"/g, '""')}","${q.optionC.replace(/"/g, '""')}","${q.optionD.replace(/"/g, '""')}","${q.correctAnswer}"\n`;
+      });
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      triggerBlobDownload(blob, filename);
+      return;
+    } else if (ext === 'docx') {
+      const questionHtmlList = qRecords.map(q => `
+        <div style="margin-bottom:12pt; border-bottom:1px solid #cbd5e1; padding-bottom:8pt;">
+          <p style="font-weight:bold; color:#1e3a8a; margin:0 0 4pt 0;">Q.${q.sNo} [Subject: ${q.subject} | Stream: ${q.mathsStream}]</p>
+          <p style="font-weight:bold; font-size:11pt; margin:0 0 6pt 0;">${q.questionText}</p>
+          <table style="width:100%; border:none; margin:0;">
+            <tr>
+              <td style="border:none; width:50%; padding:2pt 0;"><strong>A)</strong> ${q.optionA}</td>
+              <td style="border:none; width:50%; padding:2pt 0;"><strong>B)</strong> ${q.optionB}</td>
+            </tr>
+            <tr>
+              <td style="border:none; width:50%; padding:2pt 0;"><strong>C)</strong> ${q.optionC}</td>
+              <td style="border:none; width:50%; padding:2pt 0;"><strong>D)</strong> ${q.optionD}</td>
+            </tr>
+          </table>
+          <p style="color:#059669; font-weight:bold; font-size:9.5pt; margin-top:4pt;">Correct Option: ${q.correctAnswer}</p>
+        </div>
+      `).join('');
+
+      const letterheadHtml = `
+        <table class="header-table">
+          <tr>
+            <td>
+              <h2 style="margin:0; color:#1e3a8a; font-size:14pt; font-weight:bold;">SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</h2>
+              <p style="margin:2pt 0; font-size:9pt; text-align:center; color:#475569;">Affiliated to Bharathiar University | Approved by AICTE | NAAC A+ Grade (Cycle II)</p>
+              <p style="margin:2pt 0; font-size:9pt; text-align:center; color:#475569;">Saravanampatty, Coimbatore - 641035 | Tamil Nadu</p>
+              <p style="margin:2pt 0; font-size:9.5pt; text-align:center; color:#1b625f; font-weight:bold;">DEPARTMENT OF COMPUTER SCIENCE & DIGITAL APPLICATIONS (CSDA)</p>
+            </td>
+          </tr>
+        </table>
+      `;
+
+      const innerContent = `
+        ${letterheadHtml}
+        <h1 style="color:#1e3a8a; font-size:16pt; text-align:center;">DEEKSHARAMBH ${activeVersion} - MCQ QUESTION BANK & EXAMINATION PAPER</h1>
+        <p style="text-align:center;"><strong>Academic Batch:</strong> ${batchLabel} | <strong>Department:</strong> CSDA</p>
+        <hr style="border:1px solid #1b625f;">
+        <h2>Verified Question Bank List (${qRecords.length} Questions)</h2>
+        ${questionHtmlList}
+        <table class="sig-table">
+          <tr>
+            <td style="text-align:left;">
+              <br><br>
+              <strong>Subject Expert / Faculty In-Charge</strong><br>
+              Department of CSDA
+            </td>
+            <td style="text-align:right;">
+              <br><br>
+              <strong>${hodName}</strong><br>
+              Head of Department (CSDA)
+            </td>
+          </tr>
+        </table>
+      `;
+      const blob = buildWordMhtmlBlob(titleName, innerContent);
+      triggerBlobDownload(blob, filename);
+      return;
+    }
+  }
+
+  const records = getBatchDataFromContext(url, filename, dataToExport);
+
   if (ext === 'csv') {
     let csvContent = `Academic Batch: ${batchLabel}\n`;
     csvContent += "S.No,Register No,Student Name,Department,Maths Stream,Status/Grade,Percentage\n";
@@ -244,7 +343,7 @@ function generateClientSideDownload(url, filename, dataToExport) {
       csvContent += `${row.sNo},"${row.registerNo}","${row.name}","${row.dept}","${row.stream}","${row.grade}","${row.percent}"\n`;
     });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     triggerBlobDownload(blob, filename);
   } else if (ext === 'docx') {
     const tableRows = records.map(row => `
@@ -697,6 +796,60 @@ function generateClientSideDownload(url, filename, dataToExport) {
             window.onload = function() {
               window.print();
             };
+          </script>
+        </body>
+        </html>
+      `;
+    } else if (isQuestionExport) {
+      const qRecords = getQuestionDataFromContext(dataToExport);
+      const pdfQuestionHtmlList = qRecords.map(q => `
+        <div style="margin-bottom:14px; border:1px solid #cbd5e1; border-radius:8px; padding:12px; background:#f8fafc; page-break-inside:avoid;">
+          <div style="font-size:11px; color:#0284c7; font-weight:bold; margin-bottom:4px; text-transform:uppercase;">
+            Q.${q.sNo} • Subject: ${q.subject} (${q.mathsStream})
+          </div>
+          <div style="font-size:13px; font-weight:bold; color:#0f172a; margin-bottom:8px; line-height:1.4;">${q.questionText}</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px; color:#334155;">
+            <div><strong>A)</strong> ${q.optionA}</div>
+            <div><strong>B)</strong> ${q.optionB}</div>
+            <div><strong>C)</strong> ${q.optionC}</div>
+            <div><strong>D)</strong> ${q.optionD}</div>
+          </div>
+          <div style="margin-top:8px; font-size:11px; font-weight:bold; color:#16a34a; background:#dcfce7; border:1px solid #86efac; padding:4px 8px; border-radius:4px; display:inline-block;">
+            Correct Option: ${q.correctAnswer}
+          </div>
+        </div>
+      `).join('');
+
+      pdfHtmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${titleName}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 30px; color: #1e293b; }
+            .header { text-align: center; border-bottom: 3px double #0284c7; padding-bottom: 15px; margin-bottom: 20px; }
+            .header h1 { color: #1e3a8a; margin: 0; font-size: 18px; font-weight: bold; }
+            .header h2 { color: #0284c7; margin: 5px 0 0 0; font-size: 13px; }
+            .doc-title { text-align: center; font-size: 15px; margin: 15px 0; text-transform: uppercase; color: #0f172a; font-weight: bold; }
+            .footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>SANKARA COLLEGE OF SCIENCE AND COMMERCE (AUTONOMOUS)</h1>
+            <h2>DEPARTMENT OF COMPUTER SCIENCE & DIGITAL APPLICATIONS (CSDA)</h2>
+            <p style="margin: 3px 0 0 0; font-size: 11px; color: #64748b;">Deeksharambh Bridge Course MCQ Question Bank - ${batchLabel}</p>
+          </div>
+          <div class="doc-title">${titleName}</div>
+          <p style="font-size: 12px;"><strong>Academic Batch:</strong> ${batchLabel} | <strong>Total Questions:</strong> ${qRecords.length} | <strong>Export Date:</strong> ${new Date().toLocaleString()}</p>
+          ${pdfQuestionHtmlList}
+          <div class="footer">
+            <div>Faculty Co-ordinator</div>
+            <div>${hodName}</div>
+            <div>Dr. V. Radhika (Principal)</div>
+          </div>
+          <script>
+            window.onload = function() { window.print(); };
           </script>
         </body>
         </html>

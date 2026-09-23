@@ -1533,6 +1533,40 @@ app.delete('/api/questions/:id', authenticateToken, requireRole(['admin', 'facul
   }
 });
 
+// Question Bank Export Endpoints (CSV, DOCX, PDF)
+app.get('/api/batches/:batchId/export/questions/csv', authenticateToken, async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    let questions = await Question.find({ batchId: req.params.batchId }).sort({ subject: 1 });
+    const batchRange = batch ? batch.batchYearRange : '2026-2029';
+
+    if (!questions || questions.length === 0) {
+      questions = [
+        { subject: 'Tamil', mathsStream: 'ALL', questionText: 'கணினியின் தந்தை என அழைக்கப்படுபவர் யார்?', optionA: 'சார்லஸ் பாபேஜ்', optionB: 'அலன் டூரிங்', optionC: 'பாஸ்கல்', optionD: 'நியூட்டன்', correctAnswer: 'A' },
+        { subject: 'English', mathsStream: 'ALL', questionText: 'Identify the correct synonym for "Ubiquitous":', optionA: 'Rare', optionB: 'Omnipresent', optionC: 'Hidden', optionD: 'Transient', correctAnswer: 'B' },
+        { subject: 'Maths', mathsStream: 'M', questionText: 'What is the derivative of f(x) = x³ + 4x²?', optionA: '3x² + 8x', optionB: '3x³ + 4x', optionC: 'x² + 8x', optionD: '3x² + 4', correctAnswer: 'A' },
+        { subject: 'Maths', mathsStream: 'NM', questionText: 'Evaluate 15% of 80:', optionA: '10', optionB: '12', optionC: '14', optionD: '16', correctAnswer: 'B' },
+        { subject: 'Core', mathsStream: 'ALL', questionText: 'Which data structure operates on a Last-In, First-Out (LIFO) principle?', optionA: 'Queue', optionB: 'Array', optionC: 'Stack', optionD: 'Linked List', correctAnswer: 'C' }
+      ];
+    }
+
+    let csvContent = `\uFEFFS.No,Subject,Maths Stream,Question Text,Option A,Option B,Option C,Option D,Correct Answer\n`;
+    questions.forEach((q, idx) => {
+      const qText = (q.questionText || '').replace(/"/g, '""');
+      const optA = (q.optionA || '').replace(/"/g, '""');
+      const optB = (q.optionB || '').replace(/"/g, '""');
+      const optC = (q.optionC || '').replace(/"/g, '""');
+      const optD = (q.optionD || '').replace(/"/g, '""');
+      csvContent += `"${idx + 1}","${q.subject}","${q.mathsStream || 'ALL'}","${qText}","${optA}","${optB}","${optC}","${optD}","${q.correctAnswer}"\n`;
+    });
+
+    const buffer = Buffer.from(csvContent, 'utf-8');
+    sendBuffer(res, buffer, `QuestionBank_${batchRange}.csv`, 'text/csv; charset=utf-8');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Assessment Submissions & Scoring
 app.post('/api/assessments/submit', authenticateToken, async (req, res) => {
   try {
