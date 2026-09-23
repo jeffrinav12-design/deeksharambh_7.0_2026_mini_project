@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Save, Plus, Trash2, Edit2, Shield, Award, HelpCircle, Download, ToggleLeft, ToggleRight, CheckSquare, AlertCircle, X } from 'lucide-react';
+import { Save, Plus, Trash2, Edit2, Shield, Award, HelpCircle, Download, ToggleLeft, ToggleRight, CheckSquare, AlertCircle, X, Sparkles, BookOpen } from 'lucide-react';
 import { downloadFile } from '../utils/downloadHelper';
 import AiQuestionChatbot from '../components/AiQuestionChatbot';
+import AiQuestionPaperGeneratorWizard from '../components/AiQuestionPaperGeneratorWizard';
 
 export default function AssessmentModule({ activeBatch, role }) {
   const [students, setStudents] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
-  const [activeTab, setActiveTab] = useState('Portal'); // Builder, Portal
+  const [activeTab, setActiveTab] = useState('Generator'); // Generator, Builder, Portal
   const [editingQId, setEditingQId] = useState(null);
 
   // Question Form State (Builder)
@@ -296,26 +297,36 @@ export default function AssessmentModule({ activeBatch, role }) {
       )}
 
       {/* Tabs Menu */}
-      <div className="flex gap-2 p-1.5 rounded-xl bg-sky-50 border border-sky-200 w-full sm:w-80 shadow-sm">
+      <div className="flex flex-wrap gap-2 p-1.5 rounded-xl bg-sky-50 border border-sky-200 w-full shadow-sm">
         <button
-          onClick={() => { setActiveTab('Portal'); setTestResult(null); }}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg capitalize transition-all ${
-            activeTab === 'Portal' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          onClick={() => { setActiveTab('Generator'); setTestResult(null); }}
+          className={`flex-1 min-w-[160px] py-2 px-3 text-xs font-bold rounded-lg capitalize transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === 'Generator' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Student Test Portal
+          <Sparkles className="w-4 h-4 text-amber-300" /> 6-Step AI Paper Generator
         </button>
         <button
           onClick={() => { setActiveTab('Builder'); setTestResult(null); }}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg capitalize transition-all ${
+          className={`flex-1 min-w-[160px] py-2 px-3 text-xs font-bold rounded-lg capitalize transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'Builder' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Question Bank Builder
+          <BookOpen className="w-4 h-4" /> Question Bank Builder ({questions.length} Questions)
+        </button>
+        <button
+          onClick={() => { setActiveTab('Portal'); setTestResult(null); }}
+          className={`flex-1 min-w-[160px] py-2 px-3 text-xs font-bold rounded-lg capitalize transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === 'Portal' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <HelpCircle className="w-4 h-4" /> Student Test Portal
         </button>
       </div>
 
-      {activeTab === 'Builder' ? (
+      {activeTab === 'Generator' ? (
+        <AiQuestionPaperGeneratorWizard activeBatch={activeBatch} role={role} />
+      ) : activeTab === 'Builder' ? (
         <div className="space-y-6">
           {/* AI Question Generator Chatbot */}
           {role !== 'viewer' && (
