@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Shield, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import GoogleAccountChooserModal from '../components/GoogleAccountChooserModal.jsx';
+import RafoanCloudBadge from '../components/RafoanCloudBadge.jsx';
 
 export default function Login({ onLoginSuccess }) {
   const [roleSelection, setRoleSelection] = useState('faculty');
@@ -325,6 +326,13 @@ export default function Login({ onLoginSuccess }) {
               Admin
             </button>
           </div>
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col items-center gap-2 text-center">
+          <RafoanCloudBadge />
+          <p className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+            © {new Date().getFullYear()} ALL RIGHTS RESERVED
+          </p>
         </div>
       </div>
 

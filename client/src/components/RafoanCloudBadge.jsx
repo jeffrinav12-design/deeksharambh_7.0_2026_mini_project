@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function RafoanCloudBadge({
-  rafoanUrl = 'https://streamlit.app',
+  rafoanUrl = 'https://hakgrosuzhavanprojectfarmersnov2026-xmxy2zubbslwqjlj49o73b.streamlit.app/',
   tenantName = 'Rafoan Cloud',
 }) {
   return (
@@ -25,7 +25,7 @@ export default function RafoanCloudBadge({
         boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
       }}
     >
-      <span>⚡ Powered by Rafoan Cloud</span>
+      <span>⚡ POWERED BY RAFOAN CLOUD</span>
     </a>
   );
 }

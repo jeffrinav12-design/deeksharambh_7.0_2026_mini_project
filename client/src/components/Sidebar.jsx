@@ -104,6 +104,9 @@ export default function Sidebar({ role, onLogout, isOpen, onClose }) {
             <LogOut className="w-4 h-4 text-rose-600" />
             <span>Logout</span>
           </button>
+          <p className="mt-3 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+            © {new Date().getFullYear()} ALL RIGHTS RESERVED
+          </p>
         </div>
       </aside>
     </>
