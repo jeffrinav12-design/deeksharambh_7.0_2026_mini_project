@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { Readable } from 'stream';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { User, Batch, Student, Syllabus, ScheduleSlot, Abbreviation, Attendance, Question, Response, Result, Photo, Report, DocumentTemplate, GeneratedDocument, ActivityLog } from './models/Schemas.js';
 import { 
@@ -1445,8 +1447,6 @@ app.get('/api/batches/:batchId/export/attendance/csv', authenticateToken, async 
   }
 });
 
-// Question Bank management
-app.get('/api/batches/:batchId/questions', authenticateToken, async (req, res) => {
 // Helper to seed 15-20 questions per subject (75 total questions) for a batch
 async function seed75QuestionBank(batchId) {
   const seedList = [
@@ -2444,8 +2444,6 @@ app.get('/api/activity-logs', authenticateToken, async (req, res) => {
   }
 });
 
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
