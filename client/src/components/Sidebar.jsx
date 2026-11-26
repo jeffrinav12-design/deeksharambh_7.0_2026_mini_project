@@ -5,6 +5,7 @@ import {
   Users, CheckSquare, FileQuestion, BarChart3, FileText, 
   Image as ImageIcon, LogOut, Sparkles, Mail, X 
 } from 'lucide-react';
+import RafoanCloudBadge from './RafoanCloudBadge.jsx';
 
 export default function Sidebar({ role, onLogout, isOpen, onClose }) {
   const allLinks = [
@@ -90,6 +91,9 @@ export default function Sidebar({ role, onLogout, isOpen, onClose }) {
 
         {/* Logout button */}
         <div className="p-4 border-t border-[#3AAFA9]/20 bg-white">
+          <div className="flex justify-center mb-3">
+            <RafoanCloudBadge />
+          </div>
           <button 
             onClick={() => {
               if (onClose) onClose();
